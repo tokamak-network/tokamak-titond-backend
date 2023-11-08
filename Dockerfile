@@ -11,8 +11,6 @@ RUN make titond
 FROM alpine
 
 RUN apk add --no-cache ca-certificates jq curl
-COPY --from=builder /app/deployments /usr/local/bin/
-COPY --from=builder /app/api /usr/local/bin/
 COPY --from=builder /app/build/bin/titond /usr/local/bin/
 
 WORKDIR /usr/local/bin/
