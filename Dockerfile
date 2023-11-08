@@ -12,6 +12,7 @@ RUN GOOS=$TARGETOS GOARCH=$TARGETARCH make titond
 FROM alpine
 
 RUN apk add --no-cache ca-certificates jq curl
+COPY --from=builder /app/deployments /root/deployments
 COPY --from=builder /app/build/bin/titond /usr/local/bin/
 
 WORKDIR /usr/local/bin/
