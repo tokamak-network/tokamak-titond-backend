@@ -1,4 +1,4 @@
-FROM golang:1.20-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.20-alpine AS builder
 
 RUN apk add --no-cache make gcc musl-dev linux-headers git
 
@@ -6,7 +6,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN make titond
+ARG TARGETOS TARGETARCH
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH make titond
 
 FROM alpine
 
