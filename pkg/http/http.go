@@ -25,6 +25,9 @@ func NewHTTPServer(cfg *Config, apis *api.TitondAPI) *HTTPServer {
 func (s *HTTPServer) Run() {
 	r := gin.Default()
 
+	testRouter := r.Group("/")
+	s.NewTestRouter(testRouter)
+
 	networkRouter := r.Group("/api/networks")
 	s.NewNetworkRouter(networkRouter)
 
