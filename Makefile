@@ -1,6 +1,6 @@
 TARGET=./build/bin/titond
 
-.PHONY: all run build titond image image-arm clean
+.PHONY: all run build titond image image-amd image-arm clean
 
 all: run
 
