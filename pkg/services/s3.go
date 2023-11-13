@@ -3,7 +3,6 @@ package services
 import (
 	"bytes"
 	"fmt"
-	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -14,18 +13,23 @@ type IFIleManager interface {
 	UploadContent(fileName string, content string) (string, error)
 }
 
+type S3Config struct {
+	BucketName string
+	AWSRegion  string
+}
+
 type S3 struct {
-	bucket string
+	config *S3Config
 	sess   *session.Session
 }
 
 func (s3 *S3) initialize() {
+	fmt.Println("S3 config:", s3.config)
 	s3.sess = session.Must(session.NewSession(&aws.Config{
-		Region: aws.String("ap-northeast-2")}))
+		Region: &s3.config.AWSRegion}))
 }
 
 func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
-	fmt.Printf(" Address: %p \n", s3)
 	uploader := s3manager.NewUploader(s3.sess)
 
 	var buffer bytes.Buffer
@@ -39,7 +43,7 @@ func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
 	reader := bytes.NewReader(buffer.Bytes())
 
 	result, err := uploader.Upload(&s3manager.UploadInput{
-		Bucket: &s3.bucket,
+		Bucket: &s3.config.BucketName,
 		Key:    &fileName,
 		Body:   reader,
 	})
@@ -51,19 +55,8 @@ func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
 	return result.Location, nil
 }
 
-func newS3() *S3 {
-	bucket := os.Getenv("S3_BUCKET")
-	if bucket == "" {
-		bucket = "titond"
-	}
-	fmt.Println("bucket", bucket)
-	s3 := &S3{bucket: bucket}
+func NewS3(config *S3Config) *S3 {
+	s3 := &S3{config: config}
 	s3.initialize()
 	return s3
-}
-
-var fileManager IFIleManager = newS3()
-
-func FileService() IFIleManager {
-	return fileManager
 }

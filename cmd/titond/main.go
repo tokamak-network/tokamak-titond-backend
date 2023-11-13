@@ -9,6 +9,7 @@ import (
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/db"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/http"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/kubernetes"
+	"github.com/tokamak-network/tokamak-titond-backend/pkg/services"
 	"github.com/urfave/cli/v2"
 )
 
@@ -22,6 +23,7 @@ func init() {
 
 	app.Flags = append(app.Flags, utils.KubernetesFlags...)
 	app.Flags = append(app.Flags, utils.DBFlags...)
+	app.Flags = append(app.Flags, utils.S3Flags...)
 	app.Flags = append(app.Flags, utils.HTTPFlags...)
 }
 
@@ -54,7 +56,12 @@ func titond(ctx *cli.Context) error {
 		}
 	}
 
-	apis := api.NewTitondAPI(k8sClient, dbClient)
+	fileManager := services.NewS3(&services.S3Config{
+		BucketName: ctx.String("s3.bucket"),
+		AWSRegion:  ctx.String("s3.region"),
+	})
+
+	apis := api.NewTitondAPI(k8sClient, dbClient, fileManager)
 	http := http.NewHTTPServer(&http.Config{
 		Host: ctx.String("http.host"),
 		Port: ctx.String("http.port"),

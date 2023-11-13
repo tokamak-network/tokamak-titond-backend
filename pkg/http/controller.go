@@ -8,7 +8,6 @@ import (
 )
 
 func (s *HTTPServer) CreateNetwork(c *gin.Context) {
-	// services.S3Service().UploadContent("file_5", " content 5 ")
 	result := s.apis.CreateNetwork(&model.Network{
 		ContractAddressURL: "aa.com",
 		StateDumpURL:       "bb.com",
