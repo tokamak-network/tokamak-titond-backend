@@ -64,6 +64,6 @@ func newS3() *S3 {
 
 var fileManager IFIleManager = newS3()
 
-func S3Service() IFIleManager {
+func FileService() IFIleManager {
 	return fileManager
 }
