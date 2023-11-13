@@ -62,19 +62,19 @@ var (
 			EnvVars: []string{"DB_DBNAME"},
 		},
 	}
-	// s3 flags
-	S3Flags = []cli.Flag{
+	// service flags
+	ServicesFlags = []cli.Flag{
 		&cli.StringFlag{
-			Name:    "s3.bucket",
+			Name:    "services.s3.bucket",
 			Usage:   "The S3 bucket name",
 			Value:   "titond",
-			EnvVars: []string{"SERVICE_S3_BUCKET"},
+			EnvVars: []string{"SERVICES_S3_BUCKET"},
 		},
 		&cli.StringFlag{
-			Name:    "s3.region",
+			Name:    "services.s3.region",
 			Usage:   "The S3 region",
 			Value:   "ap-northeast-2",
-			EnvVars: []string{"SERVICE_S3_REGION"},
+			EnvVars: []string{"SERVICES_S3_REGION"},
 		},
 	}
 	// http flags

@@ -24,7 +24,7 @@ func NewTitondAPI(k8s *kubernetes.Kubernetes, db db.Client, fileManager services
 }
 
 func (t *TitondAPI) CreateNetwork(data *model.Network) *model.Network {
-	// t.fileManager.UploadContent("File_name_2", " New Content 2 ")
+	// t.fileManager.UploadContent("File_name_9", " New Content 9 ")
 	result, _ := t.db.CreateNetwork(data)
 	status, _ := t.k8s.GetPodStatus("default", "l2geth-0")
 	fmt.Println(status)

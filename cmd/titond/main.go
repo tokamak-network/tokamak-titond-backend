@@ -23,7 +23,7 @@ func init() {
 
 	app.Flags = append(app.Flags, utils.KubernetesFlags...)
 	app.Flags = append(app.Flags, utils.DBFlags...)
-	app.Flags = append(app.Flags, utils.S3Flags...)
+	app.Flags = append(app.Flags, utils.ServicesFlags...)
 	app.Flags = append(app.Flags, utils.HTTPFlags...)
 }
 
@@ -57,8 +57,8 @@ func titond(ctx *cli.Context) error {
 	}
 
 	fileManager := services.NewS3(&services.S3Config{
-		BucketName: ctx.String("s3.bucket"),
-		AWSRegion:  ctx.String("s3.region"),
+		BucketName: ctx.String("services.s3.bucket"),
+		AWSRegion:  ctx.String("services.s3.region"),
 	})
 
 	apis := api.NewTitondAPI(k8sClient, dbClient, fileManager)
