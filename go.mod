@@ -3,10 +3,12 @@ module github.com/tokamak-network/tokamak-titond-backend
 go 1.20
 
 require (
+	github.com/aws/aws-sdk-go v1.47.9
 	github.com/gin-gonic/gin v1.9.1
 	github.com/urfave/cli/v2 v2.25.7
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
+	gorm.io/plugin/soft_delete v1.2.1
 	k8s.io/apimachinery v0.28.3
 	k8s.io/client-go v0.28.3
 )
@@ -41,6 +43,7 @@ require (
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
@@ -70,7 +73,6 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/plugin/soft_delete v1.2.1 // indirect
 	k8s.io/api v0.28.3 // indirect
 	k8s.io/klog/v2 v2.100.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20230717233707-2695361300d9 // indirect
