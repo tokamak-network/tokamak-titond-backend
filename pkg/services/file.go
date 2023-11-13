@@ -3,6 +3,7 @@ package services
 import (
 	"bytes"
 	"fmt"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -14,7 +15,7 @@ type IFIleManager interface {
 }
 
 type S3 struct {
-	bucker string
+	bucket string
 	sess   *session.Session
 }
 
@@ -37,7 +38,7 @@ func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
 	reader := bytes.NewReader(buffer.Bytes())
 
 	result, err := uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String("titond"),
+		Bucket: &s3.bucket,
 		Key:    &fileName,
 		Body:   reader,
 	})
@@ -50,7 +51,12 @@ func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
 }
 
 func NewS3() *S3 {
-	s3 := &S3{}
+	bucket := os.Getenv("S3_BUCKET")
+	if bucket == "" {
+		bucket = "titond"
+	}
+	fmt.Println("bucket", bucket)
+	s3 := &S3{bucket: bucket}
 	s3.initialize()
 	return s3
 }
