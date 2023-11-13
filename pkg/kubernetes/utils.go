@@ -4,6 +4,10 @@ import (
 	"log"
 	"os"
 	"path"
+
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
 func getResourcesPath(name string) string {
@@ -35,4 +39,18 @@ func getYAMLfiles(name string) [][]byte {
 	}
 
 	return yamlFiles
+}
+
+func convertYAMLtoObject(yamlfile []byte) runtime.Object {
+	jsonBytes, err := yaml.ToJSON(yamlfile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	object, err := runtime.Decode(unstructured.UnstructuredJSONScheme, jsonBytes)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return object
 }

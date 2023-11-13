@@ -55,6 +55,22 @@ func (uts *UtilsTestSuite) TestGetYAMLfiles() {
 	}
 }
 
+func (uts *UtilsTestSuite) TestConvertYAMLtoObject() {
+	tests := []struct {
+		name      string
+		resources []string
+	}{
+		{"l2geth", []string{"Service", "StatefulSet"}},
+	}
+
+	for _, tt := range tests {
+		for i, yamlfile := range getYAMLfiles(tt.name) {
+			object := convertYAMLtoObject(yamlfile)
+			uts.Equal(tt.resources[i], object.GetObjectKind().GroupVersionKind().Kind)
+		}
+	}
+}
+
 func TestRunSuite(t *testing.T) {
 	suite.Run(t, new(UtilsTestSuite))
 }
