@@ -25,6 +25,7 @@ func (s3 *S3) initialize() {
 }
 
 func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
+	fmt.Printf(" Address: %p \n", s3)
 	uploader := s3manager.NewUploader(s3.sess)
 
 	var buffer bytes.Buffer
@@ -50,7 +51,7 @@ func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
 	return result.Location, nil
 }
 
-func NewS3() *S3 {
+func newS3() *S3 {
 	bucket := os.Getenv("S3_BUCKET")
 	if bucket == "" {
 		bucket = "titond"
@@ -59,4 +60,10 @@ func NewS3() *S3 {
 	s3 := &S3{bucket: bucket}
 	s3.initialize()
 	return s3
+}
+
+var fileManager IFIleManager = newS3()
+
+func S3Service() IFIleManager {
+	return fileManager
 }
