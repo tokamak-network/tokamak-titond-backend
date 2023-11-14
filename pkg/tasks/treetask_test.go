@@ -134,12 +134,27 @@ func TestNormalCases(t *testing.T) {
 		}
 	})
 
+	task6 := NewBaseTask(func(a int) (int, int, error) {
+		return a - 8, a, nil
+	}, func(updatedNumber int, originalNumber int, e error) {
+		if updatedNumber != 1000 {
+			t.Error(" TestFunctions: Task5: updatedNumber should be 1000")
+		}
+		if originalNumber != 1008 {
+			t.Error(" TestFunctions: Task5: originalNumber should be 1008")
+		}
+		if e != nil {
+			t.Error(" TestFunctions: Task5 should not return error")
+		}
+	})
+
 	treeTask := NewTreeTask(root)
 	treeTask.AddTask(task1, root)
 	treeTask.AddTask(task2, root)
 	treeTask.AddTask(task3, task1)
 	treeTask.AddTask(task4, task1)
 	treeTask.AddTask(task5, task2)
+	treeTask.AddTask(task6, task2)
 
 	treeTask.Run(1, 2, 5)
 }

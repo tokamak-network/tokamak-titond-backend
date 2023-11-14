@@ -45,3 +45,21 @@ func TestExecTask(t *testing.T) {
 	task.AddInput(3, 3)
 	task.Exec()
 }
+
+func TestExecTaskWithMoreThan2ReturnField(t *testing.T) {
+	operator := func(a int, b int) (int, int, error) {
+		return a + b, a - b, nil
+	}
+
+	task := NewBaseTask(operator, func(add int, sub int, err error) {
+		if add != 6 {
+			t.Error("Add failed")
+		}
+		if sub != 0 {
+			t.Error("Sub failed")
+		}
+	})
+
+	task.AddInput(3, 3)
+	task.Exec()
+}

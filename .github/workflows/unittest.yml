@@ -1,0 +1,15 @@
+name: Run unit test
+on: push
+
+jobs:
+  image:
+    name: Run UT for notif app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Run test
+        run: |
+          cd pkg/tasks && go test -v

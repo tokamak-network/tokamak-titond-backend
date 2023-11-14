@@ -37,8 +37,8 @@ func (task *BaseTask) involkeCallback() {
 func (task *BaseTask) Exec() (interface{}, error) {
 	params := buildCallParams(task.input...)
 	task.results = reflect.ValueOf(task.handler).Call(params)
-	if len(task.results) != 2 {
-		return nil, errors.New("the task should have a tuple of 2 items as returned item")
+	if len(task.results) < 2 {
+		return nil, errors.New("the task should have a tuple of least 2 items as returned item")
 	}
 	task.involkeCallback()
 	return task.results, nil
@@ -47,8 +47,8 @@ func (task *BaseTask) Exec() (interface{}, error) {
 func (task *BaseTask) Run(input ...interface{}) (interface{}, error) {
 	params := buildCallParams(input...)
 	task.results = reflect.ValueOf(task.handler).Call(params)
-	if len(task.results) != 2 {
-		return nil, errors.New("the task should have a tuple of 2 items as returned item")
+	if len(task.results) < 2 {
+		return nil, errors.New("the task should have a tuple of least 2 items as returned item")
 	}
 	task.involkeCallback()
 	return task.results, nil
