@@ -35,7 +35,6 @@ func (task *TreeTask) Run(input ...interface{}) {
 			}
 			processingTasks = append(processingTasks, nextTasks...)
 		}
-
 		processingTasks = processingTasks[1:]
 	}
 }

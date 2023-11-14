@@ -3,7 +3,7 @@ on: push
 
 jobs:
   image:
-    name: Run UT for notif app
+    name: Run UT for titond-backend
     runs-on: ubuntu-latest
 
     steps:
@@ -12,4 +12,4 @@ jobs:
 
       - name: Run test
         run: |
-          cd pkg/tasks && go test -v
+          go test -v ./...
