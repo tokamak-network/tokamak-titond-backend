@@ -227,3 +227,42 @@ func TestAbnormalCases(t *testing.T) {
 
 	treeTask.Run(1, 2, 5)
 }
+
+type ServiceA struct {
+}
+
+func (obj *ServiceA) Increase(a int, b int) (int, int, int, error) {
+	return a, a + b, a - b, nil
+}
+
+type ServiceB struct {
+}
+
+func (obj *ServiceB) Check(a int, x int, y int) (bool, error) {
+	return a*2 == x+y, nil
+}
+
+func TestTaskTreeWithService(t *testing.T) {
+	svcA := &ServiceA{}
+	svcB := &ServiceB{}
+
+	root := NewBaseTask(svcA.Increase, func(a int, x int, y int, e error) {
+		if a*2 != x+y {
+			t.Error("svc.Increase does not work at svcA", a, x, y)
+		}
+		if e != nil {
+			t.Error("svc.Increase does not return error", e)
+		}
+	})
+
+	treeTask := NewTreeTask(root)
+	treeTask.AddTask(NewBaseTask(svcB.Check, func(v bool, e error) {
+		if !v {
+			t.Error("svcB.Check does not work at svcB ", v)
+		}
+		if e != nil {
+			t.Error("svcB. does not return error", v, e)
+		}
+	}), root)
+	treeTask.Run(5, 3)
+}
