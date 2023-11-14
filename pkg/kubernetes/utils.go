@@ -21,17 +21,16 @@ func getResourcesPath(name string) string {
 	return rPath
 }
 
-func getYAMLfiles(name string) [][]byte {
+func getYAMLfiles(name, filePath string) [][]byte {
 	var yamlFiles [][]byte
-	rPath := getResourcesPath(name)
 
-	files, err := os.ReadDir(rPath)
+	files, err := os.ReadDir(filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, file := range files {
-		data, err := os.ReadFile(path.Join(rPath, "/", file.Name()))
+		data, err := os.ReadFile(path.Join(filePath, "/", file.Name()))
 		if err != nil {
 			log.Fatal(err)
 		}
