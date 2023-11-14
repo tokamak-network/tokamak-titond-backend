@@ -10,18 +10,20 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
+var mDir string = "../../deployments"
+
 func getResourcesPath(name string) string {
 	currentPath, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	rPath := path.Join(currentPath, "../../deployments", name)
+	rPath := path.Join(currentPath, mDir, name)
 
 	return rPath
 }
 
-func getYAMLfiles(name, filePath string) [][]byte {
+func getYAMLfiles(filePath string) [][]byte {
 	var yamlFiles [][]byte
 
 	files, err := os.ReadDir(filePath)
@@ -52,4 +54,10 @@ func convertYAMLtoObject(yamlfile []byte) runtime.Object {
 	}
 
 	return object
+}
+
+func init() {
+	if os.Getenv("MODE") == "test" {
+		mDir = "../../testdata"
+	}
 }
