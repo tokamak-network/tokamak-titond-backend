@@ -20,7 +20,7 @@ var app = &cli.App{
 
 func init() {
 	app.Action = titond
-
+	app.Flags = append(app.Flags, utils.TitondFlags...)
 	app.Flags = append(app.Flags, utils.KubernetesFlags...)
 	app.Flags = append(app.Flags, utils.DBFlags...)
 	app.Flags = append(app.Flags, utils.ServicesFlags...)
@@ -61,7 +61,8 @@ func titond(ctx *cli.Context) error {
 		AWSRegion:  ctx.String("services.s3.region"),
 	})
 
-	apis := api.NewTitondAPI(k8sClient, dbClient, fileManager)
+	apis := api.NewTitondAPI(k8sClient, dbClient, fileManager, ctx)
+	apis.Initialize()
 
 	http := http.NewHTTPServer(&http.Config{
 		Host: ctx.String("http.host"),

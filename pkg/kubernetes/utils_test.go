@@ -39,7 +39,6 @@ func TestUpdateConfigMapObjectValue(t *testing.T) {
 
 func TestUpdateConfigMapObjectName(t *testing.T) {
 	object, err := BuildObjectFromYamlFile("../../deployments/deployer/configmap.yaml")
-	fmt.Println(" [] ", object, err)
 	if err != nil {
 		t.Error("Failed when decoding a configmap.yaml")
 	}

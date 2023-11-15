@@ -3,7 +3,7 @@ package kubernetes
 import (
 	"io/ioutil"
 
-	v1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -26,14 +26,14 @@ func BuildObjectFromYamlFile(file string) (runtime.Object, error) {
 	return obj, err
 }
 
-func ConvertToConfigMap(obj runtime.Object) (*v1.ConfigMap, error) {
-	return obj.(*v1.ConfigMap), nil
+func ConvertToConfigMap(obj runtime.Object) (*core.ConfigMap, error) {
+	return obj.(*core.ConfigMap), nil
 }
 
-func UpdateConfigMapObjectValue(configMap *v1.ConfigMap, key string, value string) {
+func UpdateConfigMapObjectValue(configMap *core.ConfigMap, key string, value string) {
 	configMap.Data[key] = value
 }
 
-func UpdateConfigMapObjectName(configMap *v1.ConfigMap, value string) {
+func UpdateConfigMapObjectName(configMap *core.ConfigMap, value string) {
 	configMap.Name = value
 }
