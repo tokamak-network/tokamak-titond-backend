@@ -25,18 +25,18 @@ func (p *Postgres) UpdateNetwork() {
 func (p *Postgres) DeleteNetwork() {
 
 }
-func (p *Postgres) CreateResource() {
+func (p *Postgres) CreateComponent() {
 
 }
-func (p *Postgres) ReadResource() {
+func (p *Postgres) ReadComponent() {
 
 }
-func (p *Postgres) ReadAllResource() {
+func (p *Postgres) ReadAllComponent() {
 
 }
-func (p *Postgres) UpdateResource() {
+func (p *Postgres) UpdateComponent() {
 
 }
-func (p *Postgres) DeleteResource() {
+func (p *Postgres) DeleteComponent() {
 
 }

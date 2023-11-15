@@ -18,7 +18,7 @@ func NewPostgresql(cfg *Config) (*Postgres, error) {
 	if err != nil {
 		return nil, err
 	}
-	gdB.AutoMigrate(&model.Network{}, &model.Resource{})
+	gdB.AutoMigrate(&model.Network{}, &model.Component{})
 
 	return &Postgres{gdB}, err
 }

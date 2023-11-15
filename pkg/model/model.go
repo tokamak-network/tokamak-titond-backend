@@ -14,7 +14,7 @@ type Network struct {
 	Status             bool                  `json:"status"`
 }
 
-type Resource struct {
+type Component struct {
 	ID        uint                  `json:"id" gorm:"primarykey"`
 	CreatedAt int64                 `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt int64                 `json:"updated_at" gorm:"autoUpdateTime"`
