@@ -62,6 +62,7 @@ func titond(ctx *cli.Context) error {
 	})
 
 	apis := api.NewTitondAPI(k8sClient, dbClient, fileManager)
+
 	http := http.NewHTTPServer(&http.Config{
 		Host: ctx.String("http.host"),
 		Port: ctx.String("http.port"),

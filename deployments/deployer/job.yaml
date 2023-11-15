@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: deployer-job
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      name: deployer-pod
+    spec:
+      containers:
+        - name: deployer-pob
+          image: onthertech/titan-deployer
+          command: ['./deployer.sh']
+          ports:
+            - containerPort: 8081
+              protocol: TCP
+          resources: {}
+          envFrom:
+            - configMapRef:
+                name: deployer
+      restartPolicy: Never
