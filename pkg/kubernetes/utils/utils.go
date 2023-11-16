@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -30,7 +28,7 @@ func getComponentPath(name string) string {
 func GetYAMLfile(componentName, fileName string) []byte {
 	filePath := getComponentPath(componentName)
 
-	data, err := ioutil.ReadFile(path.Join(filePath, fileName))
+	data, err := os.ReadFile(path.Join(filePath, fileName))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,8 +57,6 @@ func ConvertYAMLtoObject(yamlfile []byte) runtime.Object {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Printf("result : %v\n", object)
 
 	return object
 }
