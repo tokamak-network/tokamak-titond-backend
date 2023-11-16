@@ -1,13 +1,17 @@
 package kubernetes
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	apps "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/remotecommand"
 )
 
 func (k *Kubernetes) GetPodStatus(namespace, name string) (string, error) {
@@ -122,6 +126,33 @@ func (k *Kubernetes) WaitingDeploymentCreated(namespace string, name string) err
 	return err
 }
 
+// func (k *Kubernetes) Call(namespace string, pod *core.Pod, port int, path string) rest.Result {
+// 	accessPath := fmt.Sprintf("%s:%d", pod.Name, port)
+// 	fmt.Println("Access Path: ", accessPath)
+// 	res := k.client.CoreV1().RESTClient().Get().
+// 		Namespace(namespace).
+// 		Resource("pods").
+// 		Name(pod.Name).
+// 		RequestURI("").
+// 		Do(context.Background())
+// 	fmt.Println("Res", res)
+// 	return res
+// }
+
+func (k *Kubernetes) GetDeployerResult(namespace string, pod *core.Pod) string {
+	fmt.Println("Get Deploy result")
+	cmds := []string{"cat", "/opt/optimism/packages/tokamak/contracts/addresses.txt"}
+	for i := 0; i < 100; i++ {
+		result, err := k.Exec(namespace, pod, cmds)
+		if err == nil {
+			return string(result)
+		}
+		fmt.Println("Retry...", err)
+		time.Sleep(time.Second * 15)
+	}
+	return ""
+}
+
 func (k *Kubernetes) CreateDeployer(namespace string, name string) (*apps.Deployment, error) {
 	fmt.Println("Create deployer: ", name)
 	object, _ := BuildObjectFromYamlFile("./deployments/deployer/deployment.yaml")
@@ -142,4 +173,45 @@ func (k *Kubernetes) CreateDeployer(namespace string, name string) (*apps.Deploy
 
 func (k *Kubernetes) DeleteDeployer(namespace string, name string) error {
 	return nil
+}
+
+func (k *Kubernetes) Exec(namespace string, pod *core.Pod, command []string) ([]byte, error) {
+	if len(pod.Spec.Containers) == 0 {
+		return nil, errors.New("no container in the pod")
+	}
+	req := k.client.CoreV1().RESTClient().
+		Post().
+		Resource("pods").
+		Name(pod.Name).
+		Namespace(namespace).
+		SubResource("exec")
+	scheme := runtime.NewScheme()
+	if err := core.AddToScheme(scheme); err != nil {
+		return nil, errors.New("err when adding to scheme")
+	}
+	var stdout bytes.Buffer
+	paramCodec := runtime.NewParameterCodec(scheme)
+	req.VersionedParams(&core.PodExecOptions{
+		Command:   command,
+		Container: pod.Spec.Containers[0].Name,
+		Stdin:     false,
+		Stdout:    true,
+		Stderr:    true,
+		TTY:       false,
+	},
+		paramCodec,
+	)
+	exec, err := remotecommand.NewSPDYExecutor(k.config, "POST", req.URL())
+	if err != nil {
+		return nil, errors.New("err when creating executor")
+	}
+	var stderr bytes.Buffer
+	err = exec.StreamWithContext(context.TODO(), remotecommand.StreamOptions{
+		Stdout: &stdout,
+		Stderr: &stderr,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error stream cmd: %v", err)
+	}
+	return stdout.Bytes(), nil
 }

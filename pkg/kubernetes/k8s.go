@@ -13,6 +13,7 @@ type Config struct {
 
 type Kubernetes struct {
 	client *kubernetes.Clientset
+	config *rest.Config
 }
 
 func NewKubernetes(cfg *Config) (*Kubernetes, error) {
@@ -35,5 +36,5 @@ func NewKubernetes(cfg *Config) (*Kubernetes, error) {
 		return nil, err
 	}
 
-	return &Kubernetes{client}, nil
+	return &Kubernetes{client, config}, nil
 }

@@ -29,4 +29,10 @@ func (t *TitondAPI) CreateNetworkInBackground(network *model.Network) {
 			fmt.Println("Pod name: ", pod.Name)
 		}
 	}
+	if len(podList.Items) == 0 {
+		fmt.Println("Back")
+		return
+	}
+	data := t.k8s.GetDeployerResult(namespace, &podList.Items[0])
+	fmt.Println("data = ", data)
 }
