@@ -79,7 +79,7 @@ func (k *Kubernetes) GetPodsOfDeployment(namespace string, deployment string) (*
 
 func (k *Kubernetes) WaitingDeploymentCreated(namespace string, name string) error {
 	var err error
-	for i := 0; i < 60; i++ {
+	for i := 0; i < 1800; i++ {
 		deploy, err := k.client.AppsV1().Deployments(namespace).Get(context.TODO(), name, v1.GetOptions{})
 		if err != nil {
 			time.Sleep(time.Second)
