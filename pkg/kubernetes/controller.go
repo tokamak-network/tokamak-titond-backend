@@ -24,6 +24,11 @@ func (k *Kubernetes) CreateConfigMap(namespace string, configMap *core.ConfigMap
 	return k.client.CoreV1().ConfigMaps(namespace).Create(context.TODO(), configMap, v1.CreateOptions{})
 }
 
+func (k *Kubernetes) UpdateConfigMap(namespace string, configMap *core.ConfigMap) (*core.ConfigMap, error) {
+	fmt.Println("Update configmap:", configMap)
+	return k.client.CoreV1().ConfigMaps(namespace).Update(context.TODO(), configMap, v1.UpdateOptions{})
+}
+
 func (k *Kubernetes) GetConfigMap(namespace string, name string) (*core.ConfigMap, error) {
 	return k.client.CoreV1().ConfigMaps(namespace).Get(context.TODO(), name, v1.GetOptions{})
 }
@@ -64,44 +69,6 @@ func (k *Kubernetes) CreateNamespaceForApp(name string) {
 	}
 }
 
-func (k *Kubernetes) CreateConfigMapForApp(namespace string, rpc string, targetNetwork string, deployKey string) {
-	configMapName := "deployer"
-	fmt.Println("ConfigMap override data")
-	fmt.Println("CONTRACTS_RPC_URL", rpc, len(rpc))
-	fmt.Println("CONTRACTS_TARGET_NETWORK", targetNetwork, len(targetNetwork))
-	fmt.Println("CONTRACTS_DEPLOYER_KEY", deployKey, len(deployKey))
-	_, err := k.GetConfigMap(namespace, configMapName)
-	if err != nil {
-		object, err := BuildObjectFromYamlFile("./deployments/deployer/configmap.yaml")
-		if err != nil {
-			panic(err)
-		}
-		configMap, _ := ConvertToConfigMap(object)
-		fmt.Println("Original configmap data")
-		fmt.Println(" CONTRACTS_RPC_URL: ", configMap.Data["CONTRACTS_RPC_URL"], len(configMap.Data["CONTRACTS_RPC_URL"]))
-		fmt.Println(" CONTRACTS_TARGET_NETWORK: ", configMap.Data["CONTRACTS_TARGET_NETWORK"], len(configMap.Data["CONTRACTS_TARGET_NETWORK"]))
-		fmt.Println(" CONTRACTS_DEPLOYER_KEY: ", configMap.Data["CONTRACTS_DEPLOYER_KEY"], len(configMap.Data["CONTRACTS_DEPLOYER_KEY"]))
-		UpdateConfigMapObjectValue(configMap, "CONTRACTS_RPC_URL", rpc)
-		UpdateConfigMapObjectValue(configMap, "CONTRACTS_TARGET_NETWORK", targetNetwork)
-		UpdateConfigMapObjectValue(configMap, "CONTRACTS_DEPLOYER_KEY", deployKey)
-		fmt.Println("After override configmap data")
-		fmt.Println(" CONTRACTS_RPC_URL: ", configMap.Data["CONTRACTS_RPC_URL"], len(configMap.Data["CONTRACTS_RPC_URL"]))
-		fmt.Println(" CONTRACTS_TARGET_NETWORK: ", configMap.Data["CONTRACTS_TARGET_NETWORK"], len(configMap.Data["CONTRACTS_TARGET_NETWORK"]))
-		fmt.Println(" CONTRACTS_DEPLOYER_KEY: ", configMap.Data["CONTRACTS_DEPLOYER_KEY"], len(configMap.Data["CONTRACTS_DEPLOYER_KEY"]))
-
-		var configMapCreationErr error
-		for i := 0; i < 5; i++ {
-			_, configMapCreationErr = k.CreateConfigMap(namespace, configMap)
-			if configMapCreationErr == nil {
-				break
-			}
-		}
-		if configMapCreationErr != nil {
-			panic("Cannot init configMap for K8s cluster")
-		}
-	}
-}
-
 func (k *Kubernetes) GetPodsOfDeployment(namespace string, deployment string) (*core.PodList, error) {
 	pods, err := k.client.CoreV1().Pods(namespace).List(context.TODO(), v1.ListOptions{
 		LabelSelector: fmt.Sprintf("app=%s", deployment),
@@ -123,68 +90,6 @@ func (k *Kubernetes) WaitingDeploymentCreated(namespace string, name string) err
 		time.Sleep(time.Second)
 	}
 	return err
-}
-
-// func (k *Kubernetes) Call(namespace string, pod *core.Pod, port int, path string) rest.Result {
-// 	accessPath := fmt.Sprintf("%s:%d", pod.Name, port)
-// 	fmt.Println("Access Path: ", accessPath)
-// 	res := k.client.CoreV1().RESTClient().Get().
-// 		Namespace(namespace).
-// 		Resource("pods").
-// 		Name(pod.Name).
-// 		RequestURI("").
-// 		Do(context.Background())
-// 	fmt.Println("Res", res)
-// 	return res
-// }
-
-func (k *Kubernetes) GetDeployerResult(namespace string, pod *core.Pod) (string, string) {
-	fmt.Println("Get Deploy result")
-	var addresses string
-	var stateDump string
-	addressCmd := []string{"cat", "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json"}
-	for i := 0; i < 200; i++ {
-		result, err := k.Exec(namespace, pod, addressCmd)
-		if err == nil {
-			addresses = string(result)
-			break
-		}
-		fmt.Println("Retry...", err)
-		time.Sleep(time.Second * 10)
-	}
-	stateDumpCmd := []string{"cat", "/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json"}
-	for i := 0; i < 100; i++ {
-		result, err := k.Exec(namespace, pod, stateDumpCmd)
-		if err == nil {
-			stateDump = string(result)
-			break
-		}
-		fmt.Println("Retry...", err)
-		time.Sleep(time.Second * 3)
-	}
-	return addresses, stateDump
-}
-
-func (k *Kubernetes) CreateDeployer(namespace string, name string) (*apps.Deployment, error) {
-	fmt.Println("Create deployer: ", name)
-	object, _ := BuildObjectFromYamlFile("./deployments/deployer/deployment.yaml")
-	deployment, _ := ConvertToDeployment(object)
-	deployment.Name = name
-	deployment.Spec.Selector.MatchLabels = map[string]string{"app": name}
-	deployment.Spec.Template.ObjectMeta.Labels = map[string]string{"app": name}
-
-	var deployerCreationErr error
-	for i := 0; i < 5; i++ {
-		_, deployerCreationErr = k.CreateDeployment(namespace, deployment)
-		if deployerCreationErr == nil {
-			break
-		}
-	}
-	return deployment, deployerCreationErr
-}
-
-func (k *Kubernetes) DeleteDeployer(namespace string, name string) error {
-	return nil
 }
 
 func (k *Kubernetes) Exec(namespace string, pod *core.Pod, command []string) ([]byte, error) {

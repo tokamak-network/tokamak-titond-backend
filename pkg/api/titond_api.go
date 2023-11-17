@@ -25,7 +25,7 @@ func NewTitondAPI(k8s *kubernetes.Kubernetes, db db.Client, fileManager services
 
 func (t *TitondAPI) Initialize() {
 	t.k8s.CreateNamespaceForApp(t.ctx.String("titond.namespace"))
-	t.k8s.CreateConfigMapForApp(t.ctx.String("titond.namespace"),
+	t.k8s.CreateConfigMapForDeployer(t.ctx.String("titond.namespace"),
 		t.ctx.String("titond.contracts.rpc.url"),
 		t.ctx.String("titond.contracts.target.network"),
 		t.ctx.String("titond.contracts.deployer.key"),

@@ -81,7 +81,8 @@ func (t *TitondAPI) UpdateDBWithValue(network *model.Network, addressFileUrl str
 func (t *TitondAPI) CleanK8sJob(network *model.Network) error {
 	namespace := t.ctx.String("titond.namespace")
 	deployerName := MakeDeployerName(network.ID)
-	return t.k8s.DeleteDeployment(namespace, deployerName)
+
+	return t.k8s.DeleteDeployer(namespace, deployerName)
 }
 
 func MakeDeployerName(id uint) string {
