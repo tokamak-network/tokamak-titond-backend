@@ -53,7 +53,6 @@ func (k *Kubernetes) GetNamespace(name string) (*core.Namespace, error) {
 }
 
 func (k *Kubernetes) CreateNamespaceForApp(name string) {
-
 	_, err := k.GetNamespace(name)
 	if err != nil {
 		for i := 0; i < 5; i++ {
@@ -139,18 +138,31 @@ func (k *Kubernetes) WaitingDeploymentCreated(namespace string, name string) err
 // 	return res
 // }
 
-func (k *Kubernetes) GetDeployerResult(namespace string, pod *core.Pod) string {
+func (k *Kubernetes) GetDeployerResult(namespace string, pod *core.Pod) (string, string) {
 	fmt.Println("Get Deploy result")
-	cmds := []string{"cat", "/opt/optimism/packages/tokamak/contracts/addresses.txt"}
-	for i := 0; i < 100; i++ {
-		result, err := k.Exec(namespace, pod, cmds)
+	var addresses string
+	var stateDump string
+	addressCmd := []string{"cat", "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json"}
+	for i := 0; i < 200; i++ {
+		result, err := k.Exec(namespace, pod, addressCmd)
 		if err == nil {
-			return string(result)
+			addresses = string(result)
+			break
 		}
 		fmt.Println("Retry...", err)
-		time.Sleep(time.Second * 15)
+		time.Sleep(time.Second * 10)
 	}
-	return ""
+	stateDumpCmd := []string{"cat", "/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json"}
+	for i := 0; i < 100; i++ {
+		result, err := k.Exec(namespace, pod, stateDumpCmd)
+		if err == nil {
+			stateDump = string(result)
+			break
+		}
+		fmt.Println("Retry...", err)
+		time.Sleep(time.Second * 3)
+	}
+	return addresses, stateDump
 }
 
 func (k *Kubernetes) CreateDeployer(namespace string, name string) (*apps.Deployment, error) {
