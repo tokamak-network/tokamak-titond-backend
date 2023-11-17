@@ -14,7 +14,7 @@ func TestCreate(t *testing.T) {
 	t.Run("Create StatefulSet", func(t *testing.T) {
 		t.Run("Not StatefulSet yaml file", func(t *testing.T) {
 			file := GetYAMLfile("l2geth", "service")
-			obj := ConvertYAMLtoObject(file)
+			obj := ConvertBytestoObject(file)
 
 			_, err := fakeKubernetes.CreateStatefulSet("test", obj)
 
@@ -23,7 +23,7 @@ func TestCreate(t *testing.T) {
 
 		t.Run("Create StatefulSet Successfully", func(t *testing.T) {
 			file := GetYAMLfile("l2geth", "statefulset")
-			obj := ConvertYAMLtoObject(file)
+			obj := ConvertBytestoObject(file)
 
 			res, err := fakeKubernetes.CreateStatefulSet("test", obj)
 
@@ -35,7 +35,7 @@ func TestCreate(t *testing.T) {
 	t.Run("Create Service", func(t *testing.T) {
 		t.Run("Not Service yaml file", func(t *testing.T) {
 			file := GetYAMLfile("l2geth", "statefulset")
-			obj := ConvertYAMLtoObject(file)
+			obj := ConvertBytestoObject(file)
 
 			_, err := fakeKubernetes.CreateService("test", obj)
 
@@ -44,7 +44,7 @@ func TestCreate(t *testing.T) {
 
 		t.Run("Create Service Successfully", func(t *testing.T) {
 			file := GetYAMLfile("l2geth", "service")
-			obj := ConvertYAMLtoObject(file)
+			obj := ConvertBytestoObject(file)
 
 			res, err := fakeKubernetes.CreateService("test", obj)
 
@@ -56,7 +56,7 @@ func TestCreate(t *testing.T) {
 	t.Run("Create PersistentVolumeClaim", func(t *testing.T) {
 		t.Run("Not PersistentVolumeClaim yaml file", func(t *testing.T) {
 			file := GetYAMLfile("l2geth", "statefulset")
-			obj := ConvertYAMLtoObject(file)
+			obj := ConvertBytestoObject(file)
 
 			_, err := fakeKubernetes.CreatePersistentVolumeClaim("test", obj)
 
@@ -65,7 +65,7 @@ func TestCreate(t *testing.T) {
 
 		t.Run("Create PersistentVolumeClaim Successfully", func(t *testing.T) {
 			file := GetYAMLfile("l2geth", "pvc")
-			obj := ConvertYAMLtoObject(file)
+			obj := ConvertBytestoObject(file)
 
 			res, err := fakeKubernetes.CreatePersistentVolumeClaim("test", obj)
 
@@ -77,7 +77,7 @@ func TestCreate(t *testing.T) {
 	t.Run("Create ConfilgMap", func(t *testing.T) {
 		t.Run("Not ConfilgMap yaml file", func(t *testing.T) {
 			file := GetYAMLfile("l2geth", "statefulset")
-			obj := ConvertYAMLtoObject(file)
+			obj := ConvertBytestoObject(file)
 
 			_, err := fakeKubernetes.CreateConfigMap("test", obj)
 
@@ -86,7 +86,7 @@ func TestCreate(t *testing.T) {
 
 		t.Run("Create ConfilgMap Successfully", func(t *testing.T) {
 			file := GetYAMLfile("l2geth", "configMap")
-			obj := ConvertYAMLtoObject(file)
+			obj := ConvertBytestoObject(file)
 
 			res, err := fakeKubernetes.CreateConfigMap("test", obj)
 
@@ -98,7 +98,7 @@ func TestCreate(t *testing.T) {
 	t.Run("Create Ingress", func(t *testing.T) {
 		t.Run("Not Ingress yaml file", func(t *testing.T) {
 			file := GetYAMLfile("l2geth", "statefulset")
-			obj := ConvertYAMLtoObject(file)
+			obj := ConvertBytestoObject(file)
 
 			_, err := fakeKubernetes.CreateIngress("test", obj)
 
@@ -107,7 +107,7 @@ func TestCreate(t *testing.T) {
 
 		t.Run("Create Ingress Successfully", func(t *testing.T) {
 			file := GetYAMLfile("l2geth", "ingress")
-			obj := ConvertYAMLtoObject(file)
+			obj := ConvertBytestoObject(file)
 
 			res, err := fakeKubernetes.CreateIngress("test", obj)
 
