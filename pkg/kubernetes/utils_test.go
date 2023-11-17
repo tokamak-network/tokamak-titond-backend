@@ -49,7 +49,7 @@ func TestGetYAMLfile(t *testing.T) {
 	}
 }
 
-func TestConvertYAMLtoObject(t *testing.T) {
+func TestConvertBytestoObject(t *testing.T) {
 	tests := []struct {
 		componentName string
 		fileName      string
@@ -61,8 +61,8 @@ func TestConvertYAMLtoObject(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		yamlfile := GetYAMLfile(tt.componentName, tt.fileName)
-		obj := ConvertYAMLtoObject(yamlfile)
+		b := GetYAMLfile(tt.componentName, tt.fileName)
+		obj := ConvertBytestoObject(b)
 		assert.Equal(t, tt.resource, obj.GetObjectKind().GroupVersionKind().Kind)
 	}
 }

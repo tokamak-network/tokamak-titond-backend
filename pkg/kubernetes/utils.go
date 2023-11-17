@@ -36,8 +36,8 @@ func GetYAMLfile(dirName, fileName string) []byte {
 	return data
 }
 
-func ConvertYAMLtoObject(yamlfile []byte) runtime.Object {
-	jsonBytes, err := yaml.ToJSON(yamlfile)
+func ConvertBytestoObject(b []byte) runtime.Object {
+	jsonBytes, err := yaml.ToJSON(b)
 	if err != nil {
 		log.Fatal(err)
 	}
