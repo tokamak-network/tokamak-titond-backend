@@ -12,7 +12,7 @@ type Config struct {
 }
 
 type Kubernetes struct {
-	client *kubernetes.Clientset
+	client kubernetes.Interface
 }
 
 func NewKubernetes(cfg *Config) (*Kubernetes, error) {
