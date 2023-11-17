@@ -24,8 +24,9 @@ func NewL2Geth(options ...func(*L2Geth)) *L2Geth {
 	}
 
 	l2geth.resources = map[string]runtime.Object{
-		"StatefulSet": &appsv1.StatefulSet{},
-		"Service":     &corev1.Service{},
+		"statefulset": &appsv1.StatefulSet{},
+		"service":     &corev1.Service{},
+		"configMap":   &corev1.ConfigMap{},
 	}
 
 	for _, option := range options {
