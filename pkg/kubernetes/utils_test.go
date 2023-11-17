@@ -5,37 +5,31 @@ import (
 	"path"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/assert"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
-type UtilsTestSuite struct {
-	suite.Suite
-	testDataPath string
-}
-
-func (uts *UtilsTestSuite) SetupSuite() {
+func TestGetDirPath(t *testing.T) {
 	cPath, _ := os.Getwd()
-	uts.testDataPath = path.Join(cPath, "../../testdata")
-}
+	testDataPath := path.Join(cPath, "../../testdata")
 
-func (uts *UtilsTestSuite) TestGetResourcesPath() {
 	tests := []struct {
 		name string
 	}{
 		{"deployer"},
 		{"l2geth"},
 	}
+
 	for _, tt := range tests {
 		p := getDirPath(tt.name)
-		uts.Equal(uts.testDataPath+"/"+tt.name, p, "it is should be equal")
+		assert.Equal(t, testDataPath+"/"+tt.name, p, "it is should be equal")
 	}
 }
 
-func (uts *UtilsTestSuite) TestGetYAMLfile() {
+func TestGetYAMLfile(t *testing.T) {
 	tests := []struct {
 		componentName string
 		fileName      string
@@ -51,11 +45,11 @@ func (uts *UtilsTestSuite) TestGetYAMLfile() {
 		jsonBytes, _ := yaml.ToJSON(yamlfile)
 		object, _ := runtime.Decode(unstructured.UnstructuredJSONScheme, jsonBytes)
 		uObject, _ := object.(*unstructured.Unstructured)
-		uts.Equal(tt.resource, uObject.GetKind())
+		assert.Equal(t, tt.resource, uObject.GetKind())
 	}
 }
 
-func (uts *UtilsTestSuite) TestConvertYAMLtoObject() {
+func TestConvertYAMLtoObject(t *testing.T) {
 	tests := []struct {
 		componentName string
 		fileName      string
@@ -69,10 +63,6 @@ func (uts *UtilsTestSuite) TestConvertYAMLtoObject() {
 	for _, tt := range tests {
 		yamlfile := GetYAMLfile(tt.componentName, tt.fileName)
 		obj := ConvertYAMLtoObject(yamlfile)
-		uts.Equal(tt.resource, obj.GetObjectKind().GroupVersionKind().Kind)
+		assert.Equal(t, tt.resource, obj.GetObjectKind().GroupVersionKind().Kind)
 	}
-}
-
-func TestUtilsSuite(t *testing.T) {
-	suite.Run(t, new(UtilsTestSuite))
 }
