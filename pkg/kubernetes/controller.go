@@ -65,6 +65,7 @@ func (k *Kubernetes) CreateNamespaceForApp(name string) {
 			if err == nil {
 				break
 			}
+			time.Sleep(time.Second * 10)
 		}
 	}
 }
@@ -92,9 +93,9 @@ func (k *Kubernetes) WaitingDeploymentCreated(namespace string, name string) err
 	return err
 }
 
-func (k *Kubernetes) Exec(namespace string, pod *core.Pod, command []string) ([]byte, error) {
+func (k *Kubernetes) Exec(namespace string, pod *core.Pod, command []string) ([]byte, []byte, error) {
 	if len(pod.Spec.Containers) == 0 {
-		return nil, errors.New("no container in the pod")
+		return nil, nil, errors.New("no container in the pod")
 	}
 	req := k.client.CoreV1().RESTClient().
 		Post().
@@ -104,7 +105,7 @@ func (k *Kubernetes) Exec(namespace string, pod *core.Pod, command []string) ([]
 		SubResource("exec")
 	scheme := runtime.NewScheme()
 	if err := core.AddToScheme(scheme); err != nil {
-		return nil, errors.New("err when adding to scheme")
+		return nil, nil, errors.New("err when adding to scheme")
 	}
 	var stdout bytes.Buffer
 	paramCodec := runtime.NewParameterCodec(scheme)
@@ -120,7 +121,7 @@ func (k *Kubernetes) Exec(namespace string, pod *core.Pod, command []string) ([]
 	)
 	exec, err := remotecommand.NewSPDYExecutor(k.config, "POST", req.URL())
 	if err != nil {
-		return nil, errors.New("err when creating executor")
+		return nil, nil, errors.New("err when creating executor")
 	}
 	var stderr bytes.Buffer
 	err = exec.StreamWithContext(context.TODO(), remotecommand.StreamOptions{
@@ -128,7 +129,7 @@ func (k *Kubernetes) Exec(namespace string, pod *core.Pod, command []string) ([]
 		Stderr: &stderr,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error stream cmd: %v", err)
+		return nil, nil, fmt.Errorf("error stream cmd: %v", err)
 	}
-	return stdout.Bytes(), nil
+	return stdout.Bytes(), stderr.Bytes(), nil
 }

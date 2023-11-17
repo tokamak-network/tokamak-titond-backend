@@ -14,9 +14,9 @@ func (k *Kubernetes) GetDeployerResult(namespace string, pod *core.Pod) (string,
 	var stateDump string
 	addressCmd := []string{"cat", "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json"}
 	for i := 0; i < 200; i++ {
-		result, err := k.Exec(namespace, pod, addressCmd)
-		if err == nil {
-			addresses = string(result)
+		stdout, stderr, err := k.Exec(namespace, pod, addressCmd)
+		if err == nil && len(stderr) == 0 {
+			addresses = string(stdout)
 			break
 		}
 		fmt.Println("Retry...", err)
@@ -24,9 +24,9 @@ func (k *Kubernetes) GetDeployerResult(namespace string, pod *core.Pod) (string,
 	}
 	stateDumpCmd := []string{"cat", "/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json"}
 	for i := 0; i < 100; i++ {
-		result, err := k.Exec(namespace, pod, stateDumpCmd)
-		if err == nil {
-			stateDump = string(result)
+		stdout, stderr, err := k.Exec(namespace, pod, stateDumpCmd)
+		if err == nil && len(stderr) == 0 {
+			stateDump = string(stdout)
 			break
 		}
 		fmt.Println("Retry...", err)
