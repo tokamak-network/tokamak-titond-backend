@@ -28,8 +28,8 @@ func (s *HTTPServer) Run() {
 	networkRouter := r.Group("/api/networks")
 	s.NewNetworkRouter(networkRouter)
 
-	resourceRouter := r.Group("/api/resources")
-	s.NewResourceRouter(resourceRouter)
+	componentRouter := r.Group("/api/components")
+	s.NewComponentRouter(componentRouter)
 
 	r.Run(s.cfg.Host + ":" + s.cfg.Port)
 }
