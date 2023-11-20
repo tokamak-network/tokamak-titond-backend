@@ -12,7 +12,7 @@ func TestBuildAPIObjectFromYamlFile(t *testing.T) {
 	}
 	_, err = BuildObjectFromYamlFile("../../deployments/deployer/deployment.yaml")
 	if err != nil {
-		t.Error("Failed when decoding a job.yaml")
+		t.Error("Failed when decoding a deployment.yaml")
 	}
 }
 
@@ -37,11 +37,17 @@ func TestUpdateConfigMapObjectValue(t *testing.T) {
 	}
 }
 
-// func TestConvertToDeployment(t *testing.T) {
-// 	object, _ := BuildObjectFromYamlFile("../../deployments/deployer/deployment.yaml")
-// 	_, err := ConvertToDeployment(object)
-// 	if err != nil {
-// 		t.Error("Failed to convert to job")
-// 	}
-
-// }
+func TestConvertToDeployment(t *testing.T) {
+	object, err := BuildObjectFromYamlFile("../../deployments/deployer/deployment.yaml")
+	if err != nil {
+		t.Error("Failed when decoding a deployment.yaml")
+	}
+	_, exist := ConvertToConfigMap(object)
+	if exist {
+		t.Error("A deployment is converted to a configmap")
+	}
+	_, exist = ConvertToDeployment(object)
+	if !exist {
+		t.Error("Failed to convert to a deployment object")
+	}
+}
