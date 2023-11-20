@@ -16,6 +16,11 @@ func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
 	return result, err
 }
 
+func (t *TitondAPI) DeleteNetwork(id uint) (int64, error) {
+	result, err := t.db.DeleteNetwork(id)
+	return result, err
+}
+
 func (t *TitondAPI) createNetwork(network *model.Network) {
 	deployerName := MakeDeployerName(network.ID)
 	_, err := t.CreateDeployer(t.config.Namespace, deployerName)
