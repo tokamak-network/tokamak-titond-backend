@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	apps "k8s.io/api/apps/v1"
-	core "k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/remotecommand"
@@ -19,21 +19,21 @@ func (k *Kubernetes) GetPodStatus(namespace, name string) (string, error) {
 	return string(pod.Status.Phase), err
 }
 
-func (k *Kubernetes) CreateConfigMap(namespace string, configMap *core.ConfigMap) (*core.ConfigMap, error) {
+func (k *Kubernetes) CreateConfigMap(namespace string, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
 	fmt.Println("Create configmap:", configMap)
 	return k.client.CoreV1().ConfigMaps(namespace).Create(context.TODO(), configMap, v1.CreateOptions{})
 }
 
-func (k *Kubernetes) UpdateConfigMap(namespace string, configMap *core.ConfigMap) (*core.ConfigMap, error) {
+func (k *Kubernetes) UpdateConfigMap(namespace string, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
 	fmt.Println("Update configmap:", configMap)
 	return k.client.CoreV1().ConfigMaps(namespace).Update(context.TODO(), configMap, v1.UpdateOptions{})
 }
 
-func (k *Kubernetes) GetConfigMap(namespace string, name string) (*core.ConfigMap, error) {
+func (k *Kubernetes) GetConfigMap(namespace string, name string) (*corev1.ConfigMap, error) {
 	return k.client.CoreV1().ConfigMaps(namespace).Get(context.TODO(), name, v1.GetOptions{})
 }
 
-func (k *Kubernetes) CreateDeployment(namespace string, deployment *apps.Deployment) (*apps.Deployment, error) {
+func (k *Kubernetes) CreateDeployment(namespace string, deployment *appsv1.Deployment) (*appsv1.Deployment, error) {
 	fmt.Println("Create deployment:", deployment)
 	return k.client.AppsV1().Deployments(namespace).Create(context.TODO(), deployment, v1.CreateOptions{})
 }
@@ -43,9 +43,9 @@ func (k *Kubernetes) DeleteDeployment(namespace string, name string) error {
 	return k.client.AppsV1().Deployments(namespace).Delete(context.TODO(), name, v1.DeleteOptions{})
 }
 
-func (k *Kubernetes) CreateNamespace(name string) (*core.Namespace, error) {
+func (k *Kubernetes) CreateNamespace(name string) (*corev1.Namespace, error) {
 	fmt.Println("Create namespace: ", name)
-	namespace := &core.Namespace{
+	namespace := &corev1.Namespace{
 		ObjectMeta: v1.ObjectMeta{
 			Name: name,
 		},
@@ -53,7 +53,7 @@ func (k *Kubernetes) CreateNamespace(name string) (*core.Namespace, error) {
 	return k.client.CoreV1().Namespaces().Create(context.TODO(), namespace, v1.CreateOptions{})
 }
 
-func (k *Kubernetes) GetNamespace(name string) (*core.Namespace, error) {
+func (k *Kubernetes) GetNamespace(name string) (*corev1.Namespace, error) {
 	return k.client.CoreV1().Namespaces().Get(context.TODO(), name, v1.GetOptions{})
 }
 
@@ -70,7 +70,7 @@ func (k *Kubernetes) CreateNamespaceForApp(name string) {
 	}
 }
 
-func (k *Kubernetes) GetPodsOfDeployment(namespace string, deployment string) (*core.PodList, error) {
+func (k *Kubernetes) GetPodsOfDeployment(namespace string, deployment string) (*corev1.PodList, error) {
 	pods, err := k.client.CoreV1().Pods(namespace).List(context.TODO(), v1.ListOptions{
 		LabelSelector: fmt.Sprintf("app=%s", deployment),
 	})
@@ -93,7 +93,7 @@ func (k *Kubernetes) WaitingDeploymentCreated(namespace string, name string) err
 	return err
 }
 
-func (k *Kubernetes) Exec(namespace string, pod *core.Pod, command []string) ([]byte, []byte, error) {
+func (k *Kubernetes) Exec(namespace string, pod *corev1.Pod, command []string) ([]byte, []byte, error) {
 	if len(pod.Spec.Containers) == 0 {
 		return nil, nil, errors.New("no container in the pod")
 	}
@@ -104,12 +104,12 @@ func (k *Kubernetes) Exec(namespace string, pod *core.Pod, command []string) ([]
 		Namespace(namespace).
 		SubResource("exec")
 	scheme := runtime.NewScheme()
-	if err := core.AddToScheme(scheme); err != nil {
+	if err := corev1.AddToScheme(scheme); err != nil {
 		return nil, nil, errors.New("err when adding to scheme")
 	}
 	var stdout bytes.Buffer
 	paramCodec := runtime.NewParameterCodec(scheme)
-	req.VersionedParams(&core.PodExecOptions{
+	req.VersionedParams(&corev1.PodExecOptions{
 		Command:   command,
 		Container: pod.Spec.Containers[0].Name,
 		Stdin:     false,

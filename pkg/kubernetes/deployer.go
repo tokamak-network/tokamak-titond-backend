@@ -95,7 +95,6 @@ func (k *Kubernetes) CreateConfigMapForDeployer(namespace string, rpc string, ta
 				break
 			}
 		}
-
 	}
 	if configMapCreationErr != nil {
 		panic("Cannot init configMap for K8s cluster")

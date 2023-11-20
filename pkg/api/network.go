@@ -15,11 +15,10 @@ func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
 }
 
 func (t *TitondAPI) CreateNetworkInBackground(network *model.Network) {
-	namespace := t.ctx.String("titond.namespace")
 	deployerName := MakeDeployerName(network.ID)
-	t.k8s.CreateDeployer(namespace, deployerName)
-	_ = t.k8s.WaitingDeploymentCreated(namespace, deployerName)
-	podList, err := t.k8s.GetPodsOfDeployment(namespace, deployerName)
+	t.k8s.CreateDeployer(t.config.Namespace, deployerName)
+	_ = t.k8s.WaitingDeploymentCreated(t.config.Namespace, deployerName)
+	podList, err := t.k8s.GetPodsOfDeployment(t.config.Namespace, deployerName)
 	if err != nil {
 		return
 	}
@@ -33,7 +32,7 @@ func (t *TitondAPI) CreateNetworkInBackground(network *model.Network) {
 		fmt.Println("Back")
 		return
 	}
-	addressData, dumpData := t.k8s.GetDeployerResult(namespace, &podList.Items[0])
+	addressData, dumpData := t.k8s.GetDeployerResult(t.config.Namespace, &podList.Items[0])
 	addressFileName := fmt.Sprintf("address-%d.json", network.ID)
 	dumpFileName := fmt.Sprintf("state-dump-%d.json", network.ID)
 	fmt.Println("Upload contract address file and genesis file")
@@ -79,10 +78,9 @@ func (t *TitondAPI) UpdateDBWithValue(network *model.Network, addressFileUrl str
 }
 
 func (t *TitondAPI) CleanK8sJob(network *model.Network) error {
-	namespace := t.ctx.String("titond.namespace")
 	deployerName := MakeDeployerName(network.ID)
 
-	return t.k8s.DeleteDeployer(namespace, deployerName)
+	return t.k8s.DeleteDeployer(t.config.Namespace, deployerName)
 }
 
 func MakeDeployerName(id uint) string {

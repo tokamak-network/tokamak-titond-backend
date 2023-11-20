@@ -4,30 +4,38 @@ import (
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/db"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/kubernetes"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/services"
-	"github.com/urfave/cli/v2"
 )
+
+type Config struct {
+	Namespace              string
+	ContractsRpcUrl        string
+	ContractsTargetNetwork string
+	ContractsDeployerKey   string
+}
 
 type TitondAPI struct {
 	k8s         *kubernetes.Kubernetes
 	db          db.Client
 	fileManager services.IFIleManager
-	ctx         *cli.Context
+	config      *Config
 }
 
-func NewTitondAPI(k8s *kubernetes.Kubernetes, db db.Client, fileManager services.IFIleManager, ctx *cli.Context) *TitondAPI {
-	return &TitondAPI{
+func NewTitondAPI(k8s *kubernetes.Kubernetes, db db.Client, fileManager services.IFIleManager, config *Config) *TitondAPI {
+	titondAPI := &TitondAPI{
 		k8s,
 		db,
 		fileManager,
-		ctx,
+		config,
 	}
+	titondAPI.Initialize()
+	return titondAPI
 }
 
 func (t *TitondAPI) Initialize() {
-	t.k8s.CreateNamespaceForApp(t.ctx.String("titond.namespace"))
-	t.k8s.CreateConfigMapForDeployer(t.ctx.String("titond.namespace"),
-		t.ctx.String("titond.contracts.rpc.url"),
-		t.ctx.String("titond.contracts.target.network"),
-		t.ctx.String("titond.contracts.deployer.key"),
+	t.k8s.CreateNamespaceForApp(t.config.Namespace)
+	t.k8s.CreateConfigMapForDeployer(t.config.Namespace,
+		t.config.ContractsRpcUrl,
+		t.config.ContractsTargetNetwork,
+		t.config.ContractsDeployerKey,
 	)
 }

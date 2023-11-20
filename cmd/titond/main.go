@@ -61,8 +61,12 @@ func titond(ctx *cli.Context) error {
 		AWSRegion:  ctx.String("services.s3.region"),
 	})
 
-	apis := api.NewTitondAPI(k8sClient, dbClient, fileManager, ctx)
-	apis.Initialize()
+	apis := api.NewTitondAPI(k8sClient, dbClient, fileManager, &api.Config{
+		Namespace:              ctx.String("titond.namespace"),
+		ContractsRpcUrl:        ctx.String("titond.contracts.rpc.url"),
+		ContractsTargetNetwork: ctx.String("titond.contracts.target.network"),
+		ContractsDeployerKey:   ctx.String("titond.contracts.deployer.key"),
+	})
 
 	http := http.NewHTTPServer(&http.Config{
 		Host: ctx.String("http.host"),
