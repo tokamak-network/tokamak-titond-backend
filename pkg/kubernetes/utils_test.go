@@ -22,8 +22,8 @@ func TestUpdateConfigMapObjectValue(t *testing.T) {
 	if err != nil {
 		t.Error("Failed when decoding a configmap.yaml")
 	}
-	configMap, err := ConvertToConfigMap(object)
-	if err != nil {
+	configMap, exist := ConvertToConfigMap(object)
+	if !exist {
 		t.Error("Failed when converting to a configmap.yaml")
 	}
 

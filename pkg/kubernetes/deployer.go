@@ -38,7 +38,10 @@ func (k *Kubernetes) GetDeployerResult(namespace string, pod *core.Pod) (string,
 func (k *Kubernetes) CreateDeployer(namespace string, name string) (*apps.Deployment, error) {
 	fmt.Println("Create deployer: ", name)
 	object, _ := BuildObjectFromYamlFile("./deployments/deployer/deployment.yaml")
-	deployment, _ := ConvertToDeployment(object)
+	deployment, success := ConvertToDeployment(object)
+	if !success {
+		panic("Failed to convert to deployment object")
+	}
 	deployment.Name = name
 	deployment.Spec.Selector.MatchLabels = map[string]string{"app": name}
 	deployment.Spec.Template.ObjectMeta.Labels = map[string]string{"app": name}
@@ -69,7 +72,10 @@ func (k *Kubernetes) CreateConfigMapForDeployer(namespace string, rpc string, ta
 	if err != nil {
 		panic(err)
 	}
-	configMap, _ := ConvertToConfigMap(object)
+	configMap, success := ConvertToConfigMap(object)
+	if !success {
+		panic("Failed to convert to config map ")
+	}
 	fmt.Println("Original configmap data")
 	fmt.Println(" CONTRACTS_RPC_URL: ", configMap.Data["CONTRACTS_RPC_URL"], len(configMap.Data["CONTRACTS_RPC_URL"]))
 	fmt.Println(" CONTRACTS_TARGET_NETWORK: ", configMap.Data["CONTRACTS_TARGET_NETWORK"], len(configMap.Data["CONTRACTS_TARGET_NETWORK"]))

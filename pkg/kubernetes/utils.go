@@ -31,12 +31,14 @@ func BuildObjectFromYamlFile(file string) (runtime.Object, error) {
 	return obj, err
 }
 
-func ConvertToConfigMap(obj runtime.Object) (*core.ConfigMap, error) {
-	return obj.(*core.ConfigMap), nil
+func ConvertToConfigMap(obj runtime.Object) (*core.ConfigMap, bool) {
+	instance, exist := obj.(*core.ConfigMap)
+	return instance, exist
 }
 
-func ConvertToDeployment(obj runtime.Object) (*app.Deployment, error) {
-	return obj.(*app.Deployment), nil
+func ConvertToDeployment(obj runtime.Object) (*app.Deployment, bool) {
+	instance, exist := obj.(*app.Deployment)
+	return instance, exist
 }
 
 func UpdateConfigMapObjectValue(configMap *core.ConfigMap, key string, value string) {
