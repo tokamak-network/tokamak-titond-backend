@@ -33,9 +33,9 @@ func (t *TitondAPI) CreateNetwork(data *model.Network) *model.Network {
 	return result
 }
 
-func (t *TitondAPI) CreateL2Geth(data *model.Resource) {
+func (t *TitondAPI) CreateL2Geth(data *model.Component) {
 	// TODO : deal with DB
-	t.db.CreateResource()
+	t.db.CreateComponent()
 
 	namespace := "default"
 	createL2Geth(t.k8s, namespace)
