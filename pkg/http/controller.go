@@ -38,3 +38,21 @@ func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err)
 	}
 }
+
+func (s *HTTPServer) CreateComponent(c *gin.Context) {
+	result, err := s.apis.CreateComponent(&model.Component{})
+	if err == nil {
+		c.JSON(http.StatusOK, result)
+	} else {
+		c.JSON(http.StatusInternalServerError, err)
+	}
+}
+
+func (s *HTTPServer) UpdateComponent(c *gin.Context) {
+	result, err := s.apis.UpdateComponent(&model.Component{})
+	if err == nil {
+		c.JSON(http.StatusOK, result)
+	} else {
+		c.JSON(http.StatusInternalServerError, err)
+	}
+}
