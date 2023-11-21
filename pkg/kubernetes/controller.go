@@ -20,12 +20,10 @@ func (k *Kubernetes) GetPodStatus(namespace, name string) (string, error) {
 }
 
 func (k *Kubernetes) CreateConfigMap(namespace string, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
-	fmt.Println("Create configmap:", configMap)
 	return k.client.CoreV1().ConfigMaps(namespace).Create(context.TODO(), configMap, v1.CreateOptions{})
 }
 
 func (k *Kubernetes) UpdateConfigMap(namespace string, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
-	fmt.Println("Update configmap:", configMap)
 	return k.client.CoreV1().ConfigMaps(namespace).Update(context.TODO(), configMap, v1.UpdateOptions{})
 }
 
@@ -34,17 +32,14 @@ func (k *Kubernetes) GetConfigMap(namespace string, name string) (*corev1.Config
 }
 
 func (k *Kubernetes) CreateDeployment(namespace string, deployment *appsv1.Deployment) (*appsv1.Deployment, error) {
-	fmt.Println("Create deployment:", deployment)
 	return k.client.AppsV1().Deployments(namespace).Create(context.TODO(), deployment, v1.CreateOptions{})
 }
 
 func (k *Kubernetes) DeleteDeployment(namespace string, name string) error {
-	fmt.Println("Delete deployment:", name)
 	return k.client.AppsV1().Deployments(namespace).Delete(context.TODO(), name, v1.DeleteOptions{})
 }
 
 func (k *Kubernetes) CreateNamespace(name string) (*corev1.Namespace, error) {
-	fmt.Println("Create namespace: ", name)
 	namespace := &corev1.Namespace{
 		ObjectMeta: v1.ObjectMeta{
 			Name: name,

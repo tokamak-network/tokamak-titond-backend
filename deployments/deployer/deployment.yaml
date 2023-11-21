@@ -18,11 +18,13 @@ spec:
           image: onthertech/titan-deployer
           imagePullPolicy: IfNotPresent
           command: ['./deployer.sh']
-          restartPolicy: Never
           ports:
             - containerPort: 8081
               protocol: TCP
-          resources: {}
+          resources:
+            requests:
+              cpu: 4
+              memory: 8192Mi
           envFrom:
             - configMapRef:
                 name: deployer
