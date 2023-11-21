@@ -25,9 +25,7 @@ func BuildObjectFromYamlFile(file string) (runtime.Object, error) {
 	}
 
 	decoder := serializer.NewCodecFactory(sch).UniversalDeserializer().Decode
-
 	obj, _, err := decoder(yamlFile, nil, nil)
-	fmt.Println("<>", err)
 	return obj, err
 }
 

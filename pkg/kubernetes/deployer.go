@@ -50,7 +50,10 @@ func (k *Kubernetes) CreateDeployer(namespace string, name string) (*apps.Deploy
 	for i := 0; i < 5; i++ {
 		_, deployerCreationErr = k.CreateDeployment(namespace, deployment)
 		if deployerCreationErr == nil {
-			break
+			deployerCreationErr = k.WaitingDeploymentCreated(namespace, name)
+			if deployerCreationErr == nil {
+				break
+			}
 		}
 	}
 	return deployment, deployerCreationErr
@@ -61,48 +64,13 @@ func (k *Kubernetes) DeleteDeployer(namespace string, name string) error {
 }
 
 func (k *Kubernetes) CreateConfigMapForDeployer(namespace string, rpc string, targetNetwork string, deployKey string) {
-	configMapName := "deployer"
-	fmt.Println("ConfigMap override data")
-	fmt.Println("CONTRACTS_RPC_URL", rpc, len(rpc))
-	fmt.Println("CONTRACTS_TARGET_NETWORK", targetNetwork, len(targetNetwork))
-	fmt.Println("CONTRACTS_DEPLOYER_KEY", deployKey, len(deployKey))
-	_, err := k.GetConfigMap(namespace, configMapName)
-	exist := (err != nil)
-	object, err := BuildObjectFromYamlFile("./deployments/deployer/configmap.yaml")
+	overrideData := map[string]string{
+		"CONTRACTS_RPC_URL":        rpc,
+		"CONTRACTS_TARGET_NETWORK": targetNetwork,
+		"CONTRACTS_DEPLOYER_KEY":   deployKey,
+	}
+	err := k.OverrideConfigMapFromTemplate(namespace, "./deployments/deployer/configmap.yaml", overrideData)
 	if err != nil {
-		panic(err)
-	}
-	configMap, success := ConvertToConfigMap(object)
-	if !success {
-		panic("Failed to convert to config map ")
-	}
-	fmt.Println("Original configmap data")
-	fmt.Println(" CONTRACTS_RPC_URL: ", configMap.Data["CONTRACTS_RPC_URL"], len(configMap.Data["CONTRACTS_RPC_URL"]))
-	fmt.Println(" CONTRACTS_TARGET_NETWORK: ", configMap.Data["CONTRACTS_TARGET_NETWORK"], len(configMap.Data["CONTRACTS_TARGET_NETWORK"]))
-	fmt.Println(" CONTRACTS_DEPLOYER_KEY: ", configMap.Data["CONTRACTS_DEPLOYER_KEY"], len(configMap.Data["CONTRACTS_DEPLOYER_KEY"]))
-	UpdateConfigMapObjectValue(configMap, "CONTRACTS_RPC_URL", rpc)
-	UpdateConfigMapObjectValue(configMap, "CONTRACTS_TARGET_NETWORK", targetNetwork)
-	UpdateConfigMapObjectValue(configMap, "CONTRACTS_DEPLOYER_KEY", deployKey)
-	fmt.Println("After override configmap data")
-	fmt.Println(" CONTRACTS_RPC_URL: ", configMap.Data["CONTRACTS_RPC_URL"], len(configMap.Data["CONTRACTS_RPC_URL"]))
-	fmt.Println(" CONTRACTS_TARGET_NETWORK: ", configMap.Data["CONTRACTS_TARGET_NETWORK"], len(configMap.Data["CONTRACTS_TARGET_NETWORK"]))
-	fmt.Println(" CONTRACTS_DEPLOYER_KEY: ", configMap.Data["CONTRACTS_DEPLOYER_KEY"], len(configMap.Data["CONTRACTS_DEPLOYER_KEY"]))
-
-	var configMapCreationErr error
-	for i := 0; i < 5; i++ {
-		if exist {
-			_, configMapCreationErr = k.CreateConfigMap(namespace, configMap)
-			if configMapCreationErr == nil {
-				break
-			}
-		} else {
-			_, configMapCreationErr = k.UpdateConfigMap(namespace, configMap)
-			if configMapCreationErr == nil {
-				break
-			}
-		}
-	}
-	if configMapCreationErr != nil {
-		panic("Cannot init configMap for K8s cluster")
+		panic("Cannot init configmap for deployer")
 	}
 }

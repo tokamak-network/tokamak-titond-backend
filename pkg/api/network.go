@@ -21,7 +21,6 @@ func (t *TitondAPI) CreateNetworkInBackground(network *model.Network) {
 		fmt.Println("Failed when creating deployer:", err)
 		return
 	}
-	_ = t.k8s.WaitingDeploymentCreated(t.config.Namespace, deployerName)
 	podList, err := t.k8s.GetPodsOfDeployment(t.config.Namespace, deployerName)
 	if err != nil {
 		return
