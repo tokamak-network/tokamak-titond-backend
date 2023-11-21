@@ -9,12 +9,12 @@ import (
 func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
 	result, err := t.db.CreateNetwork(data)
 	if err == nil {
-		go t.CreateNetworkInBackground(result)
+		go t.createNetwork(result)
 	}
 	return result, err
 }
 
-func (t *TitondAPI) CreateNetworkInBackground(network *model.Network) {
+func (t *TitondAPI) createNetwork(network *model.Network) {
 	deployerName := MakeDeployerName(network.ID)
 	_, err := t.k8s.CreateDeployer(t.config.Namespace, deployerName)
 	if err != nil {
@@ -35,13 +35,18 @@ func (t *TitondAPI) CreateNetworkInBackground(network *model.Network) {
 		fmt.Println("Back")
 		return
 	}
-	addressData, dumpData := t.k8s.GetDeployerResult(t.config.Namespace, &podList.Items[0])
-	addressFileName := fmt.Sprintf("address-%d.json", network.ID)
-	dumpFileName := fmt.Sprintf("state-dump-%d.json", network.ID)
-	fmt.Println("Upload contract address file and genesis file")
-	addressUrl, uploadAddressErr := t.UploadAddressFile(addressFileName, addressData)
-	dumpUrl, uploadDumpErr := t.UploadDumpFile(dumpFileName, dumpData)
-
+	addressData, addressErr, dumpData, dumpErr := t.k8s.GetDeployerResult(t.config.Namespace, &podList.Items[0])
+	addressUrl := ""
+	dumpUrl := ""
+	var uploadDumpErr, uploadAddressErr error
+	if addressErr == nil {
+		addressFileName := fmt.Sprintf("address-%d.json", network.ID)
+		addressUrl, uploadAddressErr = t.UploadAddressFile(addressFileName, addressData)
+	}
+	if dumpErr == nil {
+		dumpFileName := fmt.Sprintf("state-dump-%d.json", network.ID)
+		dumpUrl, uploadDumpErr = t.UploadDumpFile(dumpFileName, dumpData)
+	}
 	err = t.UpdateDBWithValue(network, addressUrl, dumpUrl, uploadAddressErr, uploadDumpErr)
 	if err == nil {
 		fmt.Println("Clean k8s job", t.CleanK8sJob(network))

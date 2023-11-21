@@ -1,5 +1,5 @@
 name: Run unit test
-on: pull_request
+on: push
 
 jobs:
   image:

@@ -2,37 +2,16 @@ package kubernetes
 
 import (
 	"fmt"
-	"time"
 
 	apps "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 )
 
-func (k *Kubernetes) GetDeployerResult(namespace string, pod *core.Pod) (string, string) {
+func (k *Kubernetes) GetDeployerResult(namespace string, pod *core.Pod) (string, error, string, error) {
 	fmt.Println("Get Deploy result")
-	var addresses string
-	var stateDump string
-	addressCmd := []string{"cat", "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json"}
-	for i := 0; i < 200; i++ {
-		stdout, stderr, err := k.Exec(namespace, pod, addressCmd)
-		if err == nil && len(stderr) == 0 {
-			addresses = string(stdout)
-			break
-		}
-		fmt.Println("Retry...", err)
-		time.Sleep(time.Second * 10)
-	}
-	stateDumpCmd := []string{"cat", "/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json"}
-	for i := 0; i < 100; i++ {
-		stdout, stderr, err := k.Exec(namespace, pod, stateDumpCmd)
-		if err == nil && len(stderr) == 0 {
-			stateDump = string(stdout)
-			break
-		}
-		fmt.Println("Retry...", err)
-		time.Sleep(time.Second * 3)
-	}
-	return addresses, stateDump
+	addresses, addressError := k.GetFileFromPod(namespace, pod, "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json")
+	stateDump, stateError := k.GetFileFromPod(namespace, pod, "/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json")
+	return addresses, addressError, stateDump, stateError
 }
 
 func (k *Kubernetes) CreateDeployer(namespace string, name string) (*apps.Deployment, error) {

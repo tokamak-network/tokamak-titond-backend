@@ -52,6 +52,24 @@ func (k *Kubernetes) GetNamespace(name string) (*corev1.Namespace, error) {
 	return k.client.CoreV1().Namespaces().Get(context.TODO(), name, v1.GetOptions{})
 }
 
+func (k *Kubernetes) GetFileFromPod(namespace string, pod *corev1.Pod, path string) (string, error) {
+	var err error
+	addressCmd := []string{"cat", path}
+	for i := 0; i < 200; i++ {
+		stdout, stderr, err := k.Exec(namespace, pod, addressCmd)
+		if err == nil && len(stderr) == 0 {
+			return string(stdout), nil
+		} else {
+			if err == nil {
+				err = errors.New(string(stderr))
+			}
+		}
+		fmt.Println("Retry...", err)
+		time.Sleep(time.Second * 10)
+	}
+	return "", err
+}
+
 func (k *Kubernetes) OverrideConfigMapFromTemplate(namespace string, template string, items map[string]string) error {
 	object, err := BuildObjectFromYamlFile(template)
 	if err != nil {
