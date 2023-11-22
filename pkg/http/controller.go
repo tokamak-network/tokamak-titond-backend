@@ -8,11 +8,10 @@ import (
 )
 
 func (s *HTTPServer) CreateNetwork(c *gin.Context) {
-	result := s.apis.CreateNetwork(&model.Network{
-		ContractAddressURL: "aa.com",
-		StateDumpURL:       "bb.com",
-		Status:             false,
-	})
-
-	c.JSON(http.StatusOK, result)
+	result, err := s.apis.CreateNetwork(&model.Network{})
+	if err == nil {
+		c.JSON(http.StatusOK, result)
+	} else {
+		c.JSON(http.StatusInternalServerError, err)
+	}
 }
