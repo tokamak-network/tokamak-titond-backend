@@ -1,13 +1,13 @@
 package http
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
+	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 )
 
 func (s *HTTPServer) CreateNetwork(c *gin.Context) {
@@ -24,18 +24,14 @@ func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
 	fmt.Println("Request delete a network: ", networkID)
 	id, err := strconv.ParseInt(networkID, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errors.New("network id is invalid"))
+		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
 		return
 	}
-	result, err := s.apis.DeleteNetwork(uint(id))
+	err = s.apis.DeleteNetwork(uint(id))
 	if err == nil {
-		if result > 0 {
-			c.JSON(http.StatusOK, "Deleted")
-		} else {
-			c.JSON(http.StatusNotFound, "Not found")
-		}
+		c.JSON(http.StatusOK, "Deleted")
 	} else {
-		c.JSON(http.StatusInternalServerError, err)
+		s.ResponseErrorMessage(c, err)
 	}
 }
 
@@ -44,7 +40,7 @@ func (s *HTTPServer) CreateComponent(c *gin.Context) {
 	if err == nil {
 		c.JSON(http.StatusOK, result)
 	} else {
-		c.JSON(http.StatusInternalServerError, err)
+		s.ResponseErrorMessage(c, err)
 	}
 }
 
@@ -53,6 +49,27 @@ func (s *HTTPServer) UpdateComponent(c *gin.Context) {
 	if err == nil {
 		c.JSON(http.StatusOK, result)
 	} else {
-		c.JSON(http.StatusInternalServerError, err)
+		s.ResponseErrorMessage(c, err)
+	}
+}
+
+func (s *HTTPServer) ResponseErrorMessage(c *gin.Context, err error) {
+	switch err {
+	case apptypes.ErrBadRequest:
+		{
+			c.JSON(http.StatusBadRequest, err)
+		}
+	case apptypes.ErrResourceNotFound:
+		{
+			c.JSON(http.StatusNotFound, err)
+		}
+	case apptypes.ErrInternalServer:
+		{
+			c.JSON(http.StatusInternalServerError, err)
+		}
+	default:
+		{
+			c.JSON(http.StatusInternalServerError, err)
+		}
 	}
 }
