@@ -36,7 +36,12 @@ func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
 }
 
 func (s *HTTPServer) CreateComponent(c *gin.Context) {
-	result, err := s.apis.CreateComponent(&model.Component{})
+	var component model.Component
+	if err := c.ShouldBindJSON(&component); err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	result, err := s.apis.CreateComponent(&component)
 	if err == nil {
 		c.JSON(http.StatusOK, result)
 	} else {
@@ -45,7 +50,12 @@ func (s *HTTPServer) CreateComponent(c *gin.Context) {
 }
 
 func (s *HTTPServer) UpdateComponent(c *gin.Context) {
-	result, err := s.apis.UpdateComponent(&model.Component{})
+	var component model.Component
+	if err := c.ShouldBindJSON(&component); err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	result, err := s.apis.UpdateComponent(&component)
 	if err == nil {
 		c.JSON(http.StatusOK, result)
 	} else {
