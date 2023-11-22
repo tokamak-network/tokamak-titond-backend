@@ -33,9 +33,13 @@ func NewTitondAPI(k8s *kubernetes.Kubernetes, db db.Client, fileManager services
 
 func (t *TitondAPI) Initialize() {
 	t.k8s.CreateNamespaceForApp(t.config.Namespace)
-	t.k8s.CreateConfigMapForDeployer(t.config.Namespace,
-		t.config.ContractsRpcUrl,
-		t.config.ContractsTargetNetwork,
-		t.config.ContractsDeployerKey,
-	)
+	overrideData := map[string]string{
+		"CONTRACTS_RPC_URL":        t.config.ContractsRpcUrl,
+		"CONTRACTS_TARGET_NETWORK": t.config.ContractsTargetNetwork,
+		"CONTRACTS_DEPLOYER_KEY":   t.config.ContractsDeployerKey,
+	}
+	err := t.k8s.CreateConfigmapWithConfig(t.config.Namespace, "./deployments/deployer/configmap.yaml", overrideData)
+	if err != nil {
+		panic("Cannot init configmap for deployer")
+	}
 }

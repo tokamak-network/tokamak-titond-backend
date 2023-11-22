@@ -31,6 +31,13 @@ func (k *Kubernetes) GetConfigMap(namespace string, name string) (*corev1.Config
 	return k.client.CoreV1().ConfigMaps(namespace).Get(context.TODO(), name, v1.GetOptions{})
 }
 
+func (k *Kubernetes) CreateDeploymentWithName(namespace string, deployment *appsv1.Deployment, name string) (*appsv1.Deployment, error) {
+	deployment.Name = name
+	deployment.Spec.Selector.MatchLabels = map[string]string{"app": name}
+	deployment.Spec.Template.ObjectMeta.Labels = map[string]string{"app": name}
+	return k.CreateDeployment(namespace, deployment)
+}
+
 func (k *Kubernetes) CreateDeployment(namespace string, deployment *appsv1.Deployment) (*appsv1.Deployment, error) {
 	return k.client.AppsV1().Deployments(namespace).Create(context.TODO(), deployment, v1.CreateOptions{})
 }
@@ -70,7 +77,7 @@ func (k *Kubernetes) GetFileFromPod(namespace string, pod *corev1.Pod, path stri
 	return "", err
 }
 
-func (k *Kubernetes) OverrideConfigMapFromTemplate(namespace string, template string, items map[string]string) error {
+func (k *Kubernetes) CreateConfigmapWithConfig(namespace string, template string, items map[string]string) error {
 	object, err := BuildObjectFromYamlFile(template)
 	if err != nil {
 		return err

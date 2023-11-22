@@ -3,7 +3,9 @@ package api
 import (
 	"fmt"
 
+	"github.com/tokamak-network/tokamak-titond-backend/pkg/kubernetes"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
+	appsv1 "k8s.io/api/apps/v1"
 )
 
 func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
@@ -16,7 +18,7 @@ func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
 
 func (t *TitondAPI) createNetwork(network *model.Network) {
 	deployerName := MakeDeployerName(network.ID)
-	_, err := t.k8s.CreateDeployer(t.config.Namespace, deployerName)
+	_, err := t.CreateDeployer(t.config.Namespace, deployerName)
 	if err != nil {
 		fmt.Println("Failed when creating deployer:", err)
 		return
@@ -35,7 +37,10 @@ func (t *TitondAPI) createNetwork(network *model.Network) {
 		fmt.Println("Back")
 		return
 	}
-	addressData, addressErr, dumpData, dumpErr := t.k8s.GetDeployerResult(t.config.Namespace, &podList.Items[0])
+	// addressData, addressErr, dumpData, dumpErr := t.k8s.GetDeployerResult(t.config.Namespace, &podList.Items[0])
+	addressData, addressErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json")
+	dumpData, dumpErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json")
+
 	addressUrl := ""
 	dumpUrl := ""
 	var uploadDumpErr, uploadAddressErr error
@@ -51,6 +56,22 @@ func (t *TitondAPI) createNetwork(network *model.Network) {
 	if err == nil {
 		fmt.Println("Clean k8s job", t.CleanK8sJob(network))
 	}
+}
+
+func (t *TitondAPI) CreateDeployer(namespace string, name string) (*appsv1.Deployment, error) {
+	fmt.Println("Create deployer: ", name)
+	object, _ := kubernetes.BuildObjectFromYamlFile("./deployments/deployer/deployment.yaml")
+	deployment, success := kubernetes.ConvertToDeployment(object)
+	if !success {
+		panic("Failed to convert to deployment object")
+	}
+	var deployerCreationErr error
+	_, deployerCreationErr = t.k8s.CreateDeploymentWithName(namespace, deployment, name)
+	if deployerCreationErr == nil {
+		deployerCreationErr = t.k8s.WaitingDeploymentCreated(namespace, name)
+	}
+
+	return deployment, deployerCreationErr
 }
 
 func (t *TitondAPI) UploadAddressFile(addressFileName string, addressData string) (string, error) {
@@ -88,7 +109,7 @@ func (t *TitondAPI) UpdateDBWithValue(network *model.Network, addressFileUrl str
 func (t *TitondAPI) CleanK8sJob(network *model.Network) error {
 	deployerName := MakeDeployerName(network.ID)
 
-	return t.k8s.DeleteDeployer(t.config.Namespace, deployerName)
+	return t.k8s.DeleteDeployment(t.config.Namespace, deployerName)
 }
 
 func MakeDeployerName(id uint) string {
