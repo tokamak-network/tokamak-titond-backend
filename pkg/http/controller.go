@@ -1,9 +1,7 @@
 package http
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
@@ -20,14 +18,12 @@ func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 }
 
 func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
-	networkID := c.Param("id")
-	fmt.Println("Request delete a network: ", networkID)
-	id, err := strconv.ParseInt(networkID, 10, 64)
-	if err != nil {
+	var networkID uint
+	if err := c.ShouldBindJSON(&networkID); err != nil {
 		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
 		return
 	}
-	err = s.apis.DeleteNetwork(uint(id))
+	err := s.apis.DeleteNetwork(networkID)
 	if err == nil {
 		c.JSON(http.StatusOK, "Deleted")
 	} else {
@@ -38,7 +34,7 @@ func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
 func (s *HTTPServer) CreateComponent(c *gin.Context) {
 	var component model.Component
 	if err := c.ShouldBindJSON(&component); err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
 		return
 	}
 	result, err := s.apis.CreateComponent(&component)
@@ -52,7 +48,7 @@ func (s *HTTPServer) CreateComponent(c *gin.Context) {
 func (s *HTTPServer) UpdateComponent(c *gin.Context) {
 	var component model.Component
 	if err := c.ShouldBindJSON(&component); err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
 		return
 	}
 	result, err := s.apis.UpdateComponent(&component)
