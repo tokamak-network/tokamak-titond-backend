@@ -27,17 +27,10 @@ func (t *TitondAPI) createNetwork(network *model.Network) {
 	if err != nil {
 		return
 	}
-	if podList != nil {
-		fmt.Println("Pod len", len(podList.Items))
-		for _, pod := range podList.Items {
-			fmt.Println("Pod name: ", pod.Name)
-		}
-	}
 	if len(podList.Items) == 0 {
 		fmt.Println("Back")
 		return
 	}
-	// addressData, addressErr, dumpData, dumpErr := t.k8s.GetDeployerResult(t.config.Namespace, &podList.Items[0])
 	addressData, addressErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json")
 	dumpData, dumpErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json")
 
@@ -70,7 +63,6 @@ func (t *TitondAPI) CreateDeployer(namespace string, name string) (*appsv1.Deplo
 	if deployerCreationErr == nil {
 		deployerCreationErr = t.k8s.WaitingDeploymentCreated(namespace, name)
 	}
-
 	return deployment, deployerCreationErr
 }
 
@@ -108,7 +100,6 @@ func (t *TitondAPI) UpdateDBWithValue(network *model.Network, addressFileUrl str
 
 func (t *TitondAPI) CleanK8sJob(network *model.Network) error {
 	deployerName := MakeDeployerName(network.ID)
-
 	return t.k8s.DeleteDeployment(t.config.Namespace, deployerName)
 }
 
