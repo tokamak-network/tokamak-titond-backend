@@ -11,7 +11,7 @@ type Network struct {
 	DeletedAt          soft_delete.DeletedAt `json:"-"`
 	ContractAddressURL string                `json:"contract_address_url"`
 	StateDumpURL       string                `json:"state_dump_url"`
-	Status             bool                  `json:"status"`
+	Status             bool                  `json:"status" gorm:"-"`
 }
 
 type Component struct {
@@ -21,8 +21,8 @@ type Component struct {
 	DeletedAt soft_delete.DeletedAt `json:"-"`
 	Name      string                `json:"name"`
 	Type      string                `json:"type"`
-	Status    bool                  `json:"status"`
-	PublicURL string                `json:"public_url"`
+	Status    bool                  `json:"status" gorm:"-"`
+	PublicURL string                `json:"public_url" gorm:"-"`
 	NetworkID uint                  `json:"network_id"`
 	Network   Network               `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }

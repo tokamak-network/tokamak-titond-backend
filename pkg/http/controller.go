@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
@@ -18,12 +19,12 @@ func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 }
 
 func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
-	var networkID uint
-	if err := c.ShouldBindJSON(&networkID); err != nil {
+	networkID, err := strconv.ParseInt(c.Param("id"), 10, 32)
+	if err != nil {
 		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
 		return
 	}
-	err := s.apis.DeleteNetwork(networkID)
+	err = s.apis.DeleteNetwork(uint(networkID))
 	if err == nil {
 		c.JSON(http.StatusOK, "Deleted")
 	} else {
