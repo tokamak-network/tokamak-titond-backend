@@ -108,7 +108,7 @@ func TestCreate(t *testing.T) {
 				cm, _ := fakeKubernetes.CreateConfigMapWithConfig("default", tt.cm, tt.data)
 				assert.Equal(t, fmt.Sprintf("TestConfigMap_%d", i), cm.GetName())
 				if len(tt.cm.Data) > 0 {
-					for k, _ := range tt.expected {
+					for k := range tt.expected {
 						assert.Equal(t, tt.expected[k], cm.Data[k])
 					}
 				}
