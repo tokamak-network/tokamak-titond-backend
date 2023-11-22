@@ -96,7 +96,7 @@ func TestConvertToSpecificObject(t *testing.T) {
 			obj := GetObject("l2geth", "service")
 			_, err := ConvertToStatefulSet(obj)
 
-			assert.EqualError(t, err, "This is not StatefulSet")
+			assert.EqualError(t, err, "this is not StatefulSet")
 		})
 
 		t.Run("Create StatefulSet Successfully", func(t *testing.T) {
@@ -114,7 +114,7 @@ func TestConvertToSpecificObject(t *testing.T) {
 			obj := GetObject("l2geth", "statefulset")
 			_, err := ConvertToService(obj)
 
-			assert.EqualError(t, err, "This is not Service")
+			assert.EqualError(t, err, "this is not Service")
 		})
 
 		t.Run("Convert Service Successfully", func(t *testing.T) {
@@ -132,7 +132,7 @@ func TestConvertToSpecificObject(t *testing.T) {
 			obj := GetObject("l2geth", "statefulset")
 			_, err := ConvertToConfigMap(obj)
 
-			assert.EqualError(t, err, "This is not ConfigMap")
+			assert.EqualError(t, err, "this is not ConfigMap")
 		})
 
 		t.Run("Convert ConfigMap Successfully", func(t *testing.T) {
@@ -150,7 +150,7 @@ func TestConvertToSpecificObject(t *testing.T) {
 			obj := GetObject("l2geth", "service")
 			_, err := ConvertToPersistentVolumeClaim(obj)
 
-			assert.EqualError(t, err, "This is not PersistentVolumeClaim")
+			assert.EqualError(t, err, "this is not PersistentVolumeClaim")
 		})
 
 		t.Run("Convert PersistentVolumeClaim Successfully", func(t *testing.T) {
@@ -168,7 +168,7 @@ func TestConvertToSpecificObject(t *testing.T) {
 			obj := GetObject("l2geth", "pvc")
 			_, err := ConvertToIngress(obj)
 
-			assert.EqualError(t, err, "This is not Ingress")
+			assert.EqualError(t, err, "this is not Ingress")
 		})
 
 		t.Run("Convert Ingress Successfully", func(t *testing.T) {

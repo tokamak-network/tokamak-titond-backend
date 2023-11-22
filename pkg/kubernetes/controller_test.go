@@ -1,9 +1,12 @@
 package kubernetes
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/fake"
 )
 
@@ -57,6 +60,60 @@ func TestCreate(t *testing.T) {
 			assert.NoError(t, err, "must be not error")
 			assert.Equal(t, "l2geth", res.GetName(), "must be l2geth")
 		})
+	})
+
+	t.Run("Create ConfigMap With Config", func(t *testing.T) {
+		obj := GetObject("l2geth", "configMap")
+		tCm, _ := ConvertToConfigMap(obj)
+
+		tests := []struct {
+			name     string
+			cm       *corev1.ConfigMap
+			data     map[string]string
+			expected map[string]string
+		}{
+			{
+				name:     "Test empty config",
+				cm:       &corev1.ConfigMap{},
+				data:     map[string]string{},
+				expected: map[string]string{},
+			},
+			{
+				name: "Test exist config",
+				cm:   &corev1.ConfigMap{},
+				data: map[string]string{
+					"testKey": "testValue",
+				},
+				expected: map[string]string{
+					"testKey": "testValue",
+				},
+			},
+			{
+				name: "Test change data",
+				cm:   tCm,
+				data: map[string]string{
+					"ETH1_CONFIRMATION_DEPTH": "10",
+					"GASPRICE":                "100",
+				},
+				expected: map[string]string{
+					"ETH1_CONFIRMATION_DEPTH": "10",
+					"GASPRICE":                "100",
+				},
+			},
+		}
+
+		for i, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				tt.cm.SetName(fmt.Sprintf("TestConfigMap_%d", i))
+				cm, _ := fakeKubernetes.CreateConfigMapWithConfig("default", tt.cm, tt.data)
+				assert.Equal(t, fmt.Sprintf("TestConfigMap_%d", i), cm.GetName())
+				if len(tt.cm.Data) > 0 {
+					for k, _ := range tt.expected {
+						assert.Equal(t, tt.expected[k], cm.Data[k])
+					}
+				}
+			})
+		}
 	})
 
 	t.Run("Create Ingress", func(t *testing.T) {

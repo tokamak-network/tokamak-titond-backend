@@ -73,7 +73,7 @@ func GetObject(componentName, yamlFileName string) runtime.Object {
 func ConvertToStatefulSet(obj runtime.Object) (*appsv1.StatefulSet, error) {
 	sfs, ok := obj.(*appsv1.StatefulSet)
 	if !ok {
-		err := errors.New("This is not StatefulSet")
+		err := errors.New("this is not StatefulSet")
 		return nil, err
 	}
 
@@ -83,7 +83,7 @@ func ConvertToStatefulSet(obj runtime.Object) (*appsv1.StatefulSet, error) {
 func ConvertToService(obj runtime.Object) (*corev1.Service, error) {
 	svc, ok := obj.(*corev1.Service)
 	if !ok {
-		err := errors.New("This is not Service")
+		err := errors.New("this is not Service")
 		return nil, err
 	}
 
@@ -93,7 +93,7 @@ func ConvertToService(obj runtime.Object) (*corev1.Service, error) {
 func ConvertToPersistentVolumeClaim(obj runtime.Object) (*corev1.PersistentVolumeClaim, error) {
 	pvc, ok := obj.(*corev1.PersistentVolumeClaim)
 	if !ok {
-		err := errors.New("This is not PersistentVolumeClaim")
+		err := errors.New("this is not PersistentVolumeClaim")
 		return nil, err
 	}
 
@@ -103,7 +103,7 @@ func ConvertToPersistentVolumeClaim(obj runtime.Object) (*corev1.PersistentVolum
 func ConvertToConfigMap(obj runtime.Object) (*corev1.ConfigMap, error) {
 	configMap, ok := obj.(*corev1.ConfigMap)
 	if !ok {
-		err := errors.New("This is not ConfigMap")
+		err := errors.New("this is not ConfigMap")
 		return nil, err
 	}
 
@@ -113,7 +113,7 @@ func ConvertToConfigMap(obj runtime.Object) (*corev1.ConfigMap, error) {
 func ConvertToIngress(obj runtime.Object) (*networkv1.Ingress, error) {
 	ingress, ok := obj.(*networkv1.Ingress)
 	if !ok {
-		err := errors.New("This is not Ingress")
+		err := errors.New("this is not Ingress")
 		return nil, err
 	}
 

@@ -30,6 +30,16 @@ func (k *Kubernetes) CreateConfigMap(namespace string, configMap *corev1.ConfigM
 	return k.client.CoreV1().ConfigMaps(namespace).Create(context.TODO(), configMap, metav1.CreateOptions{})
 }
 
+func (k *Kubernetes) CreateConfigMapWithConfig(namespace string, configMap *corev1.ConfigMap, config map[string]string) (*corev1.ConfigMap, error) {
+	if configMap.Data == nil {
+		configMap.Data = map[string]string{}
+	}
+	for k, v := range config {
+		configMap.Data[k] = v
+	}
+	return k.client.CoreV1().ConfigMaps(namespace).Create(context.TODO(), configMap, metav1.CreateOptions{})
+}
+
 func (k *Kubernetes) CreateIngress(namespace string, ingress *networkv1.Ingress) (*networkv1.Ingress, error) {
 	return k.client.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, metav1.CreateOptions{})
 }
