@@ -94,17 +94,17 @@ func TestConvertToSpecificObject(t *testing.T) {
 	t.Run("Convert to StatefulSet", func(t *testing.T) {
 		t.Run("Not StatefulSet yaml file", func(t *testing.T) {
 			obj := GetObject("l2geth", "service")
-			_, err := ConvertToStatefulSet(obj)
+			_, ok := ConvertToStatefulSet(obj)
 
-			assert.EqualError(t, err, "this is not StatefulSet")
+			assert.False(t, ok)
 		})
 
 		t.Run("Create StatefulSet Successfully", func(t *testing.T) {
 			obj := GetObject("l2geth", "statefulset")
 
-			res, err := ConvertToStatefulSet(obj)
+			res, ok := ConvertToStatefulSet(obj)
 
-			assert.NoError(t, err, "must be not error")
+			assert.True(t, ok)
 			assert.Equal(t, "l2geth", res.GetName(), "must be l2geth")
 		})
 	})
@@ -112,17 +112,17 @@ func TestConvertToSpecificObject(t *testing.T) {
 	t.Run("Convert to Service", func(t *testing.T) {
 		t.Run("Not Service yaml file", func(t *testing.T) {
 			obj := GetObject("l2geth", "statefulset")
-			_, err := ConvertToService(obj)
+			_, ok := ConvertToService(obj)
 
-			assert.EqualError(t, err, "this is not Service")
+			assert.False(t, ok)
 		})
 
 		t.Run("Convert Service Successfully", func(t *testing.T) {
 			obj := GetObject("l2geth", "service")
 
-			res, err := ConvertToService(obj)
+			res, ok := ConvertToService(obj)
 
-			assert.NoError(t, err, "must be not error")
+			assert.True(t, ok)
 			assert.Equal(t, "l2geth-svc", res.GetName(), "must be l2geth-svc")
 		})
 	})
@@ -130,17 +130,17 @@ func TestConvertToSpecificObject(t *testing.T) {
 	t.Run("Convert to ConfigMap", func(t *testing.T) {
 		t.Run("Not ConfigMap yaml file", func(t *testing.T) {
 			obj := GetObject("l2geth", "statefulset")
-			_, err := ConvertToConfigMap(obj)
+			_, ok := ConvertToConfigMap(obj)
 
-			assert.EqualError(t, err, "this is not ConfigMap")
+			assert.False(t, ok)
 		})
 
 		t.Run("Convert ConfigMap Successfully", func(t *testing.T) {
 			obj := GetObject("l2geth", "configMap")
 
-			res, err := ConvertToConfigMap(obj)
+			res, ok := ConvertToConfigMap(obj)
 
-			assert.NoError(t, err, "must be not error")
+			assert.True(t, ok)
 			assert.Equal(t, "l2geth", res.GetName(), "must be l2geth")
 		})
 	})
@@ -148,17 +148,17 @@ func TestConvertToSpecificObject(t *testing.T) {
 	t.Run("Convert to PersistentVolumeClaim", func(t *testing.T) {
 		t.Run("Not PersistentVolumeClaim yaml file", func(t *testing.T) {
 			obj := GetObject("l2geth", "service")
-			_, err := ConvertToPersistentVolumeClaim(obj)
+			_, ok := ConvertToPersistentVolumeClaim(obj)
 
-			assert.EqualError(t, err, "this is not PersistentVolumeClaim")
+			assert.False(t, ok)
 		})
 
 		t.Run("Convert PersistentVolumeClaim Successfully", func(t *testing.T) {
 			obj := GetObject("l2geth", "pvc")
 
-			res, err := ConvertToPersistentVolumeClaim(obj)
+			res, ok := ConvertToPersistentVolumeClaim(obj)
 
-			assert.NoError(t, err, "must be not error")
+			assert.True(t, ok)
 			assert.Equal(t, "l2geth-pvc", res.GetName(), "must be l2geth-pvc")
 		})
 	})
@@ -166,17 +166,17 @@ func TestConvertToSpecificObject(t *testing.T) {
 	t.Run("Convert to Ingress", func(t *testing.T) {
 		t.Run("Not Ingress yaml file", func(t *testing.T) {
 			obj := GetObject("l2geth", "pvc")
-			_, err := ConvertToIngress(obj)
+			_, ok := ConvertToIngress(obj)
 
-			assert.EqualError(t, err, "this is not Ingress")
+			assert.False(t, ok)
 		})
 
 		t.Run("Convert Ingress Successfully", func(t *testing.T) {
 			obj := GetObject("l2geth", "ingress")
 
-			res, err := ConvertToIngress(obj)
+			res, ok := ConvertToIngress(obj)
 
-			assert.NoError(t, err, "must be not error")
+			assert.True(t, ok)
 			assert.Equal(t, "ingress-l2geth", res.GetName(), "must be ingress-l2geth")
 		})
 	})

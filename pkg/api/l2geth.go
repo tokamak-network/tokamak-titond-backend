@@ -34,9 +34,9 @@ func (t *TitondAPI) CreateL2Geth(data *model.Component /*TODO : get params for c
 
 func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 	obj := kubernetes.GetObject("l2geth", "configMap")
-	cm, err := kubernetes.ConvertToConfigMap(obj)
-	if err != nil {
-		fmt.Printf("createL2Geth error: %s\n", err)
+	cm, ok := kubernetes.ConvertToConfigMap(obj)
+	if !ok {
+		fmt.Printf("createL2Geth error: convertToConfigmap")
 		return
 	}
 
@@ -48,9 +48,9 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 	fmt.Printf("Created L2Geth ConfigMap: %s\n", createdConfigMap.GetName())
 
 	obj = kubernetes.GetObject("l2geth", "pvc")
-	pvc, err := kubernetes.ConvertToPersistentVolumeClaim(obj)
-	if err != nil {
-		fmt.Printf("createL2Geth error: %s\n", err)
+	pvc, ok := kubernetes.ConvertToPersistentVolumeClaim(obj)
+	if !ok {
+		fmt.Printf("createL2Geth error: convertToPersistentVolumeClaim")
 		return
 	}
 
@@ -62,9 +62,9 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 	fmt.Printf("Created L2Geth PersistentVolumeClaim: %s\n", createdPVC.GetName())
 
 	obj = kubernetes.GetObject("l2geth", "service")
-	svc, err := kubernetes.ConvertToService(obj)
-	if err != nil {
-		fmt.Printf("createL2Geth error: %s\n", err)
+	svc, ok := kubernetes.ConvertToService(obj)
+	if !ok {
+		fmt.Printf("createL2Geth error: convertToService")
 		return
 	}
 
@@ -76,9 +76,9 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 	fmt.Printf("Created L2Geth Service: %s\n", createdSVC.GetName())
 
 	obj = kubernetes.GetObject("l2geth", "statefulset")
-	sfs, err := kubernetes.ConvertToStatefulSet(obj)
-	if err != nil {
-		fmt.Printf("createL2Geth error: %s\n", err)
+	sfs, ok := kubernetes.ConvertToStatefulSet(obj)
+	if !ok {
+		fmt.Printf("createL2Geth error: convertToStatefulSet")
 		return
 	}
 
@@ -90,9 +90,9 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 	fmt.Printf("Created L2Geth StatefulSet: %s\n", createdSFS.GetName())
 
 	obj = kubernetes.GetObject("l2geth", "ingress")
-	ingress, err := kubernetes.ConvertToIngress(obj)
-	if err != nil {
-		fmt.Printf("createL2Geth error: %s\n", err)
+	ingress, ok := kubernetes.ConvertToIngress(obj)
+	if !ok {
+		fmt.Printf("createL2Geth error: convertToIngress")
 		return
 	}
 

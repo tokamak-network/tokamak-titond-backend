@@ -1,7 +1,6 @@
 package kubernetes
 
 import (
-	"errors"
 	"log"
 	"os"
 	"path"
@@ -70,54 +69,29 @@ func GetObject(componentName, yamlFileName string) runtime.Object {
 	return ConvertBytestoObject(f)
 }
 
-func ConvertToStatefulSet(obj runtime.Object) (*appsv1.StatefulSet, error) {
+func ConvertToStatefulSet(obj runtime.Object) (*appsv1.StatefulSet, bool) {
 	sfs, ok := obj.(*appsv1.StatefulSet)
-	if !ok {
-		err := errors.New("this is not StatefulSet")
-		return nil, err
-	}
-
-	return sfs, nil
+	return sfs, ok
 }
 
-func ConvertToService(obj runtime.Object) (*corev1.Service, error) {
+func ConvertToService(obj runtime.Object) (*corev1.Service, bool) {
 	svc, ok := obj.(*corev1.Service)
-	if !ok {
-		err := errors.New("this is not Service")
-		return nil, err
-	}
-
-	return svc, nil
+	return svc, ok
 }
 
-func ConvertToPersistentVolumeClaim(obj runtime.Object) (*corev1.PersistentVolumeClaim, error) {
+func ConvertToPersistentVolumeClaim(obj runtime.Object) (*corev1.PersistentVolumeClaim, bool) {
 	pvc, ok := obj.(*corev1.PersistentVolumeClaim)
-	if !ok {
-		err := errors.New("this is not PersistentVolumeClaim")
-		return nil, err
-	}
-
-	return pvc, nil
+	return pvc, ok
 }
 
-func ConvertToConfigMap(obj runtime.Object) (*corev1.ConfigMap, error) {
+func ConvertToConfigMap(obj runtime.Object) (*corev1.ConfigMap, bool) {
 	configMap, ok := obj.(*corev1.ConfigMap)
-	if !ok {
-		err := errors.New("this is not ConfigMap")
-		return nil, err
-	}
-
-	return configMap, nil
+	return configMap, ok
 }
 
-func ConvertToIngress(obj runtime.Object) (*networkv1.Ingress, error) {
+func ConvertToIngress(obj runtime.Object) (*networkv1.Ingress, bool) {
 	ingress, ok := obj.(*networkv1.Ingress)
-	if !ok {
-		err := errors.New("this is not Ingress")
-		return nil, err
-	}
-
-	return ingress, nil
+	return ingress, ok
 }
 
 func init() {
