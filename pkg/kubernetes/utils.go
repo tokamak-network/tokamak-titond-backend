@@ -1,12 +1,11 @@
 package kubernetes
 
 import (
-	"os"
-  "fmt"
-  "log"
-  "path"
+	"fmt"
 	"io/ioutil"
-	
+	"log"
+	"os"
+	"path"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -14,9 +13,9 @@ import (
 	jsonserializer "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/kubernetes/scheme"
-  "k8s.io/apimachinery/pkg/runtime/serializer"
 )
 
 var mDir string = "../../deployments"
