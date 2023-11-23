@@ -7,12 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/kubernetes/fake"
 )
 
 func TestCreate(t *testing.T) {
-	fakeClient := fake.NewSimpleClientset()
-	fakeKubernetes := &Kubernetes{fakeClient}
+	fakeKubernetes := NewFakeKubernetes()
 
 	t.Run("Create StatefulSet", func(t *testing.T) {
 		t.Run("Create StatefulSet Successfully", func(t *testing.T) {

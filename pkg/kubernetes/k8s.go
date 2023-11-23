@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
@@ -36,4 +37,9 @@ func NewKubernetes(cfg *Config) (*Kubernetes, error) {
 	}
 
 	return &Kubernetes{client}, nil
+}
+
+func NewFakeKubernetes() *Kubernetes {
+	fakeClient := fake.NewSimpleClientset()
+	return &Kubernetes{fakeClient}
 }
