@@ -42,5 +42,5 @@ func NewKubernetes(cfg *Config) (*Kubernetes, error) {
 
 func NewFakeKubernetes() *Kubernetes {
 	fakeClient := fake.NewSimpleClientset()
-	return &Kubernetes{fakeClient}
+	return &Kubernetes{fakeClient, nil}
 }
