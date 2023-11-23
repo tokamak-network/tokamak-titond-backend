@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	app "k8s.io/api/apps/v1"
-	core "k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -29,16 +29,16 @@ func BuildObjectFromYamlFile(file string) (runtime.Object, error) {
 	return obj, err
 }
 
-func ConvertToConfigMap(obj runtime.Object) (*core.ConfigMap, bool) {
-	instance, exist := obj.(*core.ConfigMap)
+func ConvertToConfigMap(obj runtime.Object) (*corev1.ConfigMap, bool) {
+	instance, exist := obj.(*corev1.ConfigMap)
 	return instance, exist
 }
 
-func ConvertToDeployment(obj runtime.Object) (*app.Deployment, bool) {
-	instance, exist := obj.(*app.Deployment)
+func ConvertToDeployment(obj runtime.Object) (*appsv1.Deployment, bool) {
+	instance, exist := obj.(*appsv1.Deployment)
 	return instance, exist
 }
 
-func UpdateConfigMapObjectValue(configMap *core.ConfigMap, key string, value string) {
+func UpdateConfigMapObjectValue(configMap *corev1.ConfigMap, key string, value string) {
 	configMap.Data[key] = value
 }

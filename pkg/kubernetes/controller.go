@@ -9,26 +9,26 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/remotecommand"
 )
 
 func (k *Kubernetes) GetPodStatus(namespace, name string) (string, error) {
-	pod, err := k.client.CoreV1().Pods(namespace).Get(context.TODO(), name, v1.GetOptions{})
+	pod, err := k.client.CoreV1().Pods(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	return string(pod.Status.Phase), err
 }
 
 func (k *Kubernetes) CreateConfigMap(namespace string, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
-	return k.client.CoreV1().ConfigMaps(namespace).Create(context.TODO(), configMap, v1.CreateOptions{})
+	return k.client.CoreV1().ConfigMaps(namespace).Create(context.TODO(), configMap, metav1.CreateOptions{})
 }
 
 func (k *Kubernetes) UpdateConfigMap(namespace string, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
-	return k.client.CoreV1().ConfigMaps(namespace).Update(context.TODO(), configMap, v1.UpdateOptions{})
+	return k.client.CoreV1().ConfigMaps(namespace).Update(context.TODO(), configMap, metav1.UpdateOptions{})
 }
 
 func (k *Kubernetes) GetConfigMap(namespace string, name string) (*corev1.ConfigMap, error) {
-	return k.client.CoreV1().ConfigMaps(namespace).Get(context.TODO(), name, v1.GetOptions{})
+	return k.client.CoreV1().ConfigMaps(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 }
 
 func (k *Kubernetes) CreateDeploymentWithName(namespace string, deployment *appsv1.Deployment, name string) (*appsv1.Deployment, error) {
@@ -39,24 +39,24 @@ func (k *Kubernetes) CreateDeploymentWithName(namespace string, deployment *apps
 }
 
 func (k *Kubernetes) CreateDeployment(namespace string, deployment *appsv1.Deployment) (*appsv1.Deployment, error) {
-	return k.client.AppsV1().Deployments(namespace).Create(context.TODO(), deployment, v1.CreateOptions{})
+	return k.client.AppsV1().Deployments(namespace).Create(context.TODO(), deployment, metav1.CreateOptions{})
 }
 
 func (k *Kubernetes) DeleteDeployment(namespace string, name string) error {
-	return k.client.AppsV1().Deployments(namespace).Delete(context.TODO(), name, v1.DeleteOptions{})
+	return k.client.AppsV1().Deployments(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
 
 func (k *Kubernetes) CreateNamespace(name string) (*corev1.Namespace, error) {
 	namespace := &corev1.Namespace{
-		ObjectMeta: v1.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
 		},
 	}
-	return k.client.CoreV1().Namespaces().Create(context.TODO(), namespace, v1.CreateOptions{})
+	return k.client.CoreV1().Namespaces().Create(context.TODO(), namespace, metav1.CreateOptions{})
 }
 
 func (k *Kubernetes) GetNamespace(name string) (*corev1.Namespace, error) {
-	return k.client.CoreV1().Namespaces().Get(context.TODO(), name, v1.GetOptions{})
+	return k.client.CoreV1().Namespaces().Get(context.TODO(), name, metav1.GetOptions{})
 }
 
 func (k *Kubernetes) GetFileFromPod(namespace string, pod *corev1.Pod, path string) (string, error) {
@@ -123,7 +123,7 @@ func (k *Kubernetes) CreateNamespaceForApp(name string) {
 }
 
 func (k *Kubernetes) GetPodsOfDeployment(namespace string, deployment string) (*corev1.PodList, error) {
-	pods, err := k.client.CoreV1().Pods(namespace).List(context.TODO(), v1.ListOptions{
+	pods, err := k.client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("app=%s", deployment),
 	})
 	return pods, err
@@ -132,7 +132,7 @@ func (k *Kubernetes) GetPodsOfDeployment(namespace string, deployment string) (*
 func (k *Kubernetes) WaitingDeploymentCreated(namespace string, name string) error {
 	var err error
 	for i := 0; i < 1800; i++ {
-		deploy, err := k.client.AppsV1().Deployments(namespace).Get(context.TODO(), name, v1.GetOptions{})
+		deploy, err := k.client.AppsV1().Deployments(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 		if err != nil {
 			time.Sleep(time.Second)
 			continue
