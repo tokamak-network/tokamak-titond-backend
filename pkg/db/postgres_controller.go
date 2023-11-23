@@ -9,21 +9,29 @@ func (p *Postgres) CreateNetwork(data *model.Network) (*model.Network, error) {
 	if result.Error != nil {
 		return nil, result.Error
 	}
-
 	return data, nil
 }
 
 func (p *Postgres) ReadNetwork() {
 
 }
+
 func (p *Postgres) ReadAllNetwork() {
 
 }
-func (p *Postgres) UpdateNetwork() {
 
+func (p *Postgres) UpdateNetwork(data *model.Network) (*model.Network, error) {
+	result := p.gDB.Save(data)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return data, nil
 }
-func (p *Postgres) DeleteNetwork() {
 
+func (p *Postgres) DeleteNetwork(networkID uint) (int64, error) {
+	result := p.gDB.Delete(&model.Network{}, networkID)
+
+	return result.RowsAffected, result.Error
 }
 func (p *Postgres) CreateComponent() {
 

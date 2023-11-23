@@ -22,3 +22,5 @@ go.work
 
 # Build file
 /build
+client.http
+.env
