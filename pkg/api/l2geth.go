@@ -108,6 +108,6 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig, res cha
 		res <- err
 		return
 	}
-	fmt.Printf("Created L1Geth Ingress: %s\n", createdIngress.GetName())
+	fmt.Printf("Created L2Geth Ingress: %s\n", createdIngress.GetName())
 	res <- nil
 }
