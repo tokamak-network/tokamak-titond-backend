@@ -9,5 +9,6 @@ func (s *HTTPServer) NewNetworkRouter(group *gin.RouterGroup) {
 
 func (s *HTTPServer) NewComponentRouter(group *gin.RouterGroup) {
 	group.POST("/", s.CreateComponent)
-	group.PUT("/:id", s.UpdateComponent)
+	group.GET("/", s.GetComponentByType)
+	group.GET("/:id", s.GetComponentById)
 }

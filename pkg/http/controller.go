@@ -46,13 +46,32 @@ func (s *HTTPServer) CreateComponent(c *gin.Context) {
 	}
 }
 
-func (s *HTTPServer) UpdateComponent(c *gin.Context) {
-	var component model.Component
-	if err := c.ShouldBindJSON(&component); err != nil {
+type GetComponentByTypeParams struct {
+	Type      string `form:"type" binding:"required"`
+	NetworkID uint   `form:"network_id" binding:"required"`
+}
+
+func (s *HTTPServer) GetComponentByType(c *gin.Context) {
+	var params GetComponentByTypeParams
+	if err := c.ShouldBindQuery(&params); err != nil {
 		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
 		return
 	}
-	result, err := s.apis.UpdateComponent(&component)
+	result, err := s.apis.GetComponentByType(params.NetworkID, params.Type)
+	if err == nil {
+		c.JSON(http.StatusOK, result)
+	} else {
+		s.ResponseErrorMessage(c, err)
+	}
+}
+
+func (s *HTTPServer) GetComponentById(c *gin.Context) {
+	componentID, err := strconv.ParseInt(c.Param("id"), 10, 32)
+	if err != nil {
+		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
+		return
+	}
+	result, err := s.apis.GetComponentById(uint(componentID))
 	if err == nil {
 		c.JSON(http.StatusOK, result)
 	} else {

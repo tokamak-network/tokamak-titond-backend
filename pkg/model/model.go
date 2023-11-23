@@ -5,13 +5,14 @@ import (
 )
 
 type Network struct {
-	ID                 uint                  `json:"id" gorm:"primarykey"`
-	CreatedAt          int64                 `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt          int64                 `json:"updated_at" gorm:"autoUpdateTime"`
-	DeletedAt          soft_delete.DeletedAt `json:"-"`
-	ContractAddressURL string                `json:"contract_address_url"`
-	StateDumpURL       string                `json:"state_dump_url"`
-	Status             bool                  `json:"status" gorm:"-"`
+	ID                  uint                  `json:"id" gorm:"primarykey"`
+	CreatedAt           int64                 `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt           int64                 `json:"updated_at" gorm:"autoUpdateTime"`
+	DeletedAt           soft_delete.DeletedAt `json:"-"`
+	ContractAddressURL  string                `json:"contract_address_url"`
+	StateDumpURL        string                `json:"state_dump_url"`
+	LatestComponentType string                `json:"latest_component" gorm:"-"`
+	Status              bool                  `json:"status" gorm:"-"`
 }
 
 type Component struct {
