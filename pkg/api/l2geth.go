@@ -52,7 +52,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig, res cha
 		res <- err
 		return
 	}
-	fmt.Printf("Created L1Geth ConfigMap: %s\n", createdConfigMap.GetName())
+	fmt.Printf("Created L2Geth ConfigMap: %s\n", createdConfigMap.GetName())
 
 	obj = kubernetes.GetObject("l2geth", "pvc")
 	pvc, err := kubernetes.ConvertToPersistentVolumeClaim(obj)
@@ -66,7 +66,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig, res cha
 		res <- err
 		return
 	}
-	fmt.Printf("Created L1Geth PersistentVolumeClaim: %s\n", createdPVC.GetName())
+	fmt.Printf("Created L2Geth PersistentVolumeClaim: %s\n", createdPVC.GetName())
 
 	obj = kubernetes.GetObject("l2geth", "service")
 	svc, err := kubernetes.ConvertToService(obj)
@@ -80,7 +80,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig, res cha
 		res <- err
 		return
 	}
-	fmt.Printf("Created L1Geth Service: %s\n", createdSVC.GetName())
+	fmt.Printf("Created L2Geth Service: %s\n", createdSVC.GetName())
 
 	obj = kubernetes.GetObject("l2geth", "statefulset")
 	sfs, err := kubernetes.ConvertToStatefulSet(obj)
@@ -94,7 +94,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig, res cha
 		res <- err
 		return
 	}
-	fmt.Printf("Created L1Geth StatefulSet: %s\n", createdSFS.GetName())
+	fmt.Printf("Created L2Geth StatefulSet: %s\n", createdSFS.GetName())
 
 	obj = kubernetes.GetObject("l2geth", "ingress")
 	ingress, err := kubernetes.ConvertToIngress(obj)
