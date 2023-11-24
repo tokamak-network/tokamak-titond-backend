@@ -14,6 +14,7 @@ import (
 // @Description Create a new network
 // @Produce json
 // @Success 200 {object} model.Network
+// @Failure 500
 // @Router /api/networks [post]
 func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 	result, err := s.apis.CreateNetwork(&model.Network{})
@@ -24,6 +25,14 @@ func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 	}
 }
 
+// @Summary DeleteNetwork
+// @Description Delete a network by id
+// @Produce json
+// @Param id path int true "Network ID"
+// @Success 200 {object} object
+// @Failure 404
+// @Failure 500
+// @Router /api/networks/{id} [delete]
 func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
 	networkID, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {
