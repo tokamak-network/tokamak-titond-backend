@@ -7,6 +7,7 @@ WORKDIR /app
 COPY . .
 
 ARG TARGETOS TARGETARCH
+RUN go install github.com/swaggo/swag@latest
 RUN GOOS=$TARGETOS GOARCH=$TARGETARCH make titond
 
 FROM alpine

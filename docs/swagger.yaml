@@ -1,0 +1,36 @@
+basePath: /
+definitions:
+  model.Network:
+    properties:
+      contract_address_url:
+        type: string
+      created_at:
+        type: integer
+      id:
+        type: integer
+      state_dump_url:
+        type: string
+      status:
+        type: boolean
+      updated_at:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Titond-backend application
+  title: Titond
+  version: "1.0"
+paths:
+  /api/networks:
+    post:
+      description: Create a new network
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Network'
+      summary: CreateNetwork
+swagger: "2.0"

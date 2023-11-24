@@ -10,6 +10,11 @@ import (
 	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 )
 
+// @Summary CreateNetwork
+// @Description Create a new network
+// @Produce json
+// @Success 200 {object} model.Network
+// @Router /api/networks [post]
 func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 	result, err := s.apis.CreateNetwork(&model.Network{})
 	if err == nil {

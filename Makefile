@@ -10,11 +10,13 @@ run: $(TARGET)
 $(TARGET): build
 
 build:
+	swag init -g cmd/titond/main.go
 	CGO_ENABLED=0 GOOS=linux go build -o ./build/bin/titond ./cmd/titond/main.go
 	@echo "Done building"
 	@echo "Run \"./build/bin/titond\" to launch titond backend."
 
 titond:
+	swag init -g cmd/titond/main.go
 	CGO_ENABLED=0 GOOS=linux go build -o ./build/bin/titond ./cmd/titond/main.go
 	@echo "Done building"
 	@echo "Run \"./build/bin/titond\" to launch titond backend."
@@ -28,6 +30,6 @@ image-amd:
 image-arm:
 	docker build --build-arg TARGETARCH=arm64 --build-arg TARGETOS=linux -t titond-backend .
 
-
 clean: 
 	rm -rf $(TARGET)
+	rm -rf docs

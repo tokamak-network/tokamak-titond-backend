@@ -27,6 +27,11 @@ func init() {
 	app.Flags = append(app.Flags, utils.HTTPFlags...)
 }
 
+// @title Titond
+// @version 1.0
+// @description Titond-backend application
+// @host localhost:8080
+// @BasePath /
 func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)

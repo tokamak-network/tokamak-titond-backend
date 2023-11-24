@@ -1,0 +1,55 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Titond-backend application",
+        "title": "Titond",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/networks": {
+            "post": {
+                "description": "Create a new network",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "CreateNetwork",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Network"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.Network": {
+            "type": "object",
+            "properties": {
+                "contract_address_url": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "state_dump_url": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}
