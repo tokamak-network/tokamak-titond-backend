@@ -60,8 +60,8 @@ func ConvertBytestoObject(b []byte) runtime.Object {
 	return object
 }
 
-func GetObject(basePath, componentName, yamlFileName string) runtime.Object {
-	f := GetYAMLfile(basePath, componentName, yamlFileName)
+func GetObject(manifestPath, componentName, yamlFileName string) runtime.Object {
+	f := GetYAMLfile(manifestPath, componentName, yamlFileName)
 	return ConvertBytestoObject(f)
 }
 
