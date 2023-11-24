@@ -2,8 +2,6 @@ package kubernetes
 
 import (
 	"fmt"
-	"os"
-	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,19 +11,21 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
+var testDataPath = "../../testdata"
+
 func TestGetDirPath(t *testing.T) {
-	cPath, _ := os.Getwd()
-	testDataPath := path.Join(cPath, "../../testdata")
+	// cPath, _ := os.Getwd()
 
 	tests := []struct {
+		path string
 		name string
 	}{
-		{"deployer"},
-		{"l2geth"},
+		{testDataPath, "deployer"},
+		{testDataPath, "l2geth"},
 	}
 
 	for _, tt := range tests {
-		p := getDirPath(tt.name)
+		p := getDirPath(tt.path, tt.name)
 		assert.Equal(t, testDataPath+"/"+tt.name, p, "it is should be equal")
 	}
 }
@@ -44,7 +44,7 @@ func TestGetYAMLfile(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		yamlfile := GetYAMLfile(tt.dirName, tt.fileName)
+		yamlfile := GetYAMLfile(testDataPath, tt.dirName, tt.fileName)
 		jsonBytes, _ := yaml.ToJSON(yamlfile)
 		object, _ := runtime.Decode(unstructured.UnstructuredJSONScheme, jsonBytes)
 		uObject, _ := object.(*unstructured.Unstructured)
@@ -66,7 +66,7 @@ func TestConvertBytestoObject(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		b := GetYAMLfile(tt.dirName, tt.fileName)
+		b := GetYAMLfile(testDataPath, tt.dirName, tt.fileName)
 		obj := ConvertBytestoObject(b)
 		assert.Equal(t, tt.kind, obj.GetObjectKind().GroupVersionKind().Kind)
 	}
@@ -86,7 +86,7 @@ func TestGetObject(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		obj := GetObject(tt.componentName, tt.yamlFileName)
+		obj := GetObject(testDataPath, tt.componentName, tt.yamlFileName)
 		assert.Equal(t, tt.kind, obj.GetObjectKind().GroupVersionKind().Kind)
 	}
 }
@@ -94,14 +94,14 @@ func TestGetObject(t *testing.T) {
 func TestConvertToSpecificObject(t *testing.T) {
 	t.Run("Convert to StatefulSet", func(t *testing.T) {
 		t.Run("Not StatefulSet yaml file", func(t *testing.T) {
-			obj := GetObject("l2geth", "service")
+			obj := GetObject(testDataPath, "l2geth", "service")
 			_, ok := ConvertToStatefulSet(obj)
 
 			assert.False(t, ok)
 		})
 
 		t.Run("Create StatefulSet Successfully", func(t *testing.T) {
-			obj := GetObject("l2geth", "statefulset")
+			obj := GetObject(testDataPath, "l2geth", "statefulset")
 
 			res, ok := ConvertToStatefulSet(obj)
 
@@ -112,14 +112,14 @@ func TestConvertToSpecificObject(t *testing.T) {
 
 	t.Run("Convert to Service", func(t *testing.T) {
 		t.Run("Not Service yaml file", func(t *testing.T) {
-			obj := GetObject("l2geth", "statefulset")
+			obj := GetObject(testDataPath, "l2geth", "statefulset")
 			_, ok := ConvertToService(obj)
 
 			assert.False(t, ok)
 		})
 
 		t.Run("Convert Service Successfully", func(t *testing.T) {
-			obj := GetObject("l2geth", "service")
+			obj := GetObject(testDataPath, "l2geth", "service")
 
 			res, ok := ConvertToService(obj)
 
@@ -130,14 +130,14 @@ func TestConvertToSpecificObject(t *testing.T) {
 
 	t.Run("Convert to ConfigMap", func(t *testing.T) {
 		t.Run("Not ConfigMap yaml file", func(t *testing.T) {
-			obj := GetObject("l2geth", "statefulset")
+			obj := GetObject(testDataPath, "l2geth", "statefulset")
 			_, ok := ConvertToConfigMap(obj)
 
 			assert.False(t, ok)
 		})
 
 		t.Run("Convert ConfigMap Successfully", func(t *testing.T) {
-			obj := GetObject("l2geth", "configMap")
+			obj := GetObject(testDataPath, "l2geth", "configMap")
 
 			res, ok := ConvertToConfigMap(obj)
 
@@ -148,14 +148,14 @@ func TestConvertToSpecificObject(t *testing.T) {
 
 	t.Run("Convert to PersistentVolumeClaim", func(t *testing.T) {
 		t.Run("Not PersistentVolumeClaim yaml file", func(t *testing.T) {
-			obj := GetObject("l2geth", "service")
+			obj := GetObject(testDataPath, "l2geth", "service")
 			_, ok := ConvertToPersistentVolumeClaim(obj)
 
 			assert.False(t, ok)
 		})
 
 		t.Run("Convert PersistentVolumeClaim Successfully", func(t *testing.T) {
-			obj := GetObject("l2geth", "pvc")
+			obj := GetObject(testDataPath, "l2geth", "pvc")
 
 			res, ok := ConvertToPersistentVolumeClaim(obj)
 
@@ -166,14 +166,14 @@ func TestConvertToSpecificObject(t *testing.T) {
 
 	t.Run("Convert to Ingress", func(t *testing.T) {
 		t.Run("Not Ingress yaml file", func(t *testing.T) {
-			obj := GetObject("l2geth", "pvc")
+			obj := GetObject(testDataPath, "l2geth", "pvc")
 			_, ok := ConvertToIngress(obj)
 
 			assert.False(t, ok)
 		})
 
 		t.Run("Convert Ingress Successfully", func(t *testing.T) {
-			obj := GetObject("l2geth", "ingress")
+			obj := GetObject(testDataPath, "l2geth", "ingress")
 
 			res, ok := ConvertToIngress(obj)
 

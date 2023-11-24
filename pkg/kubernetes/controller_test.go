@@ -11,10 +11,11 @@ import (
 
 func TestCreate(t *testing.T) {
 	fakeKubernetes := NewFakeKubernetes()
+	mPath := fakeKubernetes.GetManifestPath()
 
 	t.Run("Create StatefulSet", func(t *testing.T) {
 		t.Run("Create StatefulSet Successfully", func(t *testing.T) {
-			obj := GetObject("l2geth", "statefulset")
+			obj := GetObject(mPath, "l2geth", "statefulset")
 			sfs, _ := ConvertToStatefulSet(obj)
 
 			res, err := fakeKubernetes.CreateStatefulSet("test", sfs)
@@ -26,7 +27,7 @@ func TestCreate(t *testing.T) {
 
 	t.Run("Create Service", func(t *testing.T) {
 		t.Run("Create Service Successfully", func(t *testing.T) {
-			obj := GetObject("l2geth", "service")
+			obj := GetObject(mPath, "l2geth", "service")
 			svc, _ := ConvertToService(obj)
 
 			res, err := fakeKubernetes.CreateService("test", svc)
@@ -38,7 +39,7 @@ func TestCreate(t *testing.T) {
 
 	t.Run("Create PersistentVolumeClaim", func(t *testing.T) {
 		t.Run("Create PersistentVolumeClaim Successfully", func(t *testing.T) {
-			obj := GetObject("l2geth", "pvc")
+			obj := GetObject(mPath, "l2geth", "pvc")
 			pvc, _ := ConvertToPersistentVolumeClaim(obj)
 
 			res, err := fakeKubernetes.CreatePersistentVolumeClaim("test", pvc)
@@ -50,7 +51,7 @@ func TestCreate(t *testing.T) {
 
 	t.Run("Create ConfilgMap", func(t *testing.T) {
 		t.Run("Create ConfilgMap Successfully", func(t *testing.T) {
-			obj := GetObject("l2geth", "configMap")
+			obj := GetObject(mPath, "l2geth", "configMap")
 			configMap, _ := ConvertToConfigMap(obj)
 
 			res, err := fakeKubernetes.CreateConfigMap("test", configMap)
@@ -61,7 +62,7 @@ func TestCreate(t *testing.T) {
 	})
 
 	t.Run("Create ConfigMap With Config", func(t *testing.T) {
-		obj := GetObject("l2geth", "configMap")
+		obj := GetObject(mPath, "l2geth", "configMap")
 		tCm, _ := ConvertToConfigMap(obj)
 
 		tests := []struct {
@@ -116,7 +117,7 @@ func TestCreate(t *testing.T) {
 
 	t.Run("Create Ingress", func(t *testing.T) {
 		t.Run("Create Ingress Successfully", func(t *testing.T) {
-			obj := GetObject("l2geth", "ingress")
+			obj := GetObject(mPath, "l2geth", "ingress")
 			ingress, _ := ConvertToIngress(obj)
 
 			res, err := fakeKubernetes.CreateIngress("test", ingress)

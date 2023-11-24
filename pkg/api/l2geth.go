@@ -33,7 +33,9 @@ func (t *TitondAPI) CreateL2Geth(data *model.Component /*TODO : get params for c
 }
 
 func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
-	obj := kubernetes.GetObject("l2geth", "configMap")
+	mPath := t.k8s.GetManifestPath()
+
+	obj := kubernetes.GetObject(mPath, "l2geth", "configMap")
 	cm, ok := kubernetes.ConvertToConfigMap(obj)
 	if !ok {
 		fmt.Printf("createL2Geth error: convertToConfigmap")
@@ -47,7 +49,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 	}
 	fmt.Printf("Created L2Geth ConfigMap: %s\n", createdConfigMap.GetName())
 
-	obj = kubernetes.GetObject("l2geth", "pvc")
+	obj = kubernetes.GetObject(mPath, "l2geth", "pvc")
 	pvc, ok := kubernetes.ConvertToPersistentVolumeClaim(obj)
 	if !ok {
 		fmt.Printf("createL2Geth error: convertToPersistentVolumeClaim")
@@ -61,7 +63,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 	}
 	fmt.Printf("Created L2Geth PersistentVolumeClaim: %s\n", createdPVC.GetName())
 
-	obj = kubernetes.GetObject("l2geth", "service")
+	obj = kubernetes.GetObject(mPath, "l2geth", "service")
 	svc, ok := kubernetes.ConvertToService(obj)
 	if !ok {
 		fmt.Printf("createL2Geth error: convertToService")
@@ -75,7 +77,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 	}
 	fmt.Printf("Created L2Geth Service: %s\n", createdSVC.GetName())
 
-	obj = kubernetes.GetObject("l2geth", "statefulset")
+	obj = kubernetes.GetObject(mPath, "l2geth", "statefulset")
 	sfs, ok := kubernetes.ConvertToStatefulSet(obj)
 	if !ok {
 		fmt.Printf("createL2Geth error: convertToStatefulSet")
@@ -89,7 +91,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 	}
 	fmt.Printf("Created L2Geth StatefulSet: %s\n", createdSFS.GetName())
 
-	obj = kubernetes.GetObject("l2geth", "ingress")
+	obj = kubernetes.GetObject(mPath, "l2geth", "ingress")
 	ingress, ok := kubernetes.ConvertToIngress(obj)
 	if !ok {
 		fmt.Printf("createL2Geth error: convertToIngress")

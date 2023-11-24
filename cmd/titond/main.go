@@ -37,6 +37,7 @@ func titond(ctx *cli.Context) error {
 	k8sClient, err := kubernetes.NewKubernetes(&kubernetes.Config{
 		InCluster:      ctx.Bool("kubernetes.incluster"),
 		KubeconfigPath: ctx.String("kubernetes.kubeconfig.path"),
+		ManifestPath:   ctx.String("kubernetes.manifest.path"),
 	})
 	if err != nil {
 		return err

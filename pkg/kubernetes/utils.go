@@ -18,21 +18,14 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 )
 
-func getDirPath(dirName string) string {
-	currentPath, err := os.Getwd()
-	mDir := os.Getenv("KUBERNETES_MANIFEST_DIR")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	rPath := path.Join(currentPath, mDir, dirName)
+func getDirPath(basePath, dirName string) string {
+	rPath := path.Join(basePath, dirName)
 
 	return rPath
 }
 
-func GetYAMLfile(dirName, fileName string) []byte {
-	filePath := getDirPath(dirName)
+func GetYAMLfile(basePath, dirName, fileName string) []byte {
+	filePath := getDirPath(basePath, dirName)
 
 	data, err := os.ReadFile(path.Join(filePath, fileName+".yaml"))
 	if err != nil {
@@ -67,8 +60,8 @@ func ConvertBytestoObject(b []byte) runtime.Object {
 	return object
 }
 
-func GetObject(componentName, yamlFileName string) runtime.Object {
-	f := GetYAMLfile(componentName, yamlFileName)
+func GetObject(basePath, componentName, yamlFileName string) runtime.Object {
+	f := GetYAMLfile(basePath, componentName, yamlFileName)
 	return ConvertBytestoObject(f)
 }
 
