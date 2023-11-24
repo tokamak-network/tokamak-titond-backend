@@ -18,10 +18,10 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 )
 
-var mDir string = "../../deployments"
-
 func getDirPath(dirName string) string {
 	currentPath, err := os.Getwd()
+	mDir := os.Getenv("KUBERNETES_MANIFEST_DIR")
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -122,10 +122,4 @@ func ConvertToDeployment(obj runtime.Object) (*appsv1.Deployment, bool) {
 
 func UpdateConfigMapObjectValue(configMap *corev1.ConfigMap, key string, value string) {
 	configMap.Data[key] = value
-}
-
-func init() {
-	if os.Getenv("MODE") == "test" {
-		mDir = "../../testdata"
-	}
 }

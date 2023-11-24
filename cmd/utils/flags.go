@@ -49,6 +49,12 @@ var (
 			Value:   path.Join(os.Getenv("HOME"), "/.kube/config"),
 			EnvVars: []string{"KUBERNETES_KUBECONFIG_PATH"},
 		},
+		&cli.StringFlag{
+			Name:    "kubernetes.manifest.dir",
+			Usage:   "The path of manifests",
+			Value:   "./deployments",
+			EnvVars: []string{"KUBERNETES_MANIFEST_DIR"},
+		},
 	}
 	// databse flags
 	DBFlags = []cli.Flag{
