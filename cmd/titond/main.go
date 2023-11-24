@@ -1,6 +1,10 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -19,6 +23,14 @@ var app = &cli.App{
 }
 
 func init() {
+	app.Commands = []*cli.Command{
+		{
+			Name:    "check-swagger",
+			Aliases: []string{"g"},
+			Usage:   "Greet a person",
+			Action:  checkSwagger,
+		},
+	}
 	app.Action = titond
 	app.Flags = append(app.Flags, utils.TitondFlags...)
 	app.Flags = append(app.Flags, utils.KubernetesFlags...)
@@ -79,5 +91,48 @@ func titond(ctx *cli.Context) error {
 	}, apis)
 	http.Run()
 
+	return nil
+}
+
+func checkSwagger(ctx *cli.Context) error {
+	fmt.Println("Check swagger")
+	http := http.NewHTTPServer(&http.Config{
+		Host: ctx.String("http.host"),
+		Port: ctx.String("http.port"),
+	}, nil)
+
+	numAPIs := len(http.R.Routes())
+
+	for _, route := range http.R.Routes() {
+		fmt.Printf("%-6s %-25s %s\n", route.Method, route.Path, route.Handler)
+	}
+	fmt.Println("Total APIs: ", numAPIs)
+
+	jsonData, err := ioutil.ReadFile("./docs/swagger.json")
+	if err != nil {
+		fmt.Println("Read docs file:", err)
+		return err
+	}
+
+	var data map[string]interface{}
+	err = json.Unmarshal(jsonData, &data)
+	if err != nil {
+		fmt.Println("Docs data:", err)
+		return err
+	}
+	paths, exist := data["paths"]
+	if !exist {
+		fmt.Println("Failed to fetch api description in swagger file")
+		return errors.New("")
+	}
+	switch v := paths.(type) {
+	case map[string]interface{}:
+		fmt.Println("num api in swagger", len(v))
+		if len(v) != numAPIs-1 {
+			return errors.New("the docs file was not updated")
+		}
+	default:
+		return errors.New("")
+	}
 	return nil
 }

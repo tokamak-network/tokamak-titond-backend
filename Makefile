@@ -5,9 +5,13 @@ TARGET=./build/bin/titond
 all: run
 
 run: $(TARGET)
-	$(TARGET)
+	$<
 
 $(TARGET): build
+
+check:
+	CGO_ENABLED=0 GOOS=linux go build -o ./build/bin/titond ./cmd/titond/main.go
+	./build/bin/titond check-swagger
 
 build:
 	swag init -g cmd/titond/main.go

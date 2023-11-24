@@ -14,18 +14,21 @@ type Config struct {
 }
 
 type HTTPServer struct {
+	R    *gin.Engine
 	cfg  *Config
 	apis *api.TitondAPI
 }
 
 func NewHTTPServer(cfg *Config, apis *api.TitondAPI) *HTTPServer {
-	return &HTTPServer{
-		cfg,
-		apis,
+	server := &HTTPServer{
+		cfg:  cfg,
+		apis: apis,
 	}
+	server.initialize()
+	return server
 }
 
-func (s *HTTPServer) Run() {
+func (s *HTTPServer) initialize() {
 	r := gin.Default()
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -36,5 +39,10 @@ func (s *HTTPServer) Run() {
 	componentRouter := r.Group("/api/components")
 	s.NewComponentRouter(componentRouter)
 
-	r.Run(s.cfg.Host + ":" + s.cfg.Port)
+	s.R = r
+}
+
+func (s *HTTPServer) Run() {
+
+	s.R.Run(s.cfg.Host + ":" + s.cfg.Port)
 }
