@@ -1,8 +1,8 @@
 package kubernetes
 
 import (
+	"fmt"
 	"os"
-  "fmt"
 	"path"
 	"testing"
 
