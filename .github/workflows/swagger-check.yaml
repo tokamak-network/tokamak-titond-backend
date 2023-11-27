@@ -1,4 +1,4 @@
-name: Run unit test
+name: Check swagger
 on: push
 
 jobs:
