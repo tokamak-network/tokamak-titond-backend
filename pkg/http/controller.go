@@ -46,13 +46,8 @@ func (s *HTTPServer) CreateComponent(c *gin.Context) {
 	}
 }
 
-type GetComponentByTypeParams struct {
-	Type      string `form:"type" binding:"required"`
-	NetworkID uint   `form:"network_id" binding:"required"`
-}
-
 func (s *HTTPServer) GetComponentByType(c *gin.Context) {
-	var params GetComponentByTypeParams
+	var params model.Component
 	if err := c.ShouldBindQuery(&params); err != nil {
 		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
 		return
