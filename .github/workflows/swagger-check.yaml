@@ -12,5 +12,4 @@ jobs:
 
       - name: Check swagger
         run: |
-          CGO_ENABLED=0 GOOS=linux go build -o ./build/bin/titond ./cmd/titond/main.go
-          ./build/bin/titond check-swagger
+          go run ./cmd/titond/main.go check-swagger
