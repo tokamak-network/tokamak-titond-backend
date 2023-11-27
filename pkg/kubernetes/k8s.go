@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
@@ -9,11 +10,13 @@ import (
 type Config struct {
 	InCluster      bool
 	KubeconfigPath string
+	ManifestPath   string
 }
 
 type Kubernetes struct {
-	client *kubernetes.Clientset
-	config *rest.Config
+	client       kubernetes.Interface
+	config       *rest.Config
+	manifestPath string
 }
 
 func NewKubernetes(cfg *Config) (*Kubernetes, error) {
@@ -36,5 +39,14 @@ func NewKubernetes(cfg *Config) (*Kubernetes, error) {
 		return nil, err
 	}
 
-	return &Kubernetes{client, config}, nil
+	return &Kubernetes{client, config, cfg.ManifestPath}, nil
+}
+
+func (k *Kubernetes) GetManifestPath() string {
+	return k.manifestPath
+}
+
+func NewFakeKubernetes() *Kubernetes {
+	fakeClient := fake.NewSimpleClientset()
+	return &Kubernetes{fakeClient, nil, "../../testdata"}
 }

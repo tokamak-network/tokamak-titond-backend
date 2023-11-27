@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-l2geth
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: l2geth.local.tokamak.network
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: l2geth-svc
+            port:
+              number: 8545

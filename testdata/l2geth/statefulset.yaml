@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: l2geth
+spec:
+  selector:
+    matchLabels:
+      app: l2geth
+  replicas: 1
+  serviceName: l2geth-svc
+  template:
+    metadata:
+      labels:
+        app: l2geth
+    spec:
+      terminationGracePeriodSeconds: 10
+      restartPolicy: Always
+      containers:
+        - name: l2geth
+          image: onthertech/titan-l2geth
+          command:
+            [
+              "sh",
+              "./geth.sh",
+              "--metrics",
+              "--metrics.addr",
+              "0.0.0.0",
+              "--metrics.port",
+              "6060",
+            ]
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8545
+              protocol: TCP
+            - containerPort: 8546
+              protocol: TCP
+            - containerPort: 6060
+              protocol: TCP
+          resources: {}
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: l2geth
+          volumeMounts:
+            - name: l2geth-volume
+              mountPath: /root/.ethereum
+              subPath: l2geth
+      volumes:
+        - name: l2geth-volume
+          persistentVolumeClaim:
+            claimName: l2geth-pvc
