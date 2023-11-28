@@ -17,6 +17,11 @@ func (t *TitondAPI) GetComponentByType(networkID uint, componentType string) (*m
 }
 
 func (t *TitondAPI) GetComponentById(componentID uint) (*model.Component, error) {
-	fmt.Println("Create component by id:", componentID)
+	fmt.Println("Get component by id:", componentID)
 	return &model.Component{Name: "GetComponentById"}, nil
+}
+
+func (t *TitondAPI) DeleteComponentById(componentID uint) error {
+	fmt.Println("Delete component by id:", componentID)
+	return nil
 }

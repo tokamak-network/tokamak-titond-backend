@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -26,7 +27,8 @@ func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
 	}
 	err = s.apis.DeleteNetwork(uint(networkID))
 	if err == nil {
-		c.JSON(http.StatusOK, "Deleted")
+		message := fmt.Sprintf("Deleted network id: %d", networkID)
+		c.JSON(http.StatusOK, message)
 	} else {
 		s.ResponseErrorMessage(c, err)
 	}
@@ -69,6 +71,21 @@ func (s *HTTPServer) GetComponentById(c *gin.Context) {
 	result, err := s.apis.GetComponentById(uint(componentID))
 	if err == nil {
 		c.JSON(http.StatusOK, result)
+	} else {
+		s.ResponseErrorMessage(c, err)
+	}
+}
+
+func (s *HTTPServer) DeleteComponentById(c *gin.Context) {
+	componentID, err := strconv.ParseInt(c.Param("id"), 10, 32)
+	if err != nil {
+		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
+		return
+	}
+	err = s.apis.DeleteComponentById(uint(componentID))
+	if err == nil {
+		message := fmt.Sprintf("Deleted component %d", componentID)
+		c.JSON(http.StatusOK, message)
 	} else {
 		s.ResponseErrorMessage(c, err)
 	}
