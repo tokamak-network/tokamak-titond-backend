@@ -26,11 +26,11 @@ func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 	}
 }
 
-func (s *HTTPServer) QueryNetworks(c *gin.Context) {
-	fmt.Println("Query Network")
+func (s *HTTPServer) GetNetworks(c *gin.Context) {
+	fmt.Println("Get Networks")
 }
 
-func (s *HTTPServer) QueryNetwork(c *gin.Context) {
+func (s *HTTPServer) GetNetworkById(c *gin.Context) {
 	fmt.Println("Query Network")
 }
 
