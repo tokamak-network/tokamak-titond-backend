@@ -5,8 +5,8 @@ import (
 
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/kubernetes"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
-	appsv1 "k8s.io/api/apps/v1"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/types"
+	appsv1 "k8s.io/api/apps/v1"
 )
 
 func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
@@ -15,6 +15,11 @@ func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
 		go t.createNetwork(result)
 	}
 	return result, err
+}
+
+func (t *TitondAPI) QueryNetworkByPage(pageID uint) error {
+	fmt.Println("Query Network by Page ID")
+	return nil
 }
 
 func (t *TitondAPI) DeleteNetwork(id uint) error {

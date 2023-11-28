@@ -26,6 +26,14 @@ func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 	}
 }
 
+func (s *HTTPServer) QueryNetworks(c *gin.Context) {
+	fmt.Println("Query Network")
+}
+
+func (s *HTTPServer) QueryNetwork(c *gin.Context) {
+	fmt.Println("Query Network")
+}
+
 // @Summary DeleteNetwork
 // @Description Delete a network by id
 // @ID delete-network

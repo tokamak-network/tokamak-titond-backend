@@ -4,6 +4,7 @@ import "github.com/gin-gonic/gin"
 
 func (s *HTTPServer) NewNetworkRouter(group *gin.RouterGroup) {
 	group.POST("/", s.CreateNetwork)
+	group.GET("/", s.QueryNetworks)
 	group.DELETE("/:id", s.DeleteNetwork)
 }
 
