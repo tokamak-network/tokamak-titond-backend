@@ -25,7 +25,7 @@ func CheckSwagger(ctx *cli.Context) error {
 	fmt.Println("Total APIs: ", numAPIs)
 	fmt.Println("Total APIs excluding swagger api: ", (numAPIs - 1))
 
-	jsonData, err := ioutil.ReadFile("./docs/swagger.json")
+	jsonData, err := ioutil.ReadFile("./api/swagger.json")
 	if err != nil {
 		fmt.Println("Read docs file:", err)
 		return err
