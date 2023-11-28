@@ -20,9 +20,9 @@ type Component struct {
 	UpdatedAt int64                 `json:"updated_at" gorm:"autoUpdateTime"`
 	DeletedAt soft_delete.DeletedAt `json:"-"`
 	Name      string                `json:"name"`
-	Type      string                `json:"type"`
+	Type      string                `json:"type" form:"type" binding:"required"`
 	Status    bool                  `json:"status"`
 	PublicURL string                `json:"public_url"`
-	NetworkID uint                  `json:"network_id"`
+	NetworkID uint                  `json:"network_id" form:"network_id" binding:"required"`
 	Network   Network               `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }

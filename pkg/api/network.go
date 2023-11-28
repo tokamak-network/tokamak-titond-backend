@@ -6,6 +6,7 @@ import (
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/kubernetes"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
 	appsv1 "k8s.io/api/apps/v1"
+	"github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 )
 
 func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
@@ -16,9 +17,14 @@ func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
 	return result, err
 }
 
-func (t *TitondAPI) DeleteNetwork(id uint) (int64, error) {
+func (t *TitondAPI) DeleteNetwork(id uint) error {
 	result, err := t.db.DeleteNetwork(id)
-	return result, err
+	if err == nil {
+		if result == 0 {
+			return types.ErrResourceNotFound
+		}
+	}
+	return err
 }
 
 func (t *TitondAPI) createNetwork(network *model.Network) {

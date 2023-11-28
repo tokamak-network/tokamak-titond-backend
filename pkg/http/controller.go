@@ -1,13 +1,12 @@
 package http
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
+	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 )
 
 func (s *HTTPServer) CreateNetwork(c *gin.Context) {
@@ -20,21 +19,78 @@ func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 }
 
 func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
-	networkID := c.Param("id")
-	fmt.Println("Request delete a network: ", networkID)
-	id, err := strconv.ParseInt(networkID, 10, 64)
+	networkID, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errors.New("network id is invalid"))
+		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
 		return
 	}
-	result, err := s.apis.DeleteNetwork(uint(id))
+	err = s.apis.DeleteNetwork(uint(networkID))
 	if err == nil {
-		if result > 0 {
-			c.JSON(http.StatusOK, "Deleted")
-		} else {
-			c.JSON(http.StatusNotFound, "Not found")
-		}
+		c.JSON(http.StatusOK, "Deleted")
 	} else {
-		c.JSON(http.StatusInternalServerError, err)
+		s.ResponseErrorMessage(c, err)
+	}
+}
+
+func (s *HTTPServer) CreateComponent(c *gin.Context) {
+	var component model.Component
+	if err := c.ShouldBindJSON(&component); err != nil {
+		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
+		return
+	}
+	result, err := s.apis.CreateComponent(&component)
+	if err == nil {
+		c.JSON(http.StatusOK, result)
+	} else {
+		s.ResponseErrorMessage(c, err)
+	}
+}
+
+func (s *HTTPServer) GetComponentByType(c *gin.Context) {
+	var params model.Component
+	if err := c.ShouldBindQuery(&params); err != nil {
+		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
+		return
+	}
+	result, err := s.apis.GetComponentByType(params.NetworkID, params.Type)
+	if err == nil {
+		c.JSON(http.StatusOK, result)
+	} else {
+		s.ResponseErrorMessage(c, err)
+	}
+}
+
+func (s *HTTPServer) GetComponentById(c *gin.Context) {
+	componentID, err := strconv.ParseInt(c.Param("id"), 10, 32)
+	if err != nil {
+		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
+		return
+	}
+	result, err := s.apis.GetComponentById(uint(componentID))
+	if err == nil {
+		c.JSON(http.StatusOK, result)
+	} else {
+		s.ResponseErrorMessage(c, err)
+	}
+}
+
+func (s *HTTPServer) ResponseErrorMessage(c *gin.Context, err error) {
+	switch err {
+	case apptypes.ErrBadRequest:
+		{
+			c.JSON(http.StatusBadRequest, err)
+		}
+	case apptypes.ErrResourceNotFound:
+		{
+			c.JSON(http.StatusNotFound, err)
+		}
+	case apptypes.ErrInternalServer:
+		{
+			c.JSON(http.StatusInternalServerError, err)
+		}
+	default:
+		{
+			c.JSON(http.StatusInternalServerError, err)
+		}
 	}
 }
