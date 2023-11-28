@@ -46,6 +46,7 @@ paths:
   /api/components:
     get:
       description: Get Component By Type
+      operationId: get-component-by-type
       parameters:
       - description: Component type (e.g., l2geth)
         in: query
@@ -71,6 +72,7 @@ paths:
       consumes:
       - application/json
       description: Create a new component
+      operationId: create-component
       parameters:
       - description: Component data to create
         in: body
@@ -92,7 +94,8 @@ paths:
       summary: CreateComponent
   /api/components/{id}:
     delete:
-      description: Get Component By Type
+      description: Delete Component By Id
+      operationId: delete-component-by-id
       parameters:
       - description: Component ID
         in: path
@@ -108,9 +111,10 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
-      summary: GetComponentByType
+      summary: DeleteComponentById
     get:
-      description: Get Component By Type
+      description: Get Component By ID
+      operationId: get-component-by-id
       parameters:
       - description: Component ID
         in: path
@@ -126,10 +130,11 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
-      summary: GetComponentByType
+      summary: GetComponentByID
   /api/networks:
     post:
       description: Create a new network
+      operationId: create-network
       produces:
       - application/json
       responses:
@@ -143,6 +148,7 @@ paths:
   /api/networks/{id}:
     delete:
       description: Delete a network by id
+      operationId: delete-network
       parameters:
       - description: Network ID
         in: path

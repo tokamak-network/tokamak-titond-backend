@@ -107,6 +107,7 @@ func checkSwagger(ctx *cli.Context) error {
 		fmt.Printf("%-6s %-25s %s\n", route.Method, route.Path, route.Handler)
 	}
 	fmt.Println("Total APIs: ", numAPIs)
+	fmt.Println("Total APIs excluding swagger api: ", (numAPIs - 1))
 
 	jsonData, err := ioutil.ReadFile("./docs/swagger.json")
 	if err != nil {
@@ -127,12 +128,26 @@ func checkSwagger(ctx *cli.Context) error {
 	}
 	switch v := paths.(type) {
 	case map[string]interface{}:
-		fmt.Println("num api in swagger", len(v))
-		if len(v) != numAPIs-1 {
-			return errors.New("the docs file was not updated")
+		numOfApisInDocs := countNumOfAPIsInDocs(v)
+		if numOfApisInDocs != numAPIs-1 {
+			return errors.New("missing swagger description for api")
 		}
 	default:
 		return errors.New("")
 	}
 	return nil
+}
+
+func countNumOfAPIsInDocs(paths map[string]interface{}) int {
+	counter := 0
+	for path, metadata := range paths {
+		fmt.Println("  [Path]:", path)
+		switch v := metadata.(type) {
+		case map[string]interface{}:
+			counter += len(v)
+		default:
+		}
+	}
+	fmt.Println("Api in docs ", counter)
+	return counter
 }

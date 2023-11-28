@@ -12,6 +12,7 @@ import (
 
 // @Summary CreateNetwork
 // @Description Create a new network
+// @ID create-network
 // @Produce json
 // @Success 200 {object} model.Network
 // @Failure 500
@@ -27,6 +28,7 @@ func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 
 // @Summary DeleteNetwork
 // @Description Delete a network by id
+// @ID delete-network
 // @Produce json
 // @Param id path int true "Network ID"
 // @Success 200 {object} object
@@ -51,6 +53,7 @@ func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
 
 // @Summary CreateComponent
 // @Description Create a new component
+// @ID create-component
 // @Accept json
 // @Produce json
 // @Param input body object true "Component data to create"
@@ -74,6 +77,7 @@ func (s *HTTPServer) CreateComponent(c *gin.Context) {
 
 // @Summary GetComponentByType
 // @Description Get Component By Type
+// @ID get-component-by-type
 // @Param type query string true "Component type (e.g., l2geth)"
 // @Param network_id query integer true "Network ID"// @Produce json
 // @Success 200 {object} object
@@ -94,8 +98,9 @@ func (s *HTTPServer) GetComponentByType(c *gin.Context) {
 	}
 }
 
-// @Summary GetComponentByType
-// @Description Get Component By Type
+// @Summary GetComponentByID
+// @Description Get Component By ID
+// @ID get-component-by-id
 // @Param id path int true "Component ID"
 // @Success 200 {object} object
 // @Failure 400
@@ -115,8 +120,9 @@ func (s *HTTPServer) GetComponentById(c *gin.Context) {
 	}
 }
 
-// @Summary GetComponentByType
-// @Description Get Component By Type
+// @Summary DeleteComponentById
+// @Description Delete Component By Id
+// @ID delete-component-by-id
 // @Param id path int true "Component ID"
 // @Success 200 {object} object
 // @Failure 400

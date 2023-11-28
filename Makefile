@@ -10,6 +10,7 @@ run: $(TARGET)
 $(TARGET): build
 
 check:
+	swag init -g cmd/titond/main.go
 	CGO_ENABLED=0 GOOS=linux go build -o ./build/bin/titond ./cmd/titond/main.go
 	./build/bin/titond check-swagger
 

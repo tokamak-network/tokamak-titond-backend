@@ -19,6 +19,7 @@ const docTemplate = `{
             "get": {
                 "description": "Get Component By Type",
                 "summary": "GetComponentByType",
+                "operationId": "get-component-by-type",
                 "parameters": [
                     {
                         "type": "string",
@@ -59,6 +60,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "summary": "CreateComponent",
+                "operationId": "create-component",
                 "parameters": [
                     {
                         "description": "Component data to create",
@@ -88,8 +90,9 @@ const docTemplate = `{
         },
         "/api/components/{id}": {
             "get": {
-                "description": "Get Component By Type",
-                "summary": "GetComponentByType",
+                "description": "Get Component By ID",
+                "summary": "GetComponentByID",
+                "operationId": "get-component-by-id",
                 "parameters": [
                     {
                         "type": "integer",
@@ -115,8 +118,9 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Get Component By Type",
-                "summary": "GetComponentByType",
+                "description": "Delete Component By Id",
+                "summary": "DeleteComponentById",
+                "operationId": "delete-component-by-id",
                 "parameters": [
                     {
                         "type": "integer",
@@ -149,6 +153,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "summary": "CreateNetwork",
+                "operationId": "create-network",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -169,6 +174,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "summary": "DeleteNetwork",
+                "operationId": "delete-network",
                 "parameters": [
                     {
                         "type": "integer",
