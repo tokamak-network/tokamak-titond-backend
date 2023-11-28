@@ -1,4 +1,26 @@
 definitions:
+  model.Component:
+    properties:
+      created_at:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      network_id:
+        type: integer
+      public_url:
+        type: string
+      status:
+        type: boolean
+      type:
+        type: string
+      updated_at:
+        type: integer
+    required:
+    - network_id
+    - type
+    type: object
   model.Network:
     properties:
       contract_address_url:
@@ -21,6 +43,90 @@ info:
   title: Titond
   version: "1.0"
 paths:
+  /api/components:
+    get:
+      description: Get Component By Type
+      parameters:
+      - description: Component type (e.g., l2geth)
+        in: query
+        name: type
+        required: true
+        type: string
+      - description: Network ID
+        in: query
+        name: network_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: GetComponentByType
+    post:
+      consumes:
+      - application/json
+      description: Create a new component
+      parameters:
+      - description: Component data to create
+        in: body
+        name: input
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Component'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: CreateComponent
+  /api/components/{id}:
+    delete:
+      description: Get Component By Type
+      parameters:
+      - description: Component ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: GetComponentByType
+    get:
+      description: Get Component By Type
+      parameters:
+      - description: Component ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: GetComponentByType
   /api/networks:
     post:
       description: Create a new network
@@ -50,6 +156,8 @@ paths:
           description: OK
           schema:
             type: object
+        "400":
+          description: Bad Request
         "404":
           description: Not Found
         "500":
