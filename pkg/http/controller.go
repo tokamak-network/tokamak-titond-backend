@@ -10,6 +10,13 @@ import (
 	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 )
 
+// @Summary CreateNetwork
+// @Description Create a new network
+// @ID create-network
+// @Produce json
+// @Success 200 {object} model.Network
+// @Failure 500
+// @Router /api/networks [post]
 func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 	result, err := s.apis.CreateNetwork(&model.Network{})
 	if err == nil {
@@ -19,6 +26,16 @@ func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 	}
 }
 
+// @Summary DeleteNetwork
+// @Description Delete a network by id
+// @ID delete-network
+// @Produce json
+// @Param id path int true "Network ID"
+// @Success 200 {object} object
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /api/networks/{id} [delete]
 func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
 	networkID, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {
@@ -34,6 +51,16 @@ func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
 	}
 }
 
+// @Summary CreateComponent
+// @Description Create a new component
+// @ID create-component
+// @Accept json
+// @Produce json
+// @Param input body object true "Component data to create"
+// @Success 200 {object} model.Component
+// @Failure 400
+// @Failure 500
+// @Router /api/components [post]
 func (s *HTTPServer) CreateComponent(c *gin.Context) {
 	var component model.Component
 	if err := c.ShouldBindJSON(&component); err != nil {
@@ -48,6 +75,15 @@ func (s *HTTPServer) CreateComponent(c *gin.Context) {
 	}
 }
 
+// @Summary GetComponentByType
+// @Description Get Component By Type
+// @ID get-component-by-type
+// @Param type query string true "Component type (e.g., l2geth)"
+// @Param network_id query integer true "Network ID"// @Produce json
+// @Success 200 {object} object
+// @Failure 400
+// @Failure 500
+// @Router /api/components [get]
 func (s *HTTPServer) GetComponentByType(c *gin.Context) {
 	var params model.Component
 	if err := c.ShouldBindQuery(&params); err != nil {
@@ -62,6 +98,14 @@ func (s *HTTPServer) GetComponentByType(c *gin.Context) {
 	}
 }
 
+// @Summary GetComponentByID
+// @Description Get Component By ID
+// @ID get-component-by-id
+// @Param id path int true "Component ID"
+// @Success 200 {object} object
+// @Failure 400
+// @Failure 500
+// @Router /api/components/{id} [get]
 func (s *HTTPServer) GetComponentById(c *gin.Context) {
 	componentID, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {
@@ -76,6 +120,14 @@ func (s *HTTPServer) GetComponentById(c *gin.Context) {
 	}
 }
 
+// @Summary DeleteComponentById
+// @Description Delete Component By Id
+// @ID delete-component-by-id
+// @Param id path int true "Component ID"
+// @Success 200 {object} object
+// @Failure 400
+// @Failure 500
+// @Router /api/components/{id} [delete]
 func (s *HTTPServer) DeleteComponentById(c *gin.Context) {
 	componentID, err := strconv.ParseInt(c.Param("id"), 10, 32)
 	if err != nil {

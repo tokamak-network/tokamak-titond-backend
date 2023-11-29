@@ -10,6 +10,7 @@ import (
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/http"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/kubernetes"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/services"
+	"github.com/tokamak-network/tokamak-titond-backend/test"
 	"github.com/urfave/cli/v2"
 )
 
@@ -19,6 +20,14 @@ var app = &cli.App{
 }
 
 func init() {
+	app.Commands = []*cli.Command{
+		{
+			Name:    "check-swagger",
+			Aliases: []string{"g"},
+			Usage:   "check swagger",
+			Action:  test.CheckSwagger,
+		},
+	}
 	app.Action = titond
 	app.Flags = append(app.Flags, utils.TitondFlags...)
 	app.Flags = append(app.Flags, utils.KubernetesFlags...)
@@ -27,6 +36,10 @@ func init() {
 	app.Flags = append(app.Flags, utils.HTTPFlags...)
 }
 
+// @title Titond
+// @version 1.0
+// @description Titond-backend application
+// @host localhost:8080
 func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
