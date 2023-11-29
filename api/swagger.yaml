@@ -58,6 +58,8 @@ paths:
         name: network_id
         required: true
         type: integer
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -132,6 +134,29 @@ paths:
           description: Internal Server Error
       summary: GetComponentByID
   /api/networks:
+    get:
+      description: Get networks by page
+      operationId: get-networks-by-page
+      parameters:
+      - description: Network ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: GetNetworksByPage
     post:
       description: Create a new network
       operationId: create-network
@@ -169,4 +194,27 @@ paths:
         "500":
           description: Internal Server Error
       summary: DeleteNetwork
+    get:
+      description: Get a network by id
+      operationId: get-network-by-id
+      parameters:
+      - description: Network ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: GetNetworkById
 swagger: "2.0"

@@ -18,6 +18,9 @@ const docTemplate = `{
         "/api/components": {
             "get": {
                 "description": "Get Component By Type",
+                "produces": [
+                    "application/json"
+                ],
                 "summary": "GetComponentByType",
                 "operationId": "get-component-by-type",
                 "parameters": [
@@ -147,6 +150,40 @@ const docTemplate = `{
             }
         },
         "/api/networks": {
+            "get": {
+                "description": "Get networks by page",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GetNetworksByPage",
+                "operationId": "get-networks-by-page",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Network ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
             "post": {
                 "description": "Create a new network",
                 "produces": [
@@ -168,6 +205,40 @@ const docTemplate = `{
             }
         },
         "/api/networks/{id}": {
+            "get": {
+                "description": "Get a network by id",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GetNetworkById",
+                "operationId": "get-network-by-id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Network ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete a network by id",
                 "produces": [

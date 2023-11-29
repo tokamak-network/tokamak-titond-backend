@@ -17,9 +17,14 @@ func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
 	return result, err
 }
 
-func (t *TitondAPI) QueryNetworkByPage(pageID uint) error {
-	fmt.Println("Query Network by Page ID")
+func (t *TitondAPI) GetNetworksByPage(page uint) error {
+	fmt.Println("Query Networks by Page:", page)
 	return nil
+}
+
+func (t *TitondAPI) GetNetworkByID(networkID uint) (*model.Network, error) {
+	fmt.Println("Query Network by ID:", networkID)
+	return t.db.ReadNetwork(networkID)
 }
 
 func (t *TitondAPI) DeleteNetwork(id uint) error {

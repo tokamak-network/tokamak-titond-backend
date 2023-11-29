@@ -12,7 +12,7 @@ type Config struct {
 
 type Client interface {
 	CreateNetwork(*model.Network) (*model.Network, error)
-	ReadNetwork()
+	ReadNetwork(uint) (*model.Network, error)
 	ReadAllNetwork()
 	UpdateNetwork(network *model.Network) (*model.Network, error)
 	DeleteNetwork(uint) (int64, error)
