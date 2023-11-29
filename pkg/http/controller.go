@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/tokamak-network/tokamak-titond-backend/pkg/api"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
 	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 )
@@ -63,11 +65,18 @@ func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
 // @Router /api/components [post]
 func (s *HTTPServer) CreateComponent(c *gin.Context) {
 	var component model.Component
-	if err := c.ShouldBindJSON(&component); err != nil {
+	if err := c.ShouldBindBodyWith(&component, binding.JSON); err != nil {
 		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
 		return
 	}
-	result, err := s.apis.CreateComponent(&component)
+
+	var config api.ComponentConfig
+	if err := c.ShouldBindBodyWith(&config, binding.JSON); err != nil {
+		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
+		return
+	}
+
+	result, err := s.apis.CreateComponent(&component, &config)
 	if err == nil {
 		c.JSON(http.StatusOK, result)
 	} else {
@@ -156,6 +165,10 @@ func (s *HTTPServer) ResponseErrorMessage(c *gin.Context, err error) {
 	case apptypes.ErrInternalServer:
 		{
 			c.JSON(http.StatusInternalServerError, err)
+		}
+	case apptypes.ErrInvalidComponentType:
+		{
+			c.JSON(http.StatusBadRequest, err)
 		}
 	default:
 		{
