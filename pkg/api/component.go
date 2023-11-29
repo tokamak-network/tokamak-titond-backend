@@ -16,7 +16,7 @@ func (t *TitondAPI) CreateComponent(component *model.Component, config *Componen
 	var result *model.Component
 	var err error
 
-	config.Namespace = fmt.Sprintf("namespace-%d", component.NetworkID)
+	config.Namespace = generateNamespace(component.NetworkID)
 
 	switch component.Type {
 	case "l2geth":
