@@ -90,3 +90,25 @@ func TestReadNetwork(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateComponent(t *testing.T) {
+	db, mock := newMockDB()
+	mockPostgres := &Postgres{
+		db,
+	}
+
+	rows := sqlmock.NewRows([]string{"id", "type", "network_id"}).AddRow(1, "l2geth", 1)
+	mock.ExpectBegin()
+	mock.ExpectQuery(`INSERT(.*)`).
+		WithArgs(time.Now().Unix(), time.Now().Unix(), 0, "test", "l2geth", false, "", 1).
+		WillReturnRows(rows)
+	mock.ExpectCommit()
+
+	mockPostgres.CreateComponent(&model.Component{
+		Name:      "test",
+		Type:      "l2geth",
+		NetworkID: 1,
+	})
+
+	assert.Nil(t, mock.ExpectationsWereMet())
+}
