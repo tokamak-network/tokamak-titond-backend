@@ -7,14 +7,14 @@ WORKDIR /app
 COPY . .
 
 ARG TARGETOS TARGETARCH
-RUN go install github.com/swaggo/swag@latest
 RUN GOOS=$TARGETOS GOARCH=$TARGETARCH make titond
 
 FROM alpine
 
 RUN apk add --no-cache ca-certificates jq curl
+COPY --from=builder /app/api /root/api
 COPY --from=builder /app/deployments /root/deployments
 COPY --from=builder /app/build/bin/titond /usr/local/bin/
 
-WORKDIR /usr/local/bin/
+WORKDIR /root
 ENTRYPOINT ["titond"]

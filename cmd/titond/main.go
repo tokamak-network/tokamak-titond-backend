@@ -10,7 +10,7 @@ import (
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/http"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/kubernetes"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/services"
-	apptest "github.com/tokamak-network/tokamak-titond-backend/test"
+	"github.com/tokamak-network/tokamak-titond-backend/test"
 	"github.com/urfave/cli/v2"
 )
 
@@ -25,7 +25,7 @@ func init() {
 			Name:    "check-swagger",
 			Aliases: []string{"g"},
 			Usage:   "check swagger",
-			Action:  apptest.CheckSwagger,
+			Action:  test.CheckSwagger,
 		},
 	}
 	app.Action = titond
