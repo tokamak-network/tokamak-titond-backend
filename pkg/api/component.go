@@ -4,11 +4,32 @@ import (
 	"fmt"
 
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
+	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 )
 
-func (t *TitondAPI) CreateComponent(data *model.Component) (*model.Component, error) {
-	fmt.Println("Create component api handler")
-	return data, nil
+type ComponentConfig struct {
+	Namespace string            `json:"namespace"`
+	Data      map[string]string `json:"data"`
+}
+
+func (t *TitondAPI) CreateComponent(component *model.Component, config *ComponentConfig) (*model.Component, error) {
+	var result *model.Component
+	var err error
+
+	config.Namespace = fmt.Sprintf("namespace-%d", component.NetworkID)
+
+	switch component.Type {
+	case "l2geth":
+		result, err = t.CreateL2Geth(component, config)
+	default:
+		err = apptypes.ErrInvalidComponentType
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (t *TitondAPI) GetComponentByType(networkID uint, componentType string) (*model.Component, error) {

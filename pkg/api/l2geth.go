@@ -7,33 +7,29 @@ import (
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
 )
 
-type l2gethConfig struct {
-	data map[string]string
-}
-
-// get DTL url and state-dump.json URL
-func (t *TitondAPI) CreateL2Geth(networkId int, data *model.Component /*TODO : get params for config, namespace*/) *model.Component {
-	// TODO : deal with DB
-	// t.db.CreateComponent()
-
-	/*
-		This is currently hardcoding, but
-		will be replaced by taking a value as a parameter and generating it
-	*/
-	namespace := "default"
-	config := &l2gethConfig{
-		data: map[string]string{},
+func (t *TitondAPI) CreateL2Geth(l2geth *model.Component, config *ComponentConfig) (*model.Component, error) {
+	network, err := t.db.ReadNetwork(l2geth.NetworkID)
+	if err != nil {
+		return nil, err
 	}
 
-	config.data["ETH1_CONFIRMATION_DEPTH"] = "1"
-	config.data["GASPRICE"] = "100"
+	config.Data["ROLLUP_STATE_DUMP_PATH"] = network.StateDumpURL
+	config.Data["ROLLUP_CLIENT_HTTP"] = network.ContractAddressURL
 
-	go t.createL2Geth(namespace, config)
+	result, err := t.db.CreateComponent(l2geth)
+	if err == nil {
+		go t.createL2Geth(config)
+	}
 
-	return data
+	return result, err
 }
 
-func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
+/*
+TODO :
+  - config PV mount path
+  - config public url
+*/
+func (t *TitondAPI) createL2Geth(config *ComponentConfig) {
 	mPath := t.k8s.GetManifestPath()
 
 	obj := kubernetes.GetObject(mPath, "l2geth", "configMap")
@@ -43,7 +39,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 		return
 	}
 
-	createdConfigMap, err := t.k8s.CreateConfigMapWithConfig(namespace, cm, config.data)
+	createdConfigMap, err := t.k8s.CreateConfigMapWithConfig(config.Namespace, cm, config.Data)
 	if err != nil {
 		fmt.Printf("createL2Geth error: %s\n", err)
 		return
@@ -57,7 +53,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 		return
 	}
 
-	createdPVC, err := t.k8s.CreatePersistentVolumeClaim(namespace, pvc)
+	createdPVC, err := t.k8s.CreatePersistentVolumeClaim(config.Namespace, pvc)
 	if err != nil {
 		fmt.Printf("createL2Geth error: %s\n", err)
 		return
@@ -71,7 +67,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 		return
 	}
 
-	createdSVC, err := t.k8s.CreateService(namespace, svc)
+	createdSVC, err := t.k8s.CreateService(config.Namespace, svc)
 	if err != nil {
 		fmt.Printf("createL2Geth error: %s\n", err)
 		return
@@ -85,7 +81,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 		return
 	}
 
-	createdSFS, err := t.k8s.CreateStatefulSet(namespace, sfs)
+	createdSFS, err := t.k8s.CreateStatefulSet(config.Namespace, sfs)
 	if err != nil {
 		fmt.Printf("createL2Geth error: %s\n", err)
 		return
@@ -99,7 +95,7 @@ func (t *TitondAPI) createL2Geth(namespace string, config *l2gethConfig) {
 		return
 	}
 
-	createdIngress, err := t.k8s.CreateIngress(namespace, ingress)
+	createdIngress, err := t.k8s.CreateIngress(config.Namespace, ingress)
 	if err != nil {
 		fmt.Printf("createL2Geth error: %s\n", err)
 		return
