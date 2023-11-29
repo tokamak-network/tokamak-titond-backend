@@ -12,8 +12,13 @@ func (p *Postgres) CreateNetwork(data *model.Network) (*model.Network, error) {
 	return data, nil
 }
 
-func (p *Postgres) ReadNetwork() {
-
+func (p *Postgres) ReadNetwork(networkID uint) (*model.Network, error) {
+	network := model.Network{}
+	result := p.gDB.First(&network, networkID)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &network, nil
 }
 
 func (p *Postgres) ReadAllNetwork() {
