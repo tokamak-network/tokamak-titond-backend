@@ -11,7 +11,8 @@ type l2gethConfig struct {
 	data map[string]string
 }
 
-func (t *TitondAPI) CreateL2Geth(data *model.Component /*TODO : get params for config, namespace*/) *model.Component {
+// get DTL url and state-dump.json URL
+func (t *TitondAPI) CreateL2Geth(networkId int, data *model.Component /*TODO : get params for config, namespace*/) *model.Component {
 	// TODO : deal with DB
 	// t.db.CreateComponent()
 
