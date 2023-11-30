@@ -32,11 +32,9 @@ func (p *Postgres) DeleteNetwork(networkID uint) (int64, error) {
 
 func (p *Postgres) CreateComponent(component *model.Component) (*model.Component, error) {
 	result := p.gDB.Create(component)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return component, nil
+	return component, result.Error
 }
+
 func (p *Postgres) ReadComponent() {
 
 }
