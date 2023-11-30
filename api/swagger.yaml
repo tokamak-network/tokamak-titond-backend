@@ -138,9 +138,9 @@ paths:
       description: Get networks by page
       operationId: get-networks-by-page
       parameters:
-      - description: Network ID
+      - description: The page number for pagination. Defaults to 1 if not provided.
         in: path
-        name: id
+        name: page
         required: true
         type: integer
       produces:

@@ -160,8 +160,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Network ID",
-                        "name": "id",
+                        "description": "The page number for pagination. Defaults to 1 if not provided.",
+                        "name": "page",
                         "in": "path",
                         "required": true
                     }

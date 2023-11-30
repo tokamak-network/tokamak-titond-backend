@@ -9,6 +9,8 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 )
 
+var PAGE_SIZE int = 10
+
 func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
 	result, err := t.db.CreateNetwork(data)
 	if err == nil {
@@ -17,9 +19,16 @@ func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
 	return result, err
 }
 
-func (t *TitondAPI) GetNetworksByPage(page uint) error {
+func (t *TitondAPI) GetNetworksByPage(page int) ([]model.Network, error) {
 	fmt.Println("Query Networks by Page:", page)
-	return nil
+	networks, err := t.db.ReadNetworkByRange((page-1)*PAGE_SIZE, PAGE_SIZE)
+	fmt.Println(len(networks), err)
+	if err == nil {
+		if len(networks) == 0 {
+			return nil, types.ErrResourceNotFound
+		}
+	}
+	return networks, err
 }
 
 func (t *TitondAPI) GetNetworkByID(networkID uint) (*model.Network, error) {

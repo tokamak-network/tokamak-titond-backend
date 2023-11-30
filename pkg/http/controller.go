@@ -31,14 +31,34 @@ func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 // @Description Get networks by page
 // @ID get-networks-by-page
 // @Produce json
-// @Param id path int true "Network ID"
+// @Param page path int true "The page number. Defaults to 1 if page not provided."
 // @Success 200 {object} object
 // @Failure 400
 // @Failure 404
 // @Failure 500
 // @Router /api/networks [get]
 func (s *HTTPServer) GetNetworksByPage(c *gin.Context) {
-	fmt.Println("Get Networks")
+	pageRequest := c.Query("page")
+	var page int
+	var err error
+	if pageRequest == "" {
+		page = 1
+	} else {
+		page, err = strconv.Atoi(pageRequest)
+		if err != nil {
+			s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
+			return
+		}
+		if page < 1 {
+			page = 1
+		}
+	}
+	result, err := s.apis.GetNetworksByPage(page)
+	if err == nil {
+		c.JSON(http.StatusOK, result)
+	} else {
+		s.ResponseErrorMessage(c, err)
+	}
 }
 
 // @Summary GetNetworkById
