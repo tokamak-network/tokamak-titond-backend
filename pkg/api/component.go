@@ -7,18 +7,13 @@ import (
 	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 )
 
-type ComponentConfig struct {
-	Namespace string            `json:"namespace"`
-	Data      map[string]string `json:"data"`
-}
-
-func (t *TitondAPI) CreateComponent(component *model.Component, config *ComponentConfig) (*model.Component, error) {
+func (t *TitondAPI) CreateComponent(component *model.Component) (*model.Component, error) {
 	var result *model.Component
 	var err error
 
 	switch component.Type {
 	case "l2geth":
-		result, err = t.CreateL2Geth(component, config)
+		result, err = t.CreateL2Geth(component)
 	default:
 		err = apptypes.ErrInvalidComponentType
 	}
