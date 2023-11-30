@@ -15,7 +15,6 @@ func (t *TitondAPI) CreateL2Geth(l2geth *model.Component, config *ComponentConfi
 
 	config.Namespace = generateNamespace(l2geth.NetworkID)
 	config.Data["ROLLUP_STATE_DUMP_PATH"] = network.StateDumpURL
-	config.Data["ROLLUP_CLIENT_HTTP"] = network.ContractAddressURL
 
 	result, err := t.db.CreateComponent(l2geth)
 	if err == nil {
