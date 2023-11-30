@@ -1,31 +1,38 @@
 package db
 
 import (
+	"fmt"
+
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
 )
 
 func (p *Postgres) CreateNetwork(data *model.Network) (*model.Network, error) {
 	result := p.gDB.Create(data)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return data, nil
+	return data, result.Error
 }
 
-func (p *Postgres) ReadNetwork() {
-
+func (p *Postgres) ReadNetwork(networkID uint) (*model.Network, error) {
+	var network model.Network
+	result := p.gDB.First(&network, networkID)
+	return &network, result.Error
 }
 
-func (p *Postgres) ReadAllNetwork() {
+func (p *Postgres) ReadNetworkByRange(offset int, limit int) ([]model.Network, error) {
+	fmt.Println("Offset ", offset, " Limit: ", limit)
+	var networks []model.Network
+	result := p.gDB.Offset(offset).Limit(limit).Find(&networks)
+	return networks, result.Error
+}
 
+func (p *Postgres) ReadAllNetwork() ([]model.Network, error) {
+	var networks []model.Network
+	result := p.gDB.Find(networks)
+	return networks, result.Error
 }
 
 func (p *Postgres) UpdateNetwork(data *model.Network) (*model.Network, error) {
 	result := p.gDB.Save(data)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return data, nil
+	return data, result.Error
 }
 
 func (p *Postgres) DeleteNetwork(networkID uint) (int64, error) {
