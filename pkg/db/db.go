@@ -17,7 +17,7 @@ type Client interface {
 	ReadAllNetwork() ([]model.Network, error)
 	UpdateNetwork(network *model.Network) (*model.Network, error)
 	DeleteNetwork(uint) (int64, error)
-	CreateComponent()
+	CreateComponent(component *model.Component) (*model.Component, error)
 	ReadComponent()
 	ReadAllComponent()
 	UpdateComponent()

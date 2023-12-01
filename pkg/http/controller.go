@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"gorm.io/gorm"
+
 	"github.com/gin-gonic/gin"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
 	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
-	"gorm.io/gorm"
 )
 
 // @Summary CreateNetwork
@@ -126,6 +127,7 @@ func (s *HTTPServer) CreateComponent(c *gin.Context) {
 		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
 		return
 	}
+
 	result, err := s.apis.CreateComponent(&component)
 	if err == nil {
 		c.JSON(http.StatusOK, result)
@@ -216,6 +218,10 @@ func (s *HTTPServer) ResponseErrorMessage(c *gin.Context, err error) {
 	case apptypes.ErrInternalServer:
 		{
 			c.JSON(http.StatusInternalServerError, err)
+		}
+	case apptypes.ErrInvalidComponentType:
+		{
+			c.JSON(http.StatusBadRequest, err)
 		}
 	case gorm.ErrRecordNotFound:
 		{

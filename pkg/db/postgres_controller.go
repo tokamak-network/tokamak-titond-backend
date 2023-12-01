@@ -40,9 +40,12 @@ func (p *Postgres) DeleteNetwork(networkID uint) (int64, error) {
 
 	return result.RowsAffected, result.Error
 }
-func (p *Postgres) CreateComponent() {
 
+func (p *Postgres) CreateComponent(component *model.Component) (*model.Component, error) {
+	result := p.gDB.Create(component)
+	return component, result.Error
 }
+
 func (p *Postgres) ReadComponent() {
 
 }
