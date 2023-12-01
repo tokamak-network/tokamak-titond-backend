@@ -28,6 +28,64 @@ func (s *HTTPServer) CreateNetwork(c *gin.Context) {
 	}
 }
 
+// @Summary GetNetworksByPage
+// @Description Get networks by page
+// @ID get-networks-by-page
+// @Produce json
+// @Param page path int true "The page number. Defaults to 1 if page not provided."
+// @Success 200 {object} object
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /api/networks [get]
+func (s *HTTPServer) GetNetworksByPage(c *gin.Context) {
+	pageRequest := c.Query("page")
+	var page int
+	var err error
+	if pageRequest == "" {
+		page = 1
+	} else {
+		page, err = strconv.Atoi(pageRequest)
+		if err != nil {
+			s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
+			return
+		}
+		if page < 1 {
+			page = 1
+		}
+	}
+	result, err := s.apis.GetNetworksByPage(page)
+	if err == nil {
+		c.JSON(http.StatusOK, result)
+	} else {
+		s.ResponseErrorMessage(c, err)
+	}
+}
+
+// @Summary GetNetworkById
+// @Description Get a network by id
+// @ID get-network-by-id
+// @Produce json
+// @Param id path int true "Network ID"
+// @Success 200 {object} object
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /api/networks/{id} [get]
+func (s *HTTPServer) GetNetworkById(c *gin.Context) {
+	networkID, err := strconv.ParseInt(c.Param("id"), 10, 32)
+	if err != nil {
+		s.ResponseErrorMessage(c, apptypes.ErrBadRequest)
+		return
+	}
+	result, err := s.apis.GetNetworkByID(uint(networkID))
+	if err == nil {
+		c.JSON(http.StatusOK, result)
+	} else {
+		s.ResponseErrorMessage(c, err)
+	}
+}
+
 // @Summary DeleteNetwork
 // @Description Delete a network by id
 // @ID delete-network
@@ -82,7 +140,8 @@ func (s *HTTPServer) CreateComponent(c *gin.Context) {
 // @Description Get Component By Type
 // @ID get-component-by-type
 // @Param type query string true "Component type (e.g., l2geth)"
-// @Param network_id query integer true "Network ID"// @Produce json
+// @Param network_id query integer true "Network ID"
+// @Produce json
 // @Success 200 {object} object
 // @Failure 400
 // @Failure 500
