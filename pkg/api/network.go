@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/kubernetes"
@@ -44,27 +45,29 @@ func (t *TitondAPI) DeleteNetwork(id uint) error {
 	return err
 }
 
-func (t *TitondAPI) createNetwork(network *model.Network) {
+func (t *TitondAPI) createNetwork(network *model.Network) (string, string) {
 	deployerName := MakeDeployerName(network.ID)
 	_, err := t.createDeployer(t.config.Namespace, deployerName)
 	if err != nil {
 		fmt.Println("Failed when creating deployer:", err)
-		return
+		return "", ""
 	}
 	podList, err := t.k8s.GetPodsOfDeployment(t.config.Namespace, deployerName)
 	if err != nil {
-		return
+		return "", ""
 	}
 	if len(podList.Items) == 0 {
 		fmt.Println("Back")
-		return
+		return "", ""
 	}
 	addressData, addressErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json")
 	dumpData, dumpErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json")
 
 	addressUrl := ""
 	dumpUrl := ""
-	var uploadDumpErr, uploadAddressErr error
+	uploadAddressErr := errors.New("")
+	uploadDumpErr := errors.New("")
+
 	if addressErr == nil {
 		addressFileName := fmt.Sprintf("address-%d.json", network.ID)
 		addressUrl, uploadAddressErr = t.uploadAddressFile(addressFileName, addressData)
@@ -74,9 +77,12 @@ func (t *TitondAPI) createNetwork(network *model.Network) {
 		dumpUrl, uploadDumpErr = t.uploadDumpFile(dumpFileName, dumpData)
 	}
 	err = t.updateDBWithValue(network, addressUrl, dumpUrl, uploadAddressErr, uploadDumpErr)
-	if err == nil {
+
+	// We clear the job when everything works correctly
+	if err == nil && uploadAddressErr == nil && uploadDumpErr == nil {
 		fmt.Println("Clean k8s job", t.cleanK8sJob(network))
 	}
+	return addressUrl, dumpUrl
 }
 
 func (t *TitondAPI) createDeployer(namespace string, name string) (*appsv1.Deployment, error) {
