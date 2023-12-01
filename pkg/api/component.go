@@ -17,6 +17,9 @@ func (t *TitondAPI) CreateComponent(component *model.Component) (*model.Componen
 
 	case "data-transport-layer":
 		result, err = t.CreateDTL(component)
+    
+	case "batch-submitter":
+		result, err = t.CreateBatchSubmitter(component)
 
 	default:
 		err = apptypes.ErrInvalidComponentType
