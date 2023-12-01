@@ -46,7 +46,7 @@ func (t *TitondAPI) DeleteNetwork(id uint) error {
 
 func (t *TitondAPI) createNetwork(network *model.Network) {
 	deployerName := MakeDeployerName(network.ID)
-	_, err := t.CreateDeployer(t.config.Namespace, deployerName)
+	_, err := t.createDeployer(t.config.Namespace, deployerName)
 	if err != nil {
 		fmt.Println("Failed when creating deployer:", err)
 		return
@@ -67,19 +67,20 @@ func (t *TitondAPI) createNetwork(network *model.Network) {
 	var uploadDumpErr, uploadAddressErr error
 	if addressErr == nil {
 		addressFileName := fmt.Sprintf("address-%d.json", network.ID)
-		addressUrl, uploadAddressErr = t.UploadAddressFile(addressFileName, addressData)
+		addressUrl, uploadAddressErr = t.uploadAddressFile(addressFileName, addressData)
 	}
 	if dumpErr == nil {
 		dumpFileName := fmt.Sprintf("state-dump-%d.json", network.ID)
-		dumpUrl, uploadDumpErr = t.UploadDumpFile(dumpFileName, dumpData)
+		dumpUrl, uploadDumpErr = t.uploadDumpFile(dumpFileName, dumpData)
 	}
-	err = t.UpdateDBWithValue(network, addressUrl, dumpUrl, uploadAddressErr, uploadDumpErr)
+	err = t.updateDBWithValue(network, addressUrl, dumpUrl, uploadAddressErr, uploadDumpErr)
 	if err == nil {
-		fmt.Println("Clean k8s job", t.CleanK8sJob(network))
+		fmt.Println("Clean k8s job", t.cleanK8sJob(network))
 	}
 }
 
-func (t *TitondAPI) CreateDeployer(namespace string, name string) (*appsv1.Deployment, error) {
+func (t *TitondAPI) createDeployer(namespace string, name string) (*appsv1.Deployment, error) {
+	fmt.Println("Create deployer: ", name)
 	object, _ := kubernetes.BuildObjectFromYamlFile("./deployments/deployer/deployment.yaml")
 	deployment, success := kubernetes.ConvertToDeployment(object)
 	if !success {
@@ -93,7 +94,7 @@ func (t *TitondAPI) CreateDeployer(namespace string, name string) (*appsv1.Deplo
 	return deployment, deployerCreationErr
 }
 
-func (t *TitondAPI) UploadAddressFile(addressFileName string, addressData string) (string, error) {
+func (t *TitondAPI) uploadAddressFile(addressFileName string, addressData string) (string, error) {
 	var addressUrl string
 	var err error
 	for i := 0; i < 5; i++ {
@@ -105,7 +106,7 @@ func (t *TitondAPI) UploadAddressFile(addressFileName string, addressData string
 	return "", err
 }
 
-func (t *TitondAPI) UploadDumpFile(dumpFileName string, dumpFileData string) (string, error) {
+func (t *TitondAPI) uploadDumpFile(dumpFileName string, dumpFileData string) (string, error) {
 	var dumpFileUrl string
 	var err error
 	for i := 0; i < 5; i++ {
@@ -117,7 +118,7 @@ func (t *TitondAPI) UploadDumpFile(dumpFileName string, dumpFileData string) (st
 	return "", err
 }
 
-func (t *TitondAPI) UpdateDBWithValue(network *model.Network, addressFileUrl string, dumpFileUrl string, uploadAddressErr error, uploadDumpErr error) error {
+func (t *TitondAPI) updateDBWithValue(network *model.Network, addressFileUrl string, dumpFileUrl string, uploadAddressErr error, uploadDumpErr error) error {
 	network.ContractAddressURL = addressFileUrl
 	network.StateDumpURL = dumpFileUrl
 	network.Status = (uploadAddressErr == nil) && (uploadDumpErr == nil)
@@ -125,7 +126,7 @@ func (t *TitondAPI) UpdateDBWithValue(network *model.Network, addressFileUrl str
 	return err
 }
 
-func (t *TitondAPI) CleanK8sJob(network *model.Network) error {
+func (t *TitondAPI) cleanK8sJob(network *model.Network) error {
 	deployerName := MakeDeployerName(network.ID)
 	return t.k8s.DeleteDeployment(t.config.Namespace, deployerName)
 }
