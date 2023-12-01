@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"gorm.io/gorm"
+
 	"github.com/gin-gonic/gin"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
 	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
@@ -161,6 +163,10 @@ func (s *HTTPServer) ResponseErrorMessage(c *gin.Context, err error) {
 	case apptypes.ErrInvalidComponentType:
 		{
 			c.JSON(http.StatusBadRequest, err)
+		}
+	case gorm.ErrRecordNotFound:
+		{
+			c.JSON(http.StatusNotFound, err)
 		}
 	default:
 		{
