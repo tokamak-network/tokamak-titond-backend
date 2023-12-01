@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/kubernetes"
@@ -31,9 +32,34 @@ func (t *TitondAPI) GetNetworksByPage(page int) ([]model.Network, error) {
 	return networks, err
 }
 
-func (t *TitondAPI) GetNetworkByID(networkID uint) (*model.Network, error) {
+func (t *TitondAPI) GetNetworkByID(networkID uint) (interface{}, error) {
 	fmt.Println("Query Network by ID:", networkID)
-	return t.db.ReadNetwork(networkID)
+	network, err := t.db.ReadNetwork(networkID)
+	if err != nil {
+		return nil, err
+	}
+	var message string
+	if network.ContractAddressURL == "" {
+		deployment, err := t.GetK8sJobStatus(network)
+		fmt.Println("Update deployer status", deployment.Status, err)
+		if err == nil {
+			jsonData, err := json.MarshalIndent(deployment, "", "  ")
+			if err != nil {
+				message = err.Error()
+			} else {
+				message = string(jsonData)
+			}
+		} else {
+			message = "Could not find the deployment"
+		}
+	}
+	var data map[string]interface{}
+	data, err = ConvertStructToMap(*network)
+	if err == nil {
+		data["Message"] = message
+	}
+
+	return data, err
 }
 
 func (t *TitondAPI) DeleteNetwork(id uint) error {
@@ -131,6 +157,11 @@ func (t *TitondAPI) UpdateDBWithValue(network *model.Network, addressFileUrl str
 func (t *TitondAPI) CleanK8sJob(network *model.Network) error {
 	deployerName := MakeDeployerName(network.ID)
 	return t.k8s.DeleteDeployment(t.config.Namespace, deployerName)
+}
+
+func (t *TitondAPI) GetK8sJobStatus(network *model.Network) (*appsv1.Deployment, error) {
+	deployerName := MakeDeployerName(network.ID)
+	return t.k8s.GetDeployment(t.config.Namespace, deployerName)
 }
 
 func MakeDeployerName(id uint) string {

@@ -160,7 +160,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "The page number for pagination. Defaults to 1 if not provided.",
+                        "description": "The page number. Defaults to 1 if page not provided.",
                         "name": "page",
                         "in": "path",
                         "required": true
