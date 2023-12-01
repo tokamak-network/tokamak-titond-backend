@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-transport-layer-svc
+spec:
+  selector:
+    app: data-transport-layer
+  ports:
+    - name: http
+      port: 7878
+      targetPort: 7878

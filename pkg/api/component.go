@@ -15,6 +15,9 @@ func (t *TitondAPI) CreateComponent(component *model.Component) (*model.Componen
 	case "l2geth":
 		result, err = t.CreateL2Geth(component)
 
+	case "data-transport-layer":
+		result, err = t.CreateDTL(component)
+    
 	case "batch-submitter":
 		result, err = t.CreateBatchSubmitter(component)
 
