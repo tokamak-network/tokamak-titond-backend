@@ -58,7 +58,7 @@ func (t *TitondAPI) GetNetworkByID(networkID uint) (interface{}, error) {
 		var data map[string]interface{}
 		data, err = ConvertStructToMap(*network)
 		if err == nil {
-			data["Message"] = deploymentMap
+			data["Deployer Status"] = deploymentMap
 		}
 		return data, err
 	}
@@ -165,8 +165,4 @@ func (t *TitondAPI) CleanK8sJob(network *model.Network) error {
 func (t *TitondAPI) GetK8sJobStatus(network *model.Network) (*appsv1.Deployment, error) {
 	deployerName := MakeDeployerName(network.ID)
 	return t.k8s.GetDeployment(t.config.Namespace, deployerName)
-}
-
-func MakeDeployerName(id uint) string {
-	return fmt.Sprintf("deployer-%d", id)
 }

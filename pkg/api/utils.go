@@ -6,6 +6,10 @@ import (
 	"reflect"
 )
 
+func MakeDeployerName(id uint) string {
+	return fmt.Sprintf("deployer-%d", id)
+}
+
 func generateMountPath(name string, networkID, componentID uint) string {
 	return fmt.Sprintf("%s-%d-%d", name, networkID, componentID)
 }
