@@ -17,7 +17,7 @@ type Config struct {
 type ITitondAPI interface {
 	CreateNetwork(data *model.Network) (*model.Network, error)
 	GetNetworksByPage(page int) ([]model.Network, error)
-	GetNetworkByID(networkID uint) (interface{}, error)
+	GetNetworkByID(networkID uint) (*model.Network, error)
 	DeleteNetwork(id uint) error
 	CreateComponent(component *model.Component) (*model.Component, error)
 	GetComponentByType(networkID uint, componentType string) (*model.Component, error)
