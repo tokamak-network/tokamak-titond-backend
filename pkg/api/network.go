@@ -38,25 +38,28 @@ func (t *TitondAPI) GetNetworkByID(networkID uint) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	var message string
+	deploymentMap := make(map[string]interface{})
 	if network.ContractAddressURL == "" {
 		deployment, err := t.GetK8sJobStatus(network)
 		fmt.Println("Update deployer status", deployment.Status, err)
 		if err == nil {
 			jsonData, err := json.MarshalIndent(deployment, "", "  ")
 			if err != nil {
-				message = err.Error()
+				deploymentMap["Error"] = err.Error()
 			} else {
-				message = string(jsonData)
+				err = json.Unmarshal(jsonData, &deploymentMap)
+				if err != nil {
+					deploymentMap["Error"] = err.Error()
+				}
 			}
 		} else {
-			message = "Could not find the deployment"
+			deploymentMap["Error"] = "Could not find the deployment"
 		}
 	}
 	var data map[string]interface{}
 	data, err = ConvertStructToMap(*network)
 	if err == nil {
-		data["Message"] = message
+		data["Message"] = deploymentMap
 	}
 
 	return data, err
