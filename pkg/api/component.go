@@ -14,6 +14,10 @@ func (t *TitondAPI) CreateComponent(component *model.Component) (*model.Componen
 	switch component.Type {
 	case "l2geth":
 		result, err = t.CreateL2Geth(component)
+
+	case "batch-submitter":
+		result, err = t.CreateBatchSubmitter(component)
+
 	default:
 		err = apptypes.ErrInvalidComponentType
 	}
