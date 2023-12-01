@@ -55,14 +55,14 @@ func (t *TitondAPI) GetNetworkByID(networkID uint) (interface{}, error) {
 		} else {
 			deploymentMap["Error"] = "Could not find the deployment"
 		}
+		var data map[string]interface{}
+		data, err = ConvertStructToMap(*network)
+		if err == nil {
+			data["Message"] = deploymentMap
+		}
+		return data, err
 	}
-	var data map[string]interface{}
-	data, err = ConvertStructToMap(*network)
-	if err == nil {
-		data["Message"] = deploymentMap
-	}
-
-	return data, err
+	return network, nil
 }
 
 func (t *TitondAPI) DeleteNetwork(id uint) error {
