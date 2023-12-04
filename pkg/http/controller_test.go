@@ -326,6 +326,15 @@ func TestCreateComponent(t *testing.T) {
 		{
 			link: "/api/components/",
 			body: &model.Component{
+				Name: "Titan-test",
+				Type: "l2-geth",
+			},
+			mockError:        types.ErrInvalidComponentType,
+			expectedHttpCode: http.StatusBadRequest,
+		},
+		{
+			link: "/api/components/",
+			body: &model.Component{
 				Name:      "Titan-test",
 				Type:      "l2geth",
 				NetworkID: 1,
