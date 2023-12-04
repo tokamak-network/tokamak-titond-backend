@@ -2,6 +2,7 @@ package http
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/types"
+	"gorm.io/gorm"
 )
 
 type MockTitondAPI struct {
@@ -18,6 +20,8 @@ type MockTitondAPI struct {
 	networks  []model.Network
 	component *model.Component
 	err       error
+	page      int
+	networkID uint
 }
 
 func (mock *MockTitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
@@ -26,14 +30,17 @@ func (mock *MockTitondAPI) CreateNetwork(data *model.Network) (*model.Network, e
 }
 
 func (mock *MockTitondAPI) GetNetworksByPage(page int) ([]model.Network, error) {
+	mock.page = page
 	return mock.networks, mock.err
 }
 
 func (mock *MockTitondAPI) GetNetworkByID(networkID uint) (*model.Network, error) {
+	mock.networkID = networkID
 	return mock.network, mock.err
 }
 
-func (mock *MockTitondAPI) DeleteNetwork(id uint) error {
+func (mock *MockTitondAPI) DeleteNetwork(networkID uint) error {
+	mock.networkID = networkID
 	return mock.err
 }
 
@@ -90,4 +97,249 @@ func TestCreateNetworkFailed(t *testing.T) {
 	w := httptest.NewRecorder()
 	server.R.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
+}
+
+func TestGetNetworkByPage(t *testing.T) {
+	testcases := []struct {
+		link             string
+		mockNetworks     []model.Network
+		mockError        error
+		expectedHttpCode int
+		expectedPage     int
+	}{
+		{
+			link:             "/api/networks/?page=1",
+			mockNetworks:     []model.Network{},
+			mockError:        types.ErrResourceNotFound,
+			expectedHttpCode: http.StatusNotFound,
+			expectedPage:     1,
+		},
+		{
+			link:             "/api/networks/",
+			mockNetworks:     []model.Network{},
+			mockError:        nil,
+			expectedHttpCode: http.StatusOK,
+			expectedPage:     1,
+		},
+		{
+			link:             "/api/networks/?page=abc",
+			mockNetworks:     []model.Network{},
+			mockError:        nil,
+			expectedHttpCode: http.StatusBadRequest,
+			expectedPage:     0,
+		},
+		{
+			link:             "/api/networks/?page=1",
+			mockNetworks:     []model.Network{},
+			mockError:        nil,
+			expectedHttpCode: http.StatusOK,
+			expectedPage:     1,
+		},
+		{
+			link:             "/api/networks/?page=0",
+			mockNetworks:     []model.Network{},
+			mockError:        nil,
+			expectedHttpCode: http.StatusOK,
+			expectedPage:     1,
+		},
+	}
+	gin.SetMode(gin.TestMode)
+
+	titondAPI := &MockTitondAPI{}
+	titondAPI.network = nil
+	titondAPI.err = types.ErrInternalServer
+
+	server := NewHTTPServer(nil, titondAPI)
+
+	for _, testcase := range testcases {
+		titondAPI.err = testcase.mockError
+		titondAPI.networks = testcase.mockNetworks
+		req, err := http.NewRequest(http.MethodGet, testcase.link, bytes.NewBuffer([]byte{}))
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		server.R.ServeHTTP(w, req)
+		assert.Equal(t, testcase.expectedHttpCode, w.Code)
+		if testcase.expectedHttpCode != http.StatusBadRequest {
+			assert.Equal(t, testcase.expectedPage, titondAPI.page)
+		}
+	}
+
+}
+
+func TestGetNetworkByID(t *testing.T) {
+	testcases := []struct {
+		link              string
+		mockNetwork       *model.Network
+		mockError         error
+		expectedHttpCode  int
+		expectedNetworkID uint
+	}{
+		{
+			link:              "/api/networks/12",
+			mockNetwork:       &model.Network{},
+			mockError:         types.ErrResourceNotFound,
+			expectedHttpCode:  http.StatusNotFound,
+			expectedNetworkID: 12,
+		},
+		{
+			link:              "/api/networks/1a",
+			mockNetwork:       &model.Network{},
+			mockError:         nil,
+			expectedHttpCode:  http.StatusBadRequest,
+			expectedNetworkID: 1,
+		},
+		{
+			link:              "/api/networks/1",
+			mockNetwork:       &model.Network{},
+			mockError:         gorm.ErrRecordNotFound,
+			expectedHttpCode:  http.StatusNotFound,
+			expectedNetworkID: 1,
+		},
+		{
+			link:              "/api/networks/12",
+			mockNetwork:       &model.Network{},
+			mockError:         nil,
+			expectedHttpCode:  http.StatusOK,
+			expectedNetworkID: 12,
+		},
+	}
+	gin.SetMode(gin.TestMode)
+
+	titondAPI := &MockTitondAPI{}
+	titondAPI.network = nil
+	titondAPI.err = types.ErrInternalServer
+
+	server := NewHTTPServer(nil, titondAPI)
+
+	for _, testcase := range testcases {
+		fmt.Println(" Case: ", testcase)
+		titondAPI.err = testcase.mockError
+		titondAPI.network = testcase.mockNetwork
+		req, err := http.NewRequest(http.MethodGet, testcase.link, bytes.NewBuffer([]byte{}))
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		server.R.ServeHTTP(w, req)
+		assert.Equal(t, testcase.expectedHttpCode, w.Code)
+		if testcase.expectedHttpCode != http.StatusBadRequest {
+			assert.Equal(t, testcase.expectedNetworkID, titondAPI.networkID)
+		}
+	}
+}
+
+func TestDeleteNetworkByID(t *testing.T) {
+	testcases := []struct {
+		link              string
+		mockNetwork       *model.Network
+		mockError         error
+		expectedHttpCode  int
+		expectedNetworkID uint
+	}{
+		{
+			link:              "/api/networks/12",
+			mockNetwork:       &model.Network{},
+			mockError:         types.ErrResourceNotFound,
+			expectedHttpCode:  http.StatusNotFound,
+			expectedNetworkID: 12,
+		},
+		{
+			link:              "/api/networks/12",
+			mockNetwork:       &model.Network{},
+			mockError:         types.ErrInternalServer,
+			expectedHttpCode:  http.StatusInternalServerError,
+			expectedNetworkID: 12,
+		},
+		{
+			link:              "/api/networks/1a",
+			mockNetwork:       &model.Network{},
+			mockError:         nil,
+			expectedHttpCode:  http.StatusBadRequest,
+			expectedNetworkID: 1,
+		},
+		{
+			link:              "/api/networks/12",
+			mockNetwork:       &model.Network{},
+			mockError:         nil,
+			expectedHttpCode:  http.StatusOK,
+			expectedNetworkID: 12,
+		},
+		{
+			link:              "/api/networks/12",
+			mockNetwork:       &model.Network{},
+			mockError:         errors.New("unknown error will return code 500"),
+			expectedHttpCode:  http.StatusInternalServerError,
+			expectedNetworkID: 12,
+		},
+	}
+	gin.SetMode(gin.TestMode)
+
+	titondAPI := &MockTitondAPI{}
+	titondAPI.network = nil
+	titondAPI.err = types.ErrInternalServer
+
+	server := NewHTTPServer(nil, titondAPI)
+
+	for _, testcase := range testcases {
+		fmt.Println(" Case: ", testcase)
+		titondAPI.err = testcase.mockError
+		titondAPI.network = testcase.mockNetwork
+		req, err := http.NewRequest(http.MethodDelete, testcase.link, bytes.NewBuffer([]byte{}))
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		server.R.ServeHTTP(w, req)
+		assert.Equal(t, testcase.expectedHttpCode, w.Code)
+		if testcase.expectedHttpCode != http.StatusBadRequest {
+			assert.Equal(t, testcase.expectedNetworkID, titondAPI.networkID)
+		}
+	}
+}
+
+func CreateComponent(t *testing.T) {
+	testcases := []struct {
+		link              string
+		mockNetwork       *model.Network
+		mockError         error
+		expectedHttpCode  int
+		expectedNetworkID uint
+	}{
+		{
+			link:              "/api/networks/12",
+			mockNetwork:       &model.Network{},
+			mockError:         types.ErrResourceNotFound,
+			expectedHttpCode:  http.StatusNotFound,
+			expectedNetworkID: 12,
+		},
+	}
+	gin.SetMode(gin.TestMode)
+
+	titondAPI := &MockTitondAPI{}
+	titondAPI.network = nil
+	titondAPI.err = types.ErrInternalServer
+
+	server := NewHTTPServer(nil, titondAPI)
+
+	for _, testcase := range testcases {
+		fmt.Println(" Case: ", testcase)
+		titondAPI.err = testcase.mockError
+		titondAPI.network = testcase.mockNetwork
+		req, err := http.NewRequest(http.MethodDelete, testcase.link, bytes.NewBuffer([]byte{}))
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		server.R.ServeHTTP(w, req)
+		assert.Equal(t, testcase.expectedHttpCode, w.Code)
+		if testcase.expectedHttpCode != http.StatusBadRequest {
+			assert.Equal(t, testcase.expectedNetworkID, titondAPI.networkID)
+		}
+	}
 }

@@ -36,7 +36,8 @@ image-arm:
 	docker build --build-arg TARGETARCH=arm64 --build-arg TARGETOS=linux -t titond-backend .
 
 test:
-	go test --cover ./...
+	go test -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out -o coverage.html
 
 clean: 
 	rm -rf $(TARGET)
