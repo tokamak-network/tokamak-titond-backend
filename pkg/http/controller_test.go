@@ -2,6 +2,7 @@ package http
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -25,7 +26,6 @@ type MockTitondAPI struct {
 }
 
 func (mock *MockTitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
-	fmt.Println("Create Network in Mock")
 	return mock.network, mock.err
 }
 
@@ -91,7 +91,7 @@ func TestCreateNetworkFailed(t *testing.T) {
 
 	req, err := http.NewRequest(http.MethodPost, "/api/networks/", bytes.NewBuffer([]byte{}))
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(" ---------- ", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
@@ -146,8 +146,6 @@ func TestGetNetworkByPage(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	titondAPI := &MockTitondAPI{}
-	titondAPI.network = nil
-	titondAPI.err = types.ErrInternalServer
 
 	server := NewHTTPServer(nil, titondAPI)
 
@@ -209,13 +207,10 @@ func TestGetNetworkByID(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	titondAPI := &MockTitondAPI{}
-	titondAPI.network = nil
-	titondAPI.err = types.ErrInternalServer
 
 	server := NewHTTPServer(nil, titondAPI)
 
 	for _, testcase := range testcases {
-		fmt.Println(" Case: ", testcase)
 		titondAPI.err = testcase.mockError
 		titondAPI.network = testcase.mockNetwork
 		req, err := http.NewRequest(http.MethodGet, testcase.link, bytes.NewBuffer([]byte{}))
@@ -243,6 +238,13 @@ func TestDeleteNetworkByID(t *testing.T) {
 		{
 			link:              "/api/networks/12",
 			mockNetwork:       &model.Network{},
+			mockError:         types.ErrResourceNotFound,
+			expectedHttpCode:  http.StatusNotFound,
+			expectedNetworkID: 12,
+		},
+		{
+			link:              "/api/networks/12",
+			mockNetwork:       nil,
 			mockError:         types.ErrResourceNotFound,
 			expectedHttpCode:  http.StatusNotFound,
 			expectedNetworkID: 12,
@@ -279,13 +281,10 @@ func TestDeleteNetworkByID(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	titondAPI := &MockTitondAPI{}
-	titondAPI.network = nil
-	titondAPI.err = types.ErrInternalServer
 
 	server := NewHTTPServer(nil, titondAPI)
 
 	for _, testcase := range testcases {
-		fmt.Println(" Case: ", testcase)
 		titondAPI.err = testcase.mockError
 		titondAPI.network = testcase.mockNetwork
 		req, err := http.NewRequest(http.MethodDelete, testcase.link, bytes.NewBuffer([]byte{}))
@@ -302,44 +301,248 @@ func TestDeleteNetworkByID(t *testing.T) {
 	}
 }
 
-func CreateComponent(t *testing.T) {
+func TestCreateComponent(t *testing.T) {
 	testcases := []struct {
-		link              string
-		mockNetwork       *model.Network
-		mockError         error
-		expectedHttpCode  int
-		expectedNetworkID uint
+		link             string
+		body             *model.Component
+		mockError        error
+		expectedHttpCode int
 	}{
 		{
-			link:              "/api/networks/12",
-			mockNetwork:       &model.Network{},
-			mockError:         types.ErrResourceNotFound,
-			expectedHttpCode:  http.StatusNotFound,
-			expectedNetworkID: 12,
+			link:             "/api/components/",
+			body:             &model.Component{},
+			mockError:        types.ErrBadRequest,
+			expectedHttpCode: http.StatusBadRequest,
+		},
+		{
+			link: "/api/components/",
+			body: &model.Component{
+				Name: "Titan-test",
+				Type: "l2geth",
+			},
+			mockError:        types.ErrBadRequest,
+			expectedHttpCode: http.StatusBadRequest,
+		},
+		{
+			link: "/api/components/",
+			body: &model.Component{
+				Name:      "Titan-test",
+				Type:      "l2geth",
+				NetworkID: 1,
+			},
+			mockError:        types.ErrInternalServer,
+			expectedHttpCode: http.StatusInternalServerError,
+		},
+		{
+			link: "/api/components/",
+			body: &model.Component{
+				Name:      "Titan-test",
+				Type:      "l2geth",
+				NetworkID: 1,
+			},
+			mockError:        nil,
+			expectedHttpCode: http.StatusOK,
 		},
 	}
 	gin.SetMode(gin.TestMode)
 
 	titondAPI := &MockTitondAPI{}
-	titondAPI.network = nil
-	titondAPI.err = types.ErrInternalServer
 
 	server := NewHTTPServer(nil, titondAPI)
 
 	for _, testcase := range testcases {
 		fmt.Println(" Case: ", testcase)
 		titondAPI.err = testcase.mockError
-		titondAPI.network = testcase.mockNetwork
-		req, err := http.NewRequest(http.MethodDelete, testcase.link, bytes.NewBuffer([]byte{}))
+		bodyData, err := json.Marshal(testcase.body)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req, err := http.NewRequest(http.MethodPost, testcase.link, bytes.NewBuffer(bodyData))
 		if err != nil {
 			t.Fatal(err)
 		}
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		server.R.ServeHTTP(w, req)
+
 		assert.Equal(t, testcase.expectedHttpCode, w.Code)
-		if testcase.expectedHttpCode != http.StatusBadRequest {
-			assert.Equal(t, testcase.expectedNetworkID, titondAPI.networkID)
+	}
+}
+
+func TestGetComponentByType(t *testing.T) {
+	testcases := []struct {
+		link             string
+		mockComponent    *model.Component
+		mockError        error
+		expectedHttpCode int
+	}{
+		{
+			link:             "/api/components/?type=l2geth&&network_id=108",
+			mockComponent:    &model.Component{},
+			mockError:        types.ErrInternalServer,
+			expectedHttpCode: http.StatusInternalServerError,
+		},
+		{
+			link:             "/api/components/",
+			mockComponent:    nil,
+			mockError:        nil,
+			expectedHttpCode: http.StatusBadRequest,
+		},
+		{
+			link:             "/api/components/?type=l2geth&&networkid=108",
+			mockComponent:    &model.Component{},
+			mockError:        types.ErrBadRequest,
+			expectedHttpCode: http.StatusBadRequest,
+		},
+		{
+			link: "/api/components/?type=l2geth&&network_id=108",
+			mockComponent: &model.Component{
+				Name:      "Titan-test",
+				Type:      "l2geth",
+				NetworkID: 1,
+			},
+			mockError:        nil,
+			expectedHttpCode: http.StatusOK,
+		},
+	}
+	gin.SetMode(gin.TestMode)
+
+	titondAPI := &MockTitondAPI{}
+
+	server := NewHTTPServer(nil, titondAPI)
+
+	for _, testcase := range testcases {
+		fmt.Println(" Case: ", testcase)
+		titondAPI.err = testcase.mockError
+		titondAPI.component = testcase.mockComponent
+		req, err := http.NewRequest(http.MethodGet, testcase.link, nil)
+		if err != nil {
+			t.Fatal(err)
 		}
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		server.R.ServeHTTP(w, req)
+
+		assert.Equal(t, testcase.expectedHttpCode, w.Code)
+	}
+}
+
+func TestGetComponentByID(t *testing.T) {
+	testcases := []struct {
+		link             string
+		mockComponent    *model.Component
+		mockError        error
+		expectedHttpCode int
+	}{
+		{
+			link:             "/api/components/1a2",
+			mockComponent:    &model.Component{},
+			mockError:        nil,
+			expectedHttpCode: http.StatusBadRequest,
+		},
+		{
+			link:             "/api/components/12",
+			mockComponent:    nil,
+			mockError:        types.ErrResourceNotFound,
+			expectedHttpCode: http.StatusNotFound,
+		},
+		{
+			link:             "/api/components/12",
+			mockComponent:    &model.Component{},
+			mockError:        types.ErrInternalServer,
+			expectedHttpCode: http.StatusInternalServerError,
+		},
+		{
+			link:             "/api/components/12",
+			mockComponent:    nil,
+			mockError:        types.ErrInternalServer,
+			expectedHttpCode: http.StatusInternalServerError,
+		},
+		{
+			link:             "/api/components/12",
+			mockComponent:    &model.Component{},
+			mockError:        nil,
+			expectedHttpCode: http.StatusOK,
+		},
+	}
+	gin.SetMode(gin.TestMode)
+
+	titondAPI := &MockTitondAPI{}
+
+	server := NewHTTPServer(nil, titondAPI)
+
+	for _, testcase := range testcases {
+		fmt.Println(" Case: ", testcase)
+		titondAPI.err = testcase.mockError
+		titondAPI.component = testcase.mockComponent
+		req, err := http.NewRequest(http.MethodGet, testcase.link, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		server.R.ServeHTTP(w, req)
+
+		assert.Equal(t, testcase.expectedHttpCode, w.Code)
+	}
+}
+
+func TestDeleteComponentByID(t *testing.T) {
+	testcases := []struct {
+		link             string
+		mockComponent    *model.Component
+		mockError        error
+		expectedHttpCode int
+	}{
+		{
+			link:             "/api/components/1a2",
+			mockComponent:    &model.Component{},
+			mockError:        nil,
+			expectedHttpCode: http.StatusBadRequest,
+		},
+		{
+			link:             "/api/components/12",
+			mockComponent:    nil,
+			mockError:        types.ErrResourceNotFound,
+			expectedHttpCode: http.StatusNotFound,
+		},
+		{
+			link:             "/api/components/12",
+			mockComponent:    &model.Component{},
+			mockError:        types.ErrInternalServer,
+			expectedHttpCode: http.StatusInternalServerError,
+		},
+		{
+			link:             "/api/components/12",
+			mockComponent:    nil,
+			mockError:        types.ErrInternalServer,
+			expectedHttpCode: http.StatusInternalServerError,
+		},
+		{
+			link:             "/api/components/12",
+			mockComponent:    &model.Component{},
+			mockError:        nil,
+			expectedHttpCode: http.StatusOK,
+		},
+	}
+	gin.SetMode(gin.TestMode)
+
+	titondAPI := &MockTitondAPI{}
+
+	server := NewHTTPServer(nil, titondAPI)
+
+	for _, testcase := range testcases {
+		fmt.Println(" Case: ", testcase)
+		titondAPI.err = testcase.mockError
+		titondAPI.component = testcase.mockComponent
+		req, err := http.NewRequest(http.MethodDelete, testcase.link, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		server.R.ServeHTTP(w, req)
+
+		assert.Equal(t, testcase.expectedHttpCode, w.Code)
 	}
 }
