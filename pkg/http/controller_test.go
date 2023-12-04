@@ -326,8 +326,9 @@ func TestCreateComponent(t *testing.T) {
 		{
 			link: "/api/components/",
 			body: &model.Component{
-				Name: "Titan-test",
-				Type: "l2-geth",
+				Name:      "Titan-test",
+				Type:      "l2-geth",
+				NetworkID: 1,
 			},
 			mockError:        types.ErrInvalidComponentType,
 			expectedHttpCode: http.StatusBadRequest,
@@ -551,7 +552,6 @@ func TestDeleteComponentByID(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		server.R.ServeHTTP(w, req)
-
 		assert.Equal(t, testcase.expectedHttpCode, w.Code)
 	}
 }
