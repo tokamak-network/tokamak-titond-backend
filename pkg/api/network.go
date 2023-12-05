@@ -48,7 +48,6 @@ func (t *TitondAPI) createNetwork(network *model.Network) (string, string) {
 	deployerName := MakeDeployerName(network.ID)
 	_, err := t.createDeployer(t.config.Namespace, deployerName)
 	if err != nil {
-		fmt.Println("Failed when creating deployer:", err)
 		return "", ""
 	}
 	podList, err := t.k8s.GetPodsOfDeployment(t.config.Namespace, deployerName)
@@ -56,7 +55,6 @@ func (t *TitondAPI) createNetwork(network *model.Network) (string, string) {
 		return "", ""
 	}
 	if len(podList.Items) == 0 {
-		fmt.Println("Back")
 		return "", ""
 	}
 	addressData, addressErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json")
