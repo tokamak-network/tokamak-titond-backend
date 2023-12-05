@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/kubernetes"
@@ -31,35 +30,8 @@ func (t *TitondAPI) GetNetworksByPage(page int) ([]model.Network, error) {
 	return networks, err
 }
 
-func (t *TitondAPI) GetNetworkByID(networkID uint) (interface{}, error) {
-	network, err := t.db.ReadNetwork(networkID)
-	if err != nil {
-		return nil, err
-	}
-	deploymentMap := make(map[string]interface{})
-	if network.ContractAddressURL == "" {
-		deployment, err := t.GetK8sJobStatus(network)
-		if err == nil {
-			jsonData, err := json.MarshalIndent(deployment, "", "  ")
-			if err != nil {
-				deploymentMap["Error"] = err.Error()
-			} else {
-				err = json.Unmarshal(jsonData, &deploymentMap)
-				if err != nil {
-					deploymentMap["Error"] = err.Error()
-				}
-			}
-		} else {
-			deploymentMap["Error"] = "Could not find the deployment"
-		}
-		var data map[string]interface{}
-		data, err = ConvertStructToMap(*network)
-		if err == nil {
-			data["Deployer Status"] = deploymentMap
-		}
-		return data, err
-	}
-	return network, nil
+func (t *TitondAPI) GetNetworkByID(networkID uint) (*model.Network, error) {
+	return t.db.ReadNetwork(networkID)
 }
 
 func (t *TitondAPI) DeleteNetwork(id uint) error {
