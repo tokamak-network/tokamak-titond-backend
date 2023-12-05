@@ -3,6 +3,7 @@ package api
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -64,19 +65,24 @@ func (client *MockDBClient) DeleteComponent() {
 }
 
 type MockK8sClient struct {
-	err         error
-	podStatus   string
-	fileContent string
-	namespace   *corev1.Namespace
-	podList     *corev1.PodList
-	service     *corev1.Service
-	pvc         *corev1.PersistentVolumeClaim
-	configmap   *corev1.ConfigMap
-	ingress     *networkv1.Ingress
-	deployment  *appsv1.Deployment
-	statefulSet *appsv1.StatefulSet
-	stdout      []byte
-	stderr      []byte
+	err          error
+	manifestPath string
+	podStatus    string
+	fileContent  string
+	namespace    *corev1.Namespace
+	podList      *corev1.PodList
+	service      *corev1.Service
+	pvc          *corev1.PersistentVolumeClaim
+	configmap    *corev1.ConfigMap
+	ingress      *networkv1.Ingress
+	deployment   *appsv1.Deployment
+	statefulSet  *appsv1.StatefulSet
+	stdout       []byte
+	stderr       []byte
+}
+
+func (client *MockK8sClient) GetManifestPath() string {
+	return client.manifestPath
 }
 
 func (client *MockK8sClient) GetPodStatus(namespace, name string) (string, error) {
@@ -159,6 +165,25 @@ func (client *MockK8sClient) Exec(namespace string, pod *corev1.Pod, command []s
 	return client.stdout, client.stderr, client.err
 }
 
-func TestCreateDeployer(t *testing.T) {
+type MockFileManager struct {
+	fileName string
+	content  string
+	err      error
+}
+
+func (fileManager *MockFileManager) UploadContent(fileName string, content string) (string, error) {
+	fileManager.fileName = fileName
+	fileManager.content = content
+	return fileName, fileManager.err
+}
+
+func TestCleanK8sJob(t *testing.T) {
+	k8sClient := &MockK8sClient{}
+	dbClient := &MockDBClient{}
+	fileManager := &MockFileManager{}
+	titond := NewTitondAPI(k8sClient, dbClient, fileManager, &Config{})
+	k8sClient.err = nil
+	assert.Equal(t, nil, titond.cleanK8sJob(&model.Network{}))
+	// t.Etitond.cleanK8sJob()
 
 }

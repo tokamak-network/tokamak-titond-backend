@@ -17,6 +17,7 @@ type Config struct {
 }
 
 type IK8s interface {
+	GetManifestPath() string
 	GetPodStatus(namespace, name string) (string, error)
 	CreateStatefulSet(namespace string, statefulSet *appsv1.StatefulSet) (*appsv1.StatefulSet, error)
 	CreateService(namespace string, service *corev1.Service) (*corev1.Service, error)

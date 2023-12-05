@@ -22,7 +22,6 @@ func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
 
 func (t *TitondAPI) GetNetworksByPage(page int) ([]model.Network, error) {
 	networks, err := t.db.ReadNetworkByRange((page-1)*PAGE_SIZE, PAGE_SIZE)
-	fmt.Println(len(networks), err)
 	if err == nil {
 		if len(networks) == 0 {
 			return nil, types.ErrResourceNotFound

@@ -23,16 +23,17 @@ type ITitondAPI interface {
 	GetComponentByType(networkID uint, componentType string) (*model.Component, error)
 	GetComponentById(componentID uint) (*model.Component, error)
 	DeleteComponentById(componentID uint) error
+	
 }
 
 type TitondAPI struct {
-	k8s         *kubernetes.Kubernetes
+	k8s         kubernetes.IK8s
 	db          db.Client
 	fileManager services.IFIleManager
 	config      *Config
 }
 
-func NewTitondAPI(k8s *kubernetes.Kubernetes, db db.Client, fileManager services.IFIleManager, config *Config) *TitondAPI {
+func NewTitondAPI(k8s kubernetes.IK8s, db db.Client, fileManager services.IFIleManager, config *Config) *TitondAPI {
 	titondAPI := &TitondAPI{
 		k8s,
 		db,
