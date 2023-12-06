@@ -206,6 +206,7 @@ func (s *HTTPServer) DeleteComponentById(c *gin.Context) {
 }
 
 func (s *HTTPServer) ResponseErrorMessage(c *gin.Context, err error) {
+	fmt.Println("Error: ", err)
 	switch err {
 	case apptypes.ErrBadRequest:
 		{
@@ -221,6 +222,7 @@ func (s *HTTPServer) ResponseErrorMessage(c *gin.Context, err error) {
 		}
 	case apptypes.ErrInvalidComponentType:
 		{
+			fmt.Println("Invalid component type")
 			c.JSON(http.StatusBadRequest, err)
 		}
 	case gorm.ErrRecordNotFound:

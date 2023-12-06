@@ -16,10 +16,10 @@ type Config struct {
 type HTTPServer struct {
 	R    *gin.Engine
 	cfg  *Config
-	apis *api.TitondAPI
+	apis api.ITitondAPI
 }
 
-func NewHTTPServer(cfg *Config, apis *api.TitondAPI) *HTTPServer {
+func NewHTTPServer(cfg *Config, apis api.ITitondAPI) *HTTPServer {
 	server := &HTTPServer{
 		cfg:  cfg,
 		apis: apis,
@@ -30,8 +30,9 @@ func NewHTTPServer(cfg *Config, apis *api.TitondAPI) *HTTPServer {
 
 func (s *HTTPServer) initialize() {
 	r := gin.Default()
-
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	if gin.Mode() != gin.TestMode {
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 
 	networkRouter := r.Group("/api/networks")
 	s.NewNetworkRouter(networkRouter)

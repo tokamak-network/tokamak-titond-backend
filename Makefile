@@ -1,6 +1,6 @@
 TARGET=./build/bin/titond
 
-.PHONY: all run build titond image image-amd image-arm clean
+.PHONY: all run build titond image image-amd image-arm clean test check
 
 all: run
 
@@ -34,6 +34,10 @@ image-amd:
 
 image-arm:
 	docker build --build-arg TARGETARCH=arm64 --build-arg TARGETOS=linux -t titond-backend .
+
+test:
+	go test -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out -o coverage.html
 
 clean: 
 	rm -rf $(TARGET)

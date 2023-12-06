@@ -1,8 +1,6 @@
 package db
 
 import (
-	"fmt"
-
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
 )
 
@@ -18,15 +16,8 @@ func (p *Postgres) ReadNetwork(networkID uint) (*model.Network, error) {
 }
 
 func (p *Postgres) ReadNetworkByRange(offset int, limit int) ([]model.Network, error) {
-	fmt.Println("Offset ", offset, " Limit: ", limit)
 	var networks []model.Network
 	result := p.gDB.Offset(offset).Limit(limit).Find(&networks)
-	return networks, result.Error
-}
-
-func (p *Postgres) ReadAllNetwork() ([]model.Network, error) {
-	var networks []model.Network
-	result := p.gDB.Find(networks)
 	return networks, result.Error
 }
 
