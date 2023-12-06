@@ -34,10 +34,7 @@ func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
 
 	var buffer bytes.Buffer
 
-	_, err := buffer.WriteString(content)
-	if err != nil {
-		return "", err
-	}
+	buffer.WriteString(content)
 
 	reader := bytes.NewReader(buffer.Bytes())
 
