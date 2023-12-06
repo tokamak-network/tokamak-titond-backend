@@ -410,17 +410,6 @@ func TestInternalCreateNetwork(t *testing.T) {
 		assert.Equal(t, testcase.expectedDumpURL, dumpURL)
 	}
 }
-	return fileName, fileManager.err
-}
-
-func TestCleanK8sJob(t *testing.T) {
-	k8sClient := &MockK8sClient{}
-	dbClient := &MockDBClient{}
-	fileManager := &MockFileManager{}
-	titond := NewTitondAPI(k8sClient, dbClient, fileManager, &Config{})
-	k8sClient.err = nil
-	assert.Equal(t, nil, titond.cleanK8sJob(&model.Network{}))
-	// t.Etitond.cleanK8sJob()
 
 func TestCreateDeployer(t *testing.T) {
 	testcases := []struct {
