@@ -1,36 +1,34 @@
 package services
 
 import (
+	"errors"
 	"fmt"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/stretchr/testify/assert"
 )
 
-var S3DisableContentMD5Validation bool = true
+type MockUploader struct {
+	output *s3manager.UploadOutput
+	err    error
+}
 
-var sess = func() *session.Session {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-
-	return session.Must(session.NewSession(&aws.Config{
-		DisableSSL: aws.Bool(true),
-		Endpoint:   aws.String(server.URL),
-		Region:     aws.String("Test"),
-	}))
-}()
+func (mock *MockUploader) Upload(input *s3manager.UploadInput, options ...func(*s3manager.Uploader)) (*s3manager.UploadOutput, error) {
+	return mock.output, mock.err
+}
 
 func TestUploadFile(t *testing.T) {
 
 	s3 := NewS3(&S3Config{
 		BucketName: "test bucket",
 	})
-	s3.sess = sess
+	mockUploader := &MockUploader{}
+	mockUploader.output = &s3manager.UploadOutput{
+		Location: "localtion",
+	}
+	mockUploader.err = nil
+	s3.uploader = mockUploader
 
 	result, err := s3.UploadContent("filename", "content")
 	fmt.Println(result, err)
@@ -39,8 +37,12 @@ func TestUploadFile(t *testing.T) {
 
 func TestUploadFileFailed(t *testing.T) {
 
-	s3 := NewS3(&S3Config{})
-	s3.sess = sess
+	s3 := NewS3(&S3Config{
+		BucketName: "test bucket",
+	})
+	mockUploader := &MockUploader{}
+	mockUploader.err = errors.New("")
+	s3.uploader = mockUploader
 
 	result, err := s3.UploadContent("filename", "content")
 	fmt.Println(result, err)

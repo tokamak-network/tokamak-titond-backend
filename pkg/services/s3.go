@@ -18,19 +18,24 @@ type S3Config struct {
 	AWSRegion  string
 }
 
+type IUploader interface {
+	Upload(input *s3manager.UploadInput, options ...func(*s3manager.Uploader)) (*s3manager.UploadOutput, error)
+}
+
 type S3 struct {
-	config *S3Config
-	sess   *session.Session
+	config   *S3Config
+	sess     *session.Session
+	uploader IUploader
 }
 
 func (s3 *S3) initialize() {
 	fmt.Println("S3 config:", s3.config)
 	s3.sess = session.Must(session.NewSession(&aws.Config{
 		Region: &s3.config.AWSRegion}))
+	s3.uploader = s3manager.NewUploader(s3.sess)
 }
 
 func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
-	uploader := s3manager.NewUploader(s3.sess)
 
 	var buffer bytes.Buffer
 
@@ -44,6 +49,7 @@ func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
 		Body:        reader,
 		ContentType: aws.String("application/json"),
 	})
+
 	if err != nil {
 		return "", fmt.Errorf("failed to upload file, %v", err)
 	}
