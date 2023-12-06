@@ -36,7 +36,6 @@ func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
 
 	_, err := buffer.WriteString(content)
 	if err != nil {
-		fmt.Println("Error writing to buffer:", err)
 		return "", err
 	}
 
@@ -49,7 +48,6 @@ func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
 		ContentType: aws.String("application/json"),
 	})
 	if err != nil {
-		fmt.Println("Error:", err)
 		return "", fmt.Errorf("failed to upload file, %v", err)
 	}
 	fmt.Printf("File is uploaded to, %s\n", result.Location)
