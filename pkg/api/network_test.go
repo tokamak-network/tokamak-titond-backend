@@ -192,6 +192,108 @@ func (fileManager *MockFileManager) UploadContent(fileName string, content strin
 	return fileManager.url[fileName], fileManager.err
 }
 
+func TestCreateNetwork(t *testing.T) {
+	testcases := []struct {
+		networkID               uint
+		mockDBErr               error
+		mockAddressData         string
+		mockAddressURL          string
+		mockDumpData            string
+		mockDumpUrl             string
+		mockPodListErr          error
+		mockUploadAddressErr    error
+		mockUploadDumpErr       error
+		mockAddressErr          error
+		mockDumpEr              error
+		mockDeployerCreationErr error
+		mockDeployerWaitingErr  error
+		updateDBErr             error
+		podList                 *corev1.PodList
+		expectedErr             error
+	}{
+		// Case 1: happy case
+		{
+			networkID:               1,
+			mockDBErr:               nil,
+			mockAddressData:         "mockAddressData",
+			mockAddressURL:          "mockAddressURL",
+			mockDumpData:            "mockDumpData",
+			mockDumpUrl:             "mockDumpUrl",
+			mockPodListErr:          nil,
+			mockUploadAddressErr:    nil,
+			mockUploadDumpErr:       nil,
+			mockAddressErr:          nil,
+			mockDumpEr:              nil,
+			mockDeployerCreationErr: nil,
+			mockDeployerWaitingErr:  nil,
+			updateDBErr:             nil,
+			podList: &corev1.PodList{
+				Items: []corev1.Pod{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "deployer",
+							Namespace: "titond",
+						},
+					},
+				},
+			},
+			expectedErr: nil,
+		},
+		{
+			networkID:               1,
+			mockDBErr:               errors.New("mock create err in db"),
+			mockAddressData:         "mockAddressData",
+			mockAddressURL:          "mockAddressURL",
+			mockDumpData:            "mockDumpData",
+			mockDumpUrl:             "mockDumpUrl",
+			mockPodListErr:          nil,
+			mockUploadAddressErr:    nil,
+			mockUploadDumpErr:       nil,
+			mockAddressErr:          nil,
+			mockDumpEr:              nil,
+			mockDeployerCreationErr: nil,
+			mockDeployerWaitingErr:  nil,
+			updateDBErr:             nil,
+			podList:                 &corev1.PodList{},
+			expectedErr:             errors.New("mock create err in db"),
+		},
+	}
+	path, _ := os.Getwd()
+	path = path[0 : len(path)-8]
+	os.Chdir(path)
+
+	k8sClient := &MockK8sClient{
+		fileContent:    make(map[string]string),
+		fileContentErr: make(map[string]error),
+	}
+	dbClient := &MockDBClient{}
+	fileManager := &MockFileManager{
+		url: make(map[string]string),
+	}
+	titond := NewTitondAPI(k8sClient, dbClient, fileManager, &Config{})
+
+	for _, testcase := range testcases {
+
+		network := &model.Network{ID: testcase.networkID}
+		dbClient.network = network
+		dbClient.err = testcase.mockDBErr
+		k8sClient.deployerCreationErr = testcase.mockDeployerCreationErr
+		k8sClient.deployerWaitingErr = testcase.mockDeployerWaitingErr
+		k8sClient.podList = testcase.podList
+		k8sClient.getPodListErr = testcase.mockPodListErr
+		k8sClient.fileContent["/opt/optimism/packages/tokamak/contracts/genesis/addresses.json"] = testcase.mockAddressData
+		k8sClient.fileContent["/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json"] = testcase.mockDumpData
+		k8sClient.fileContentErr["/opt/optimism/packages/tokamak/contracts/genesis/addresses.json"] = testcase.mockAddressErr
+		k8sClient.fileContentErr["/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json"] = testcase.mockDumpEr
+		addressFileName := fmt.Sprintf("address-%d.json", network.ID)
+		fileManager.url[addressFileName] = testcase.mockAddressURL
+		dumpFileName := fmt.Sprintf("state-dump-%d.json", network.ID)
+		fileManager.url[dumpFileName] = testcase.mockDumpUrl
+		_, err := titond.CreateNetwork(network)
+		assert.Equal(t, testcase.expectedErr, err)
+	}
+}
+
 func TestGetNetworkByPage(t *testing.T) {
 	testcases := []struct {
 		mockDataFromDB  []model.Network
