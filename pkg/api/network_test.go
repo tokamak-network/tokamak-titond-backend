@@ -91,9 +91,9 @@ type MockK8sClient struct {
 	stderr              []byte
 }
 
-// func (client *MockK8sClient) clearMapData() {
-
-// }
+func (client *MockK8sClient) GetDeployment(namespace string, name string) (*appsv1.Deployment, error) {
+	return nil, nil
+}
 
 func (client *MockK8sClient) GetManifestPath() string {
 	return client.manifestPath
