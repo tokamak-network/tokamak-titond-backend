@@ -69,6 +69,10 @@ func (k *Kubernetes) CreateDeployment(namespace string, deployment *appsv1.Deplo
 	return k.client.AppsV1().Deployments(namespace).Create(context.TODO(), deployment, metav1.CreateOptions{})
 }
 
+func (k *Kubernetes) GetDeployment(namespace string, name string) (*appsv1.Deployment, error) {
+	return k.client.AppsV1().Deployments(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+}
+
 func (k *Kubernetes) DeleteDeployment(namespace string, name string) error {
 	return k.client.AppsV1().Deployments(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }

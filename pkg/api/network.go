@@ -20,7 +20,6 @@ func (t *TitondAPI) CreateNetwork(data *model.Network) (*model.Network, error) {
 }
 
 func (t *TitondAPI) GetNetworksByPage(page int) ([]model.Network, error) {
-	fmt.Println("Query Networks by Page:", page)
 	networks, err := t.db.ReadNetworkByRange((page-1)*PAGE_SIZE, PAGE_SIZE)
 	fmt.Println(len(networks), err)
 	if err == nil {
@@ -32,7 +31,6 @@ func (t *TitondAPI) GetNetworksByPage(page int) ([]model.Network, error) {
 }
 
 func (t *TitondAPI) GetNetworkByID(networkID uint) (*model.Network, error) {
-	fmt.Println("Query Network by ID:", networkID)
 	return t.db.ReadNetwork(networkID)
 }
 
@@ -82,7 +80,6 @@ func (t *TitondAPI) createNetwork(network *model.Network) {
 }
 
 func (t *TitondAPI) CreateDeployer(namespace string, name string) (*appsv1.Deployment, error) {
-	fmt.Println("Create deployer: ", name)
 	object, _ := kubernetes.BuildObjectFromYamlFile("./deployments/deployer/deployment.yaml")
 	deployment, success := kubernetes.ConvertToDeployment(object)
 	if !success {
@@ -133,6 +130,7 @@ func (t *TitondAPI) CleanK8sJob(network *model.Network) error {
 	return t.k8s.DeleteDeployment(t.config.Namespace, deployerName)
 }
 
-func MakeDeployerName(id uint) string {
-	return fmt.Sprintf("deployer-%d", id)
+func (t *TitondAPI) GetK8sJobStatus(network *model.Network) (*appsv1.Deployment, error) {
+	deployerName := MakeDeployerName(network.ID)
+	return t.k8s.GetDeployment(t.config.Namespace, deployerName)
 }
