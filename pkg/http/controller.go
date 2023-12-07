@@ -229,6 +229,10 @@ func (s *HTTPServer) ResponseErrorMessage(c *gin.Context, err error) {
 		{
 			c.JSON(http.StatusNotFound, err)
 		}
+	case apptypes.ErrComponentDependency:
+		{
+			c.JSON(http.StatusFailedDependency, err)
+		}
 	default:
 		{
 			c.JSON(http.StatusInternalServerError, err)
