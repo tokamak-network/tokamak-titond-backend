@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+
 	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 )
 
@@ -34,6 +35,7 @@ func ConvertStructToMap(obj interface{}) (map[string]interface{}, error) {
 		result[fieldName] = fieldValue
 	}
 	return result, nil
+}
 
 func generatePublcURL(name string, networkID, componentID uint) string {
 	return fmt.Sprintf("%s-%d-%d.titond-holesky.tokamak.network", name, networkID, componentID)
