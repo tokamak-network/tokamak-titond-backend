@@ -123,7 +123,7 @@ func TestCreate(t *testing.T) {
 			res, err := fakeKubernetes.CreateIngress("test", ingress)
 
 			assert.NoError(t, err, "must be not error")
-			assert.Equal(t, "ingress-l2geth", res.GetName(), "must be ingress-l2geth")
+			assert.Equal(t, "l2geth-ingress", res.GetName(), "must be l2geth-ingress")
 		})
 	})
 }
