@@ -7,29 +7,11 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
-func newMockDB() (*gorm.DB, sqlmock.Sqlmock) {
-	mockDB, mock, _ := sqlmock.New()
-	dialector := postgres.New(postgres.Config{
-		Conn:       mockDB,
-		DriverName: "postgres",
-	})
-	db, _ := gorm.Open(dialector, &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
-
-	return db, mock
-}
-
 func TestCreateNetwork(t *testing.T) {
-	db, mock := newMockDB()
-	mockPostgres := &Postgres{
-		db,
-	}
+	mockPostgres, mock := NewMockPostgres()
 
 	rows := sqlmock.NewRows([]string{"id", "contract_address_url", "state_dump_url"}).AddRow(1, "test_url", "test_url")
 	mock.ExpectBegin()
@@ -47,10 +29,7 @@ func TestCreateNetwork(t *testing.T) {
 }
 
 func TestReadNetwork(t *testing.T) {
-	db, mock := newMockDB()
-	mockPostgres := &Postgres{
-		db,
-	}
+	mockPostgres, mock := NewMockPostgres()
 
 	tests := []struct {
 		name         string
@@ -92,10 +71,7 @@ func TestReadNetwork(t *testing.T) {
 }
 
 func TestCreateComponent(t *testing.T) {
-	db, mock := newMockDB()
-	mockPostgres := &Postgres{
-		db,
-	}
+	mockPostgres, mock := NewMockPostgres()
 
 	rows := sqlmock.NewRows([]string{"id", "type", "network_id"}).AddRow(1, "l2geth", 1)
 	mock.ExpectBegin()
