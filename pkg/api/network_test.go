@@ -58,12 +58,16 @@ func (client *MockDBClient) ReadComponent() {
 
 }
 
+func (client *MockDBClient) ReadComponentByType(typ string, networkID uint) (*model.Component, error) {
+	return nil, nil
+}
+
 func (client *MockDBClient) ReadAllComponent() {
 
 }
 
-func (client *MockDBClient) UpdateComponent() {
-
+func (client *MockDBClient) UpdateComponent(component *model.Component) (*model.Component, error) {
+	return nil, nil
 }
 
 func (client *MockDBClient) DeleteComponent() {
@@ -173,6 +177,10 @@ func (client *MockK8sClient) GetPodsOfDeployment(namespace string, deployment st
 
 func (client *MockK8sClient) WaitingDeploymentCreated(namespace string, name string) error {
 	return client.deployerWaitingErr
+}
+
+func (client *MockK8sClient) WatingStatefulsetCreated(namespace, name string) error {
+	return nil
 }
 
 func (client *MockK8sClient) Exec(namespace string, pod *corev1.Pod, command []string) ([]byte, []byte, error) {

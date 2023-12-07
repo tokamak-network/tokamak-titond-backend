@@ -36,7 +36,10 @@ spec:
               protocol: TCP
             - containerPort: 6060
               protocol: TCP
-          resources: {}
+          resources: 
+            requests:
+              cpu: 2
+              memory: 2048Mi
           env:
             - name: NAMESPACE
               valueFrom:

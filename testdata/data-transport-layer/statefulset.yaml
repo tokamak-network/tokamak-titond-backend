@@ -17,7 +17,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: data-transport-layer
-          image: onthertech/titan-data-transport-layer:test
+          image: onthertech/titan-data-transport-layer
           imagePullPolicy: IfNotPresent
           command: ["./dtl.sh"]
           envFrom:

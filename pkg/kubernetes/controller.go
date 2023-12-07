@@ -176,6 +176,22 @@ func (k *Kubernetes) WaitingDeploymentCreated(namespace string, name string) err
 	return err
 }
 
+func (k *Kubernetes) WatingStatefulsetCreated(namespace, name string) error {
+	var err error
+	for i := 0; i < 1800; i++ {
+		sfs, err := k.client.AppsV1().StatefulSets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+		if err != nil {
+			time.Sleep(time.Second)
+			continue
+		}
+		if sfs.Status.AvailableReplicas == 1 {
+			return nil
+		}
+		time.Sleep(time.Second)
+	}
+	return err
+}
+
 func (k *Kubernetes) Exec(namespace string, pod *corev1.Pod, command []string) ([]byte, []byte, error) {
 	if len(pod.Spec.Containers) == 0 {
 		return nil, nil, errors.New("no container in the pod")

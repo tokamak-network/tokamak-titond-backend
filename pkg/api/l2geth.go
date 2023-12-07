@@ -12,24 +12,31 @@ func (t *TitondAPI) CreateL2Geth(l2geth *model.Component) (*model.Component, err
 	if err != nil {
 		return nil, err
 	}
-
-	namespace := generateNamespace(l2geth.NetworkID)
-	stateDumpURL := network.StateDumpURL
-
-	result, err := t.db.CreateComponent(l2geth)
-	if err == nil {
-		go t.createL2Geth(namespace, stateDumpURL)
+	if err := checkDependency(network.Status); err != nil {
+		return nil, err
+	}
+	dtl, err := t.db.ReadComponentByType("data-transport-layer", network.ID)
+	if err != nil {
+		return nil, err
+	}
+	if err := checkDependency(dtl.Status); err != nil {
+		return nil, err
 	}
 
-	return result, err
+	result, err := t.db.CreateComponent(l2geth)
+	if err != nil {
+		return nil, err
+	}
+	go t.createL2Geth(result, network.StateDumpURL, t.config.ContractsRpcUrl)
+
+	return result, nil
 }
 
-/*
-TODO :
-  - config PV mount path
-  - config public url
-*/
-func (t *TitondAPI) createL2Geth(namespace, stateDumpURL string) {
+func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC string) {
+	namespace := generateNamespace(l2geth.NetworkID)
+	volumePath := generateVolumePath("l2geth", l2geth.NetworkID, l2geth.ID)
+	publicURL := generatePublcURL("l2geth", l2geth.NetworkID, l2geth.ID)
+
 	mPath := t.k8s.GetManifestPath()
 
 	obj := kubernetes.GetObject(mPath, "l2geth", "configMap")
@@ -41,6 +48,7 @@ func (t *TitondAPI) createL2Geth(namespace, stateDumpURL string) {
 
 	l2gethConfig := map[string]string{
 		"ROLLUP_STATE_DUMP_PATH": stateDumpURL,
+		"ETH1_HTTP":              "",
 	}
 
 	createdConfigMap, err := t.k8s.CreateConfigMapWithConfig(namespace, cm, l2gethConfig)
@@ -85,12 +93,21 @@ func (t *TitondAPI) createL2Geth(namespace, stateDumpURL string) {
 		return
 	}
 
+	sfs.Spec.Template.Spec.Containers[0].VolumeMounts[0].SubPath = volumePath
+
 	createdSFS, err := t.k8s.CreateStatefulSet(namespace, sfs)
 	if err != nil {
 		fmt.Printf("createL2Geth error: %s\n", err)
 		return
 	}
 	fmt.Printf("Created L2Geth StatefulSet: %s\n", createdSFS.GetName())
+
+	err = t.k8s.WatingStatefulsetCreated(createdSFS.Namespace, createdSFS.Name)
+	if err != nil {
+		/*TODO : rollback ? */
+		return
+	}
+	l2geth.Status = true
 
 	obj = kubernetes.GetObject(mPath, "l2geth", "ingress")
 	ingress, ok := kubernetes.ConvertToIngress(obj)
@@ -99,10 +116,19 @@ func (t *TitondAPI) createL2Geth(namespace, stateDumpURL string) {
 		return
 	}
 
+	ingress.Spec.Rules[0].Host = publicURL
+
 	createdIngress, err := t.k8s.CreateIngress(namespace, ingress)
 	if err != nil {
 		fmt.Printf("createL2Geth error: %s\n", err)
 		return
 	}
 	fmt.Printf("Created L2Geth Ingress: %s\n", createdIngress.GetName())
+	l2geth.PublicURL = publicURL
+	_, err = t.db.UpdateComponent(l2geth)
+	if err != nil {
+		return
+	}
+
+	return
 }

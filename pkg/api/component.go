@@ -9,7 +9,12 @@ import (
 
 func (t *TitondAPI) CreateComponent(component *model.Component) (*model.Component, error) {
 	var result *model.Component
-	var err error
+
+	namespace := generateNamespace(component.NetworkID)
+	_, err := t.k8s.GetNamespace(namespace)
+	if err != nil {
+		t.k8s.CreateNamespace(namespace)
+	}
 
 	switch component.Type {
 	case "l2geth":
@@ -17,7 +22,7 @@ func (t *TitondAPI) CreateComponent(component *model.Component) (*model.Componen
 
 	case "data-transport-layer":
 		result, err = t.CreateDTL(component)
-    
+
 	case "batch-submitter":
 		result, err = t.CreateBatchSubmitter(component)
 

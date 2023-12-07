@@ -12,19 +12,27 @@ func (t *TitondAPI) CreateBatchSubmitter(bs *model.Component) (*model.Component,
 	if err != nil {
 		return nil, err
 	}
-
-	namespace := generateNamespace(bs.NetworkID)
-	contractAddressURL := network.ContractAddressURL
+	if err := checkDependency(network.Status); err != nil {
+		return nil, err
+	}
+	l2geth, err := t.db.ReadComponentByType("l2geth", network.ID)
+	if err != nil {
+		return nil, err
+	}
+	if err := checkDependency(l2geth.Status); err != nil {
+		return nil, err
+	}
 
 	result, err := t.db.CreateComponent(bs)
 	if err == nil {
-		go t.createBatchSubmitter(namespace, contractAddressURL)
+		go t.createBatchSubmitter(result, network.ContractAddressURL, t.config.ContractsRpcUrl)
 	}
 
 	return result, err
 }
 
-func (t *TitondAPI) createBatchSubmitter(namespace, contractAddressURL string) {
+func (t *TitondAPI) createBatchSubmitter(bs *model.Component, contractAddressURL, l1RPC string) {
+	namespace := generateNamespace(bs.NetworkID)
 	mPath := t.k8s.GetManifestPath()
 
 	obj := kubernetes.GetObject(mPath, "batch-submitter", "configMap")
@@ -35,7 +43,8 @@ func (t *TitondAPI) createBatchSubmitter(namespace, contractAddressURL string) {
 	}
 
 	batchSubmitterConfig := map[string]string{
-		"URL": contractAddressURL,
+		"URL":        contractAddressURL,
+		"L1_ETH_RPC": l1RPC,
 	}
 
 	createdConfigMap, err := t.k8s.CreateConfigMapWithConfig(namespace, cm, batchSubmitterConfig)
@@ -72,4 +81,17 @@ func (t *TitondAPI) createBatchSubmitter(namespace, contractAddressURL string) {
 		return
 	}
 	fmt.Printf("Created Batch-Submitter Deployment: %s\n", createdDeployment.GetName())
+
+	err = t.k8s.WaitingDeploymentCreated(createdDeployment.Namespace, createdDeployment.Name)
+	if err != nil {
+		/*TODO : rollback ? */
+		return
+	}
+	bs.Status = true
+	_, err = t.db.UpdateComponent(bs)
+	if err != nil {
+		return
+	}
+
+	return
 }
