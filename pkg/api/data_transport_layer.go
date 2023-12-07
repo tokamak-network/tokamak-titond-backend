@@ -12,19 +12,24 @@ func (t *TitondAPI) CreateDTL(dtl *model.Component) (*model.Component, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	namespace := generateNamespace(dtl.NetworkID)
-	contractAddressURL := network.ContractAddressURL
-
-	result, err := t.db.CreateComponent(dtl)
-	if err == nil {
-		go t.createDTL(namespace, contractAddressURL)
+	if err := checkDependency(network.Status); err != nil {
+		return nil, err
 	}
 
-	return result, err
+	result, err := t.db.CreateComponent(dtl)
+	if err != nil {
+		return nil, err
+	}
+
+	go t.createDTL(result, network.ContractAddressURL, t.config.ContractsRpcUrl)
+
+	return result, nil
 }
 
-func (t *TitondAPI) createDTL(namespace, contractAddressURL string) {
+func (t *TitondAPI) createDTL(dtl *model.Component, contractAddressURL, l1RPC string) {
+	namespace := generateNamespace(dtl.NetworkID)
+	volumePath := generateVolumePath("dtl", dtl.NetworkID, dtl.ID)
+
 	mPath := t.k8s.GetManifestPath()
 
 	obj := kubernetes.GetObject(mPath, "data-transport-layer", "configMap")
@@ -35,7 +40,8 @@ func (t *TitondAPI) createDTL(namespace, contractAddressURL string) {
 	}
 
 	dtlConfig := map[string]string{
-		"URL": contractAddressURL,
+		"URL":                                   contractAddressURL,
+		"DATA_TRANSPORT_LAYER__L1_RPC_ENDPOINT": l1RPC,
 	}
 
 	createdConfigMap, err := t.k8s.CreateConfigMapWithConfig(namespace, cm, dtlConfig)
@@ -80,10 +86,27 @@ func (t *TitondAPI) createDTL(namespace, contractAddressURL string) {
 		return
 	}
 
+	sfs.Spec.Template.Spec.Containers[0].VolumeMounts[0].SubPath = volumePath
+
 	createdSFS, err := t.k8s.CreateStatefulSet(namespace, sfs)
 	if err != nil {
 		fmt.Printf("createDTL error: %s\n", err)
 		return
 	}
 	fmt.Printf("Created Data-Transport-Layer StatefulSet: %s\n", createdSFS.GetName())
+
+	err = t.k8s.WatingStatefulsetCreated(createdSFS.Namespace, createdSFS.Name)
+	if err != nil {
+		/*TODO : rollback ? */
+		return
+	}
+	dtl.Status = true
+	_, err = t.db.UpdateComponent(dtl)
+
+	if err != nil {
+		/* TODO: rollback ? */
+		return
+	}
+
+	return
 }
