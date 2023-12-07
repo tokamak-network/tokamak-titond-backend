@@ -3,9 +3,12 @@ kind: PersistentVolumeClaim
 metadata:
   name: data-transport-layer-pvc
 spec:
-  storageClassName: local-path
+  storageClassName: efs-sc
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 2Gi
+  selector:
+    matchLabels:
+      app: dtl

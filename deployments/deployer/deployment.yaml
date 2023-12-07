@@ -17,7 +17,8 @@ spec:
         - name: deployer
           image: onthertech/titan-deployer
           imagePullPolicy: IfNotPresent
-          command: ['./deployer.sh']
+          command: ["/bin/sh", "-c"]
+          args: ["rm -rf deployments/* && ./deployer.sh"]
           ports:
             - containerPort: 8081
               protocol: TCP
