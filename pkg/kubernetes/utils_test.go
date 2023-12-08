@@ -11,7 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
-var testDataPath = "../../testdata"
+var testDataPath = "../../deployments"
 
 func TestGetDirPath(t *testing.T) {
 	// cPath, _ := os.Getwd()
@@ -53,6 +53,7 @@ func TestGetYAMLfile(t *testing.T) {
 }
 
 func TestConvertBytestoObject(t *testing.T) {
+
 	tests := []struct {
 		dirName  string
 		fileName string
@@ -73,6 +74,7 @@ func TestConvertBytestoObject(t *testing.T) {
 }
 
 func TestGetObject(t *testing.T) {
+
 	tests := []struct {
 		componentName string
 		yamlFileName  string

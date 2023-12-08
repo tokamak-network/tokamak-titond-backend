@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"runtime/debug"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -29,6 +30,9 @@ func GetYAMLfile(basePath, dirName, fileName string) []byte {
 
 	data, err := os.ReadFile(path.Join(filePath, fileName+".yaml"))
 	if err != nil {
+		path, _ := os.Getwd()
+		fmt.Println("File path: ", filePath, "| Path:", path)
+		debug.PrintStack()
 		log.Fatal(err)
 	}
 
