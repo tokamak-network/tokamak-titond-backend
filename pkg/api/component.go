@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 
-	"github.com/emicklei/go-restful/v3/log"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
 	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 )
@@ -85,16 +84,16 @@ func (t *TitondAPI) checkNamespace(namespace string) bool {
 
 func (t *TitondAPI) createAccounts(namespace string) error {
 	sequencerKey, address := generateKey()
-	log.Printf("created sequencer account: %s\n", address)
+	fmt.Printf("created sequencer account: %s\n", address)
 
 	proposerKey, address := generateKey()
-	log.Printf("created proposer account: %s\n", address)
+	fmt.Printf("created proposer account: %s\n", address)
 
 	relayerKey, address := generateKey()
-	log.Printf("created relayer account: %s\n", address)
+	fmt.Printf("created relayer account: %s\n", address)
 
 	signerKey, address := generateKey()
-	log.Printf("created block signer account: %s\n", address)
+	fmt.Printf("created block signer account: %s\n", address)
 
 	stringData := map[string]string{
 		"BATCH_SUBMITTER_SEQUENCER_PRIVATE_KEY": sequencerKey,
