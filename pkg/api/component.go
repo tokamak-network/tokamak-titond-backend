@@ -9,11 +9,16 @@ import (
 
 func (t *TitondAPI) CreateComponent(component *model.Component) (*model.Component, error) {
 	var result *model.Component
+	var err error
+
+	if err := t.checkNetworkStatus(component.NetworkID); err != nil {
+		return nil, err
+	}
 
 	namespace := generateNamespace(component.NetworkID)
-	_, err := t.k8s.GetNamespace(namespace)
-	if err != nil {
-		t.k8s.CreateNamespace(namespace)
+
+	if t.checkNamespace(namespace) != nil {
+		return nil, err
 	}
 
 	switch component.Type {
@@ -50,4 +55,21 @@ func (t *TitondAPI) GetComponentById(componentID uint) (*model.Component, error)
 func (t *TitondAPI) DeleteComponentById(componentID uint) error {
 	fmt.Println("Delete component by id:", componentID)
 	return nil
+}
+
+func (t *TitondAPI) checkNetworkStatus(networkID uint) error {
+	network, err := t.db.ReadNetwork(networkID)
+	if err != nil {
+		return err
+	}
+	if !network.Status {
+		return apptypes.ErrNetworkNotReady
+	}
+
+	return nil
+}
+
+func (t *TitondAPI) checkNamespace(namespace string) error {
+	_, err := t.k8s.GetNamespace(namespace)
+	return err
 }

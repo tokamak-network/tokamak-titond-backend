@@ -12,9 +12,7 @@ func (t *TitondAPI) CreateL2Geth(l2geth *model.Component) (*model.Component, err
 	if err != nil {
 		return nil, err
 	}
-	if err := checkDependency(network.Status); err != nil {
-		return nil, err
-	}
+
 	dtl, err := t.db.ReadComponentByType("data-transport-layer", network.ID)
 	if err != nil {
 		return nil, err
@@ -39,6 +37,13 @@ func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC st
 
 	mPath := t.k8s.GetManifestPath()
 
+	secret, err := t.k8s.GetSecret(namespace, "titan-secret")
+	if err != nil {
+		return
+	}
+	sk := secret.Data["BLOCK_SIGNER_KEY"]
+	signerAddress := exportAddressFromPrivateKey(string(sk))
+
 	obj := kubernetes.GetObject(mPath, "l2geth", "configMap")
 	cm, ok := kubernetes.ConvertToConfigMap(obj)
 	if !ok {
@@ -49,6 +54,7 @@ func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC st
 	l2gethConfig := map[string]string{
 		"ROLLUP_STATE_DUMP_PATH": stateDumpURL,
 		"ETH1_HTTP":              "",
+		"BLOCK_SIGNER_ADDRESS":   signerAddress,
 	}
 
 	createdConfigMap, err := t.k8s.CreateConfigMapWithConfig(namespace, cm, l2gethConfig)

@@ -222,7 +222,6 @@ func (s *HTTPServer) ResponseErrorMessage(c *gin.Context, err error) {
 		}
 	case apptypes.ErrInvalidComponentType:
 		{
-			fmt.Println("Invalid component type")
 			c.JSON(http.StatusBadRequest, err)
 		}
 	case gorm.ErrRecordNotFound:
@@ -231,7 +230,11 @@ func (s *HTTPServer) ResponseErrorMessage(c *gin.Context, err error) {
 		}
 	case apptypes.ErrComponentDependency:
 		{
-			c.JSON(http.StatusFailedDependency, err)
+			c.JSON(http.StatusPreconditionFailed, err)
+		}
+	case apptypes.ErrNetworkNotReady:
+		{
+			c.JSON(http.StatusPreconditionFailed, err)
 		}
 	default:
 		{

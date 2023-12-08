@@ -12,9 +12,6 @@ func (t *TitondAPI) CreateDTL(dtl *model.Component) (*model.Component, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := checkDependency(network.Status); err != nil {
-		return nil, err
-	}
 
 	result, err := t.db.CreateComponent(dtl)
 	if err != nil {
