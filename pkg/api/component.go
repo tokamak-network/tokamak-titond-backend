@@ -17,13 +17,8 @@ func (t *TitondAPI) CreateComponent(component *model.Component) (*model.Componen
 
 	namespace := generateNamespace(component.NetworkID)
 
-	if !t.checkNamespace(namespace) {
-		if _, err := t.k8s.CreateNamespace(namespace); err != nil {
-			return nil, err
-		}
-		if err := t.createAccounts(namespace); err != nil {
-			return nil, err
-		}
+	if t.checkNamespace(namespace) != nil {
+		return nil, err
 	}
 
 	switch component.Type {
@@ -74,34 +69,7 @@ func (t *TitondAPI) checkNetworkStatus(networkID uint) error {
 	return nil
 }
 
-func (t *TitondAPI) checkNamespace(namespace string) bool {
+func (t *TitondAPI) checkNamespace(namespace string) error {
 	_, err := t.k8s.GetNamespace(namespace)
-	if err != nil {
-		return false
-	}
-	return true
-}
-
-func (t *TitondAPI) createAccounts(namespace string) error {
-	sequencerKey, address := generateKey()
-	fmt.Printf("created sequencer account: %s\n", address)
-
-	proposerKey, address := generateKey()
-	fmt.Printf("created proposer account: %s\n", address)
-
-	relayerKey, address := generateKey()
-	fmt.Printf("created relayer account: %s\n", address)
-
-	signerKey, address := generateKey()
-	fmt.Printf("created block signer account: %s\n", address)
-
-	stringData := map[string]string{
-		"BATCH_SUBMITTER_SEQUENCER_PRIVATE_KEY": sequencerKey,
-		"BATCH_SUBMITTER_PROPOSER_PRIVATE_KEY":  proposerKey,
-		"MESSAGE_RELAYER__L1_WALLET":            relayerKey,
-		"BLOCK_SIGNER_KEY":                      signerKey,
-	}
-
-	_, err := t.k8s.CreateSecret(namespace, "titan-secret", stringData)
 	return err
 }

@@ -57,6 +57,15 @@ func (t *TitondAPI) createNetwork(network *model.Network) (string, string) {
 	if len(podList.Items) == 0 {
 		return "", ""
 	}
+
+	namespace := generateNamespace(network.ID)
+	if _, err := t.k8s.CreateNamespace(namespace); err != nil {
+		return "", ""
+	}
+	if err := t.createAccounts(namespace); err != nil {
+		return "", ""
+	}
+
 	addressData, addressErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json")
 	dumpData, dumpErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json")
 
@@ -79,6 +88,7 @@ func (t *TitondAPI) createNetwork(network *model.Network) (string, string) {
 	if err == nil && uploadAddressErr == nil && uploadDumpErr == nil {
 		fmt.Println("Clean k8s job", t.cleanK8sJob(network))
 	}
+
 	return addressUrl, dumpUrl
 }
 
@@ -137,4 +147,28 @@ func (t *TitondAPI) cleanK8sJob(network *model.Network) error {
 func (t *TitondAPI) GetK8sJobStatus(network *model.Network) (*appsv1.Deployment, error) {
 	deployerName := MakeDeployerName(network.ID)
 	return t.k8s.GetDeployment(t.config.Namespace, deployerName)
+}
+
+func (t *TitondAPI) createAccounts(namespace string) error {
+	sequencerKey, address := generateKey()
+	fmt.Printf("created sequencer account: %s\n", address)
+
+	proposerKey, address := generateKey()
+	fmt.Printf("created proposer account: %s\n", address)
+
+	relayerKey, address := generateKey()
+	fmt.Printf("created relayer account: %s\n", address)
+
+	signerKey, address := generateKey()
+	fmt.Printf("created block signer account: %s\n", address)
+
+	stringData := map[string]string{
+		"BATCH_SUBMITTER_SEQUENCER_PRIVATE_KEY": sequencerKey,
+		"BATCH_SUBMITTER_PROPOSER_PRIVATE_KEY":  proposerKey,
+		"MESSAGE_RELAYER__L1_WALLET":            relayerKey,
+		"BLOCK_SIGNER_KEY":                      signerKey,
+	}
+
+	_, err := t.k8s.CreateSecret(namespace, "titan-secret", stringData)
+	return err
 }
