@@ -16,7 +16,7 @@ func TestGenerateMountPath(t *testing.T) {
 	name := "l2geth"
 	networkID := 1
 	componentID := 1
-	result := generateMountPath(name, uint(networkID), uint(componentID))
+	result := generateVolumePath(name, uint(networkID), uint(componentID))
 	assert.Equal(t, "l2geth-1-1", result)
 }
 
