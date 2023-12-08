@@ -19,8 +19,12 @@ func (t *TitondAPI) CreateComponent(component *model.Component) (*model.Componen
 	namespace := generateNamespace(component.NetworkID)
 
 	if !t.checkNamespace(namespace) {
-		t.k8s.CreateNamespace(namespace)
-		t.createAccounts(namespace)
+		if _, err := t.k8s.CreateNamespace(namespace); err != nil {
+			return nil, err
+		}
+		if err := t.createAccounts(namespace); err != nil {
+			return nil, err
+		}
 	}
 
 	switch component.Type {
@@ -79,7 +83,7 @@ func (t *TitondAPI) checkNamespace(namespace string) bool {
 	return true
 }
 
-func (t *TitondAPI) createAccounts(namespace string) {
+func (t *TitondAPI) createAccounts(namespace string) error {
 	sequencerKey, address := generateKey()
 	log.Printf("created sequencer account: %s\n", address)
 
@@ -99,5 +103,6 @@ func (t *TitondAPI) createAccounts(namespace string) {
 		"BLOCK_SIGNER_KEY":                      signerKey,
 	}
 
-	t.k8s.CreateSecret(namespace, "titan-secret", stringData)
+	_, err := t.k8s.CreateSecret(namespace, "titan-secret", stringData)
+	return err
 }
