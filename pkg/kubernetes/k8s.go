@@ -31,8 +31,10 @@ type IK8s interface {
 	CreateDeploymentWithName(namespace string, deployment *appsv1.Deployment, name string) (*appsv1.Deployment, error)
 	CreateDeployment(namespace string, deployment *appsv1.Deployment) (*appsv1.Deployment, error)
 	DeleteDeployment(namespace string, name string) error
+	CreateSecret(namespace, name string, stringData map[string]string) (*corev1.Secret, error)
 	CreateNamespace(name string) (*corev1.Namespace, error)
 	GetNamespace(name string) (*corev1.Namespace, error)
+	GetSecret(namespace, name string) (*corev1.Secret, error)
 	GetFileFromPod(namespace string, pod *corev1.Pod, path string) (string, error)
 	CreateConfigmapWithConfig(namespace string, template string, items map[string]string) error
 	WatingStatefulsetCreated(namespace, name string) error

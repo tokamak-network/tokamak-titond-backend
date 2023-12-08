@@ -147,6 +147,10 @@ func (client *MockK8sClient) CreateDeployment(namespace string, deployment *apps
 	return client.deployment, client.err
 }
 
+func (client *MockK8sClient) CreateSecret(namespace, name string, stringData map[string]string) (*corev1.Secret, error) {
+	return nil, nil
+}
+
 func (client *MockK8sClient) DeleteDeployment(namespace string, name string) error {
 	return client.err
 }
@@ -157,6 +161,10 @@ func (client *MockK8sClient) CreateNamespace(name string) (*corev1.Namespace, er
 
 func (client *MockK8sClient) GetNamespace(name string) (*corev1.Namespace, error) {
 	return client.namespace, client.err
+}
+
+func (client *MockK8sClient) GetSecret(namespace, name string) (*corev1.Secret, error) {
+	return nil, nil
 }
 
 func (client *MockK8sClient) GetFileFromPod(namespace string, pod *corev1.Pod, path string) (string, error) {

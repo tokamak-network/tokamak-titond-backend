@@ -77,6 +77,25 @@ func (k *Kubernetes) DeleteDeployment(namespace string, name string) error {
 	return k.client.AppsV1().Deployments(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
 
+func (k *Kubernetes) CreateSecret(namespace, name string, stringData map[string]string) (*corev1.Secret, error) {
+	secret := &corev1.Secret{}
+	if secret.StringData == nil {
+		secret.StringData = map[string]string{}
+	}
+
+	for k, v := range stringData {
+		secret.StringData[k] = v
+	}
+
+	secret.SetName(name)
+
+	return k.client.CoreV1().Secrets(namespace).Create(context.TODO(), secret, metav1.CreateOptions{})
+}
+
+func (k *Kubernetes) GetSecret(namespace, name string) (*corev1.Secret, error) {
+	return k.client.CoreV1().Secrets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+}
+
 func (k *Kubernetes) CreateNamespace(name string) (*corev1.Namespace, error) {
 	namespace := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
