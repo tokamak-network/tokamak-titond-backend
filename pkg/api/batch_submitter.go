@@ -12,9 +12,7 @@ func (t *TitondAPI) CreateBatchSubmitter(bs *model.Component) (*model.Component,
 	if err != nil {
 		return nil, err
 	}
-	if err := checkDependency(network.Status); err != nil {
-		return nil, err
-	}
+
 	l2geth, err := t.db.ReadComponentByType("l2geth", network.ID)
 	if err != nil {
 		return nil, err
