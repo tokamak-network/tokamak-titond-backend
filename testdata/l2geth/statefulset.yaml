@@ -48,6 +48,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: l2geth
+            - secretRef:
+                name: titan-secret
           volumeMounts:
             - name: l2geth-volume
               mountPath: /root/.ethereum
