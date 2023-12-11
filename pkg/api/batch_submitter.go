@@ -23,13 +23,13 @@ func (t *TitondAPI) CreateBatchSubmitter(bs *model.Component) (*model.Component,
 
 	result, err := t.db.CreateComponent(bs)
 	if err == nil {
-		go t.createBatchSubmitter(result, network.ContractAddressURL, t.config.ContractsRpcUrl, l2geth.PublicURL)
+		go t.createBatchSubmitter(result, network.ContractAddressURL, t.config.ContractsRpcUrl)
 	}
 
 	return result, err
 }
 
-func (t *TitondAPI) createBatchSubmitter(bs *model.Component, contractAddressURL, l1RPC string, l2RPC string) {
+func (t *TitondAPI) createBatchSubmitter(bs *model.Component, contractAddressURL, l1RPC string) {
 	namespace := generateNamespace(bs.NetworkID)
 	mPath := t.k8s.GetManifestPath()
 
@@ -43,7 +43,6 @@ func (t *TitondAPI) createBatchSubmitter(bs *model.Component, contractAddressURL
 	batchSubmitterConfig := map[string]string{
 		"URL":        contractAddressURL,
 		"L1_ETH_RPC": l1RPC,
-		"L2_ETH_RPC": l2RPC,
 	}
 
 	createdConfigMap, err := t.k8s.CreateConfigMapWithConfig(namespace, cm, batchSubmitterConfig)
