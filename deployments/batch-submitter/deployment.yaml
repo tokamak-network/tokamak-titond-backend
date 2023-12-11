@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: batch-submitter
+spec:
+  selector:
+    matchLabels:
+      app: batch-submitter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: batch-submitter
+    spec:
+      terminationGracePeriodSeconds: 10
+      restartPolicy: Always
+      containers:
+        - name: batch-submitter
+          image: onthertech/titan-batch-submitter-service
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7300
+              protocol: TCP
+          command: ["./batch-submitter.sh"]
+          resources: {}
+          envFrom:
+            - configMapRef:
+                name: batch-submitter
+            - secretRef:
+                name: titan-secret
