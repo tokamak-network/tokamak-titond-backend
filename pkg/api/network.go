@@ -156,9 +156,8 @@ func (t *TitondAPI) createAccounts(namespace string) error {
 		"MESSAGE_RELAYER__L1_WALLET":            t.config.RelayerWallet,
 		"BLOCK_SIGNER_KEY":                      t.config.SignerKey,
 	}
-
+	fmt.Printf("Create account in %s namespace\n", namespace)
 	fmt.Println("create account data", stringData)
-
 	_, err := t.k8s.CreateSecret(namespace, "titan-secret", stringData)
 	return err
 }

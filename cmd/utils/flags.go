@@ -76,7 +76,7 @@ var (
 		&cli.StringFlag{
 			Name:    "kubernetes.manifest.path",
 			Usage:   "The path of manifests",
-			Value:   "./deployments",
+			Value:   "./testdata",
 			EnvVars: []string{"KUBERNETES_MANIFEST_PATH"},
 		},
 	}
