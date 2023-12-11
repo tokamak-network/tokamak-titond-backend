@@ -113,11 +113,11 @@ func (client *MockK8sClient) CreateService(namespace string, service *corev1.Ser
 	return client.service, client.serviceErr
 }
 
-func (client *MockK8sClient) CreatePersistentVolume(name string, namespace string, pvc *corev1.PersistentVolume) (*corev1.PersistentVolume, error) {
+func (client *MockK8sClient) CreatePersistentVolume(label map[string]string, storage string, pv *corev1.PersistentVolume) (*corev1.PersistentVolume, error) {
 	return nil, nil
 }
 
-func (client *MockK8sClient) CreatePersistentVolumeClaim(namespace string, pvc *corev1.PersistentVolumeClaim) (*corev1.PersistentVolumeClaim, error) {
+func (client *MockK8sClient) CreatePersistentVolumeClaim(namespace string, label map[string]string, storage string, pvc *corev1.PersistentVolumeClaim) (*corev1.PersistentVolumeClaim, error) {
 	return client.pvc, client.err
 }
 

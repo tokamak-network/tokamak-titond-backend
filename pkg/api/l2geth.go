@@ -33,6 +33,7 @@ func (t *TitondAPI) CreateL2Geth(l2geth *model.Component) (*model.Component, err
 func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC string) {
 	namespace := generateNamespace(l2geth.NetworkID)
 	volumePath := generateVolumePath("l2geth", l2geth.NetworkID, l2geth.ID)
+	volumeLabel := generateLabel("l2geth-pv", l2geth.NetworkID, l2geth.ID)
 	publicURL := generatePublcURL("l2geth", l2geth.NetworkID, l2geth.ID)
 
 	mPath := t.k8s.GetManifestPath()
@@ -64,18 +65,24 @@ func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC st
 	}
 	fmt.Printf("Created L2Geth ConfigMap: %s\n", createdConfigMap.GetName())
 
-	obj = kubernetes.GetObject(mPath, "l2geth", "pv")
+	obj = kubernetes.GetObject(mPath, "volume", "pv")
 	pv, ok := kubernetes.ConvertToPersistentVolume(obj)
 	if !ok {
-		fmt.Printf("createDTL error: convertToPersistentVolume")
+		fmt.Printf("createL2Geth error: convertToPersistentVolume")
 		return
 	}
-	createdPV, err := t.k8s.CreatePersistentVolume(namespace, "l2geth", pv)
+
+	pv.SetName(volumeLabel)
+	label := map[string]string{
+		"app": volumeLabel,
+	}
+
+	createdPV, err := t.k8s.CreatePersistentVolume(label, "10Gi", pv)
 	if err != nil {
-		fmt.Printf("createDTL error: %s\n", err)
+		fmt.Printf("createL2Geth error: %s\n", err)
 		return
 	}
-	fmt.Printf("Created L2Geth PersistentVolumeClaim: %s\n", createdPV.GetName())
+	fmt.Printf("Created L2Geth PersistentVolume: %s\n", createdPV.GetName())
 
 	obj = kubernetes.GetObject(mPath, "l2geth", "pvc")
 	pvc, ok := kubernetes.ConvertToPersistentVolumeClaim(obj)
@@ -84,7 +91,7 @@ func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC st
 		return
 	}
 
-	createdPVC, err := t.k8s.CreatePersistentVolumeClaimWithAppSelector(namespace, "l2geth", pvc)
+	createdPVC, err := t.k8s.CreatePersistentVolumeClaim(namespace, label, "10Gi", pvc)
 	if err != nil {
 		fmt.Printf("createL2Geth error: %s\n", err)
 		return

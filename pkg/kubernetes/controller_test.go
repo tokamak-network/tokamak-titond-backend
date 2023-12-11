@@ -41,7 +41,7 @@ func TestCreate(t *testing.T) {
 			obj := GetObject(mPath, "l2geth", "pvc")
 			pvc, _ := ConvertToPersistentVolumeClaim(obj)
 
-			res, err := fakeKubernetes.CreatePersistentVolumeClaim("test", pvc)
+			res, err := fakeKubernetes.CreatePersistentVolumeClaim("test", map[string]string{"app": "pvc"}, "2Gi", pvc)
 
 			assert.NoError(t, err, "must be not error")
 			assert.Equal(t, "l2geth-pvc", res.GetName(), "must be l2geth-pvc")

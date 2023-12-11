@@ -22,6 +22,10 @@ func generateNamespace(networkID uint) string {
 	return fmt.Sprintf("namespace-%d", networkID)
 }
 
+func generateLabel(name string, networkID, componentID uint) string {
+	return fmt.Sprintf("%s-%d-%d", name, networkID, componentID)
+}
+
 func ConvertStructToMap(obj interface{}) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 	val := reflect.ValueOf(obj)
