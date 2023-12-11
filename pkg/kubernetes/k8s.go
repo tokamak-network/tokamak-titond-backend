@@ -81,5 +81,5 @@ func (k *Kubernetes) GetManifestPath() string {
 
 func NewFakeKubernetes() *Kubernetes {
 	fakeClient := fake.NewSimpleClientset()
-	return &Kubernetes{fakeClient, nil, "../../deployments"}
+	return &Kubernetes{fakeClient, nil, "../../testdata"}
 }

@@ -13,13 +13,13 @@ func (t *TitondAPI) CreateL2Geth(l2geth *model.Component) (*model.Component, err
 		return nil, err
 	}
 
-	// dtl, err := t.db.ReadComponentByType("data-transport-layer", network.ID)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// if err := checkDependency(dtl.Status); err != nil {
-	// 	return nil, err
-	// }
+	dtl, err := t.db.ReadComponentByType("data-transport-layer", network.ID)
+	if err != nil {
+		return nil, err
+	}
+	if err := checkDependency(dtl.Status); err != nil {
+		return nil, err
+	}
 
 	result, err := t.db.CreateComponent(l2geth)
 	if err != nil {

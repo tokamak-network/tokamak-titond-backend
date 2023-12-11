@@ -11,7 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
-var testDataPath = "../../deployments"
+var testDataPath = "../../testdata"
 
 func TestGetDirPath(t *testing.T) {
 	// cPath, _ := os.Getwd()
