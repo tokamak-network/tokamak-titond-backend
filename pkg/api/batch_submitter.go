@@ -90,6 +90,4 @@ func (t *TitondAPI) createBatchSubmitter(bs *model.Component, contractAddressURL
 	if err != nil {
 		return
 	}
-
-	return
 }

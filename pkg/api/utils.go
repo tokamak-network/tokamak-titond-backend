@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 )
@@ -49,26 +48,6 @@ func checkDependency(status bool) error {
 		return apptypes.ErrComponentDependency
 	}
 	return nil
-}
-
-func generateKey() (sk, address string) {
-	privateKey, err := crypto.GenerateKey()
-	if err != nil {
-		fmt.Printf("generateKey err : %s\n", err)
-		return "", ""
-	}
-
-	privateKeyBytes := crypto.FromECDSA(privateKey)
-	sk = hexutil.Encode(privateKeyBytes)[2:]
-
-	publicKey := privateKey.Public()
-	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
-	if !ok {
-		fmt.Println("error casting public key to ECDSA")
-		return "", ""
-	}
-	address = crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
-	return
 }
 
 func exportAddressFromPrivateKey(privateKey string) string {

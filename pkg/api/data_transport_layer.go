@@ -115,6 +115,4 @@ func (t *TitondAPI) createDTL(dtl *model.Component, contractAddressURL, l1RPC st
 		/* TODO: rollback ? */
 		return
 	}
-
-	return
 }

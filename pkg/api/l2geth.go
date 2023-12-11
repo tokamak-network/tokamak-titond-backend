@@ -148,6 +148,4 @@ func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC st
 	if err != nil {
 		return
 	}
-
-	return
 }
