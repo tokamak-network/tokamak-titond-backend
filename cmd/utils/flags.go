@@ -18,21 +18,45 @@ var (
 		},
 		&cli.StringFlag{
 			Name:    "titond.contracts.rpc.url",
-			Usage:   "K8s namespace",
+			Usage:   "RPC url",
 			Value:   "rpc-url",
 			EnvVars: []string{"CONTRACTS_RPC_URL"},
 		},
 		&cli.StringFlag{
 			Name:    "titond.contracts.deployer.key",
-			Usage:   "K8s namespace",
+			Usage:   "Deployer private key",
 			Value:   "key",
 			EnvVars: []string{"CONTRACTS_DEPLOYER_KEY"},
 		},
 		&cli.StringFlag{
 			Name:    "titond.contracts.target.network",
-			Usage:   "K8s namespace",
+			Usage:   "Target network",
 			Value:   "local",
 			EnvVars: []string{"CONTRACTS_TARGET_NETWORK"},
+		},
+		&cli.StringFlag{
+			Name:    "titond.sequencer.key",
+			Usage:   "SequencerKey",
+			Value:   "titond",
+			EnvVars: []string{"BATCH_SUBMITTER_SEQUENCER_PRIVATE_KEY"},
+		},
+		&cli.StringFlag{
+			Name:    "titond.proposer.key",
+			Usage:   "ProposerKey",
+			Value:   "titond",
+			EnvVars: []string{"BATCH_SUBMITTER_PROPOSER_PRIVATE_KEY"},
+		},
+		&cli.StringFlag{
+			Name:    "titond.relayer.wallet",
+			Usage:   "RelayerKey",
+			Value:   "titond",
+			EnvVars: []string{"MESSAGE_RELAYER__L1_WALLET"},
+		},
+		&cli.StringFlag{
+			Name:    "titond.signer.key",
+			Usage:   "SignerKey",
+			Value:   "titond",
+			EnvVars: []string{"BLOCK_SIGNER_KEY"},
 		},
 	}
 	// kubernetes flags

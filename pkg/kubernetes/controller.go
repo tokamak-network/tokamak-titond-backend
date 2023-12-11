@@ -28,7 +28,19 @@ func (k *Kubernetes) CreateService(namespace string, service *corev1.Service) (*
 	return k.client.CoreV1().Services(namespace).Create(context.TODO(), service, metav1.CreateOptions{})
 }
 
+func (k *Kubernetes) CreatePersistentVolume(namespace string, name string, pv *corev1.PersistentVolume) (*corev1.PersistentVolume, error) {
+	pv.Labels["app"] = fmt.Sprintf("%s-%s", name, namespace)
+	pv.Name = pv.Labels["app"]
+	return k.client.CoreV1().PersistentVolumes().Create(context.TODO(), pv, metav1.CreateOptions{})
+}
+
 func (k *Kubernetes) CreatePersistentVolumeClaim(namespace string, pvc *corev1.PersistentVolumeClaim) (*corev1.PersistentVolumeClaim, error) {
+	return k.client.CoreV1().PersistentVolumeClaims(namespace).Create(context.TODO(), pvc, metav1.CreateOptions{})
+}
+
+func (k *Kubernetes) CreatePersistentVolumeClaimWithAppSelector(namespace string, appName string, pvc *corev1.PersistentVolumeClaim) (*corev1.PersistentVolumeClaim, error) {
+	pvc.Spec.Selector.MatchLabels["app"] = fmt.Sprintf("%s-%s", appName, namespace)
+	fmt.Println("PVC: ", pvc)
 	return k.client.CoreV1().PersistentVolumeClaims(namespace).Create(context.TODO(), pvc, metav1.CreateOptions{})
 }
 

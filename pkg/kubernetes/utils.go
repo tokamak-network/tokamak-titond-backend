@@ -79,6 +79,11 @@ func ConvertToService(obj runtime.Object) (*corev1.Service, bool) {
 	return svc, ok
 }
 
+func ConvertToPersistentVolume(obj runtime.Object) (*corev1.PersistentVolume, bool) {
+	pv, ok := obj.(*corev1.PersistentVolume)
+	return pv, ok
+}
+
 func ConvertToPersistentVolumeClaim(obj runtime.Object) (*corev1.PersistentVolumeClaim, bool) {
 	pvc, ok := obj.(*corev1.PersistentVolumeClaim)
 	return pvc, ok

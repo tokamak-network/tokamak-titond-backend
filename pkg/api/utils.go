@@ -67,9 +67,7 @@ func generateKey() (sk, address string) {
 		fmt.Println("error casting public key to ECDSA")
 		return "", ""
 	}
-
 	address = crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
-
 	return
 }
 
@@ -86,6 +84,5 @@ func exportAddressFromPrivateKey(privateKey string) string {
 		fmt.Println("error casting public key to ECDSA")
 		return ""
 	}
-
 	return crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
 }
