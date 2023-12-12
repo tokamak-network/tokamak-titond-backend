@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresql-config
+data:
+  APP_NAME: "postgresql"
+  ENV_NAME: "local"
+  CLUSTER_NAME: "local"

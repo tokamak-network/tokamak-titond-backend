@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smart-contract-verifier
+spec:
+  selector:
+    matchLabels:
+      app: smart-contract-verifier
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: smart-contract-verifier
+    spec:
+      terminationGracePeriodSeconds: 10
+      restartPolicy: Always
+      containers:
+        - name: smart-contract-verifier
+          image: ghcr.io/blockscout/smart-contract-verifier
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8050
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: smart-contract-verifier
