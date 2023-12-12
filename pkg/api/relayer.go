@@ -13,7 +13,7 @@ func (t *TitondAPI) CreateRelayer(relayer *model.Component) (*model.Component, e
 		return nil, err
 	}
 
-	l2geth, err := t.db.ReadComponentByType("l2geth", relayer.ID)
+	l2geth, err := t.db.ReadComponentByType("l2geth", relayer.NetworkID)
 	if err != nil {
 		return nil, err
 	}
@@ -31,16 +31,14 @@ func (t *TitondAPI) CreateRelayer(relayer *model.Component) (*model.Component, e
 
 }
 
-func (t *TitondAPI) createRelayer(relayer *model.Component, l1RPC string, addressFileUrl string) {
+func (t *TitondAPI) createRelayer(relayer *model.Component, l1RPC string, addressFileUrl string) error {
 	namespace := generateNamespace(relayer.NetworkID)
-	mPath := t.k8s.GetManifestPath()
 	publicURL := generatePublcURL("l2geth", relayer.NetworkID, relayer.ID)
 
-	obj := kubernetes.GetObject(mPath, "relayer", "configmap")
+	obj, _ := kubernetes.BuildObjectFromYamlFile("./deployments/relayer/configmap.yaml")
 	configMapObj, ok := kubernetes.ConvertToConfigMap(obj)
 	if !ok {
-		fmt.Println("createRelayer error: convertToConfigmap")
-		return
+		panic("createRelayer error: convertToConfigmap")
 	}
 	relayerConfig := map[string]string{
 		"URL":                              addressFileUrl,
@@ -50,49 +48,46 @@ func (t *TitondAPI) createRelayer(relayer *model.Component, l1RPC string, addres
 	configMap, err := t.k8s.CreateConfigMapWithConfig(namespace, configMapObj, relayerConfig)
 	if err != nil {
 		fmt.Println("createRelayer error:", err)
-		return
+		return err
 	}
 	fmt.Println("Created Relayer ConfigMap:", configMap.GetName())
 
-	obj = kubernetes.GetObject(mPath, "relayer", "service")
+	obj, _ = kubernetes.BuildObjectFromYamlFile("./deployments/relayer/service.yaml")
 	svc, ok := kubernetes.ConvertToService(obj)
 	if !ok {
-		fmt.Println("createRelayer error: convertToService")
-		return
+		panic("createRelayer error: convertToService")
 	}
 
 	service, err := t.k8s.CreateService(namespace, svc)
 	if err != nil {
 		fmt.Println("createRelayer error:", err)
-		return
+		return err
 	}
 	fmt.Println("Created Relayer Service:", service.GetName())
 
-	obj = kubernetes.GetObject(mPath, "relayer", "deployment")
+	obj, _ = kubernetes.BuildObjectFromYamlFile("./deployments/relayer/deployment.yaml")
 	deploymentObj, ok := kubernetes.ConvertToDeployment(obj)
 	if !ok {
-		fmt.Printf("createRelayer error: convertToDeployment")
-		return
+		panic("createRelayer error: convertToDeployment")
 	}
 
 	deployment, err := t.k8s.CreateDeployment(namespace, deploymentObj)
 	if err != nil {
 		fmt.Printf("createRelayer error: %s\n", err)
-		return
+		return err
 	}
 	fmt.Printf("Created Relayer Deployment: %s\n", deployment.GetName())
 
 	err = t.k8s.WaitingDeploymentCreated(deployment.Namespace, deployment.Name)
 	if err != nil {
-		return
+		return err
 	}
 	relayer.Status = true
 
-	obj = kubernetes.GetObject(mPath, "relayer", "ingress")
+	obj, _ = kubernetes.BuildObjectFromYamlFile("./deployments/relayer/ingress.yaml")
 	ingressObj, ok := kubernetes.ConvertToIngress(obj)
 	if !ok {
-		fmt.Println("createRelayer error: convertToIngress")
-		return
+		panic("createRelayer error: convertToIngress")
 	}
 
 	ingressObj.Spec.Rules[0].Host = publicURL
@@ -100,14 +95,12 @@ func (t *TitondAPI) createRelayer(relayer *model.Component, l1RPC string, addres
 	ingress, err := t.k8s.CreateIngress(namespace, ingressObj)
 	if err != nil {
 		fmt.Println("createRelayer error:", err)
-		return
+		return err
 	}
 	fmt.Println("Created Relayer Ingress:", ingress.GetName(), " ||| URL: ", publicURL)
 	relayer.PublicURL = publicURL
 
 	_, err = t.db.UpdateComponent(relayer)
-	if err != nil {
-		return
-	}
+	return err
 
 }
