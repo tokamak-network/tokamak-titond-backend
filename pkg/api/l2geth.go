@@ -64,6 +64,19 @@ func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC st
 	}
 	fmt.Printf("Created L2Geth ConfigMap: %s\n", createdConfigMap.GetName())
 
+	obj = kubernetes.GetObject(mPath, "l2geth", "pv")
+	pv, ok := kubernetes.ConvertToPersistentVolume(obj)
+	if !ok {
+		fmt.Printf("createDTL error: convertToPersistentVolume")
+		return
+	}
+	createdPV, err := t.k8s.CreatePersistentVolume(namespace, "l2geth", pv)
+	if err != nil {
+		fmt.Printf("createDTL error: %s\n", err)
+		return
+	}
+	fmt.Printf("Created L2Geth PersistentVolumeClaim: %s\n", createdPV.GetName())
+
 	obj = kubernetes.GetObject(mPath, "l2geth", "pvc")
 	pvc, ok := kubernetes.ConvertToPersistentVolumeClaim(obj)
 	if !ok {
@@ -71,7 +84,7 @@ func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC st
 		return
 	}
 
-	createdPVC, err := t.k8s.CreatePersistentVolumeClaim(namespace, pvc)
+	createdPVC, err := t.k8s.CreatePersistentVolumeClaimWithAppSelector(namespace, "l2geth", pvc)
 	if err != nil {
 		fmt.Printf("createL2Geth error: %s\n", err)
 		return
@@ -135,6 +148,4 @@ func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC st
 	if err != nil {
 		return
 	}
-
-	return
 }

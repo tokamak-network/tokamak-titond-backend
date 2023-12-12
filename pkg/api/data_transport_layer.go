@@ -48,14 +48,26 @@ func (t *TitondAPI) createDTL(dtl *model.Component, contractAddressURL, l1RPC st
 	}
 	fmt.Printf("Created Data-Transport-Layer ConfigMap: %s\n", createdConfigMap.GetName())
 
+	obj = kubernetes.GetObject(mPath, "data-transport-layer", "pv")
+	pv, ok := kubernetes.ConvertToPersistentVolume(obj)
+	if !ok {
+		fmt.Printf("createDTL error: convertToPersistentVolume")
+		return
+	}
+	createdPV, err := t.k8s.CreatePersistentVolume(namespace, "dtl", pv)
+	if err != nil {
+		fmt.Printf("createDTL error: %s\n", err)
+		return
+	}
+	fmt.Printf("Created Data-Transport-Layer PersistentVolume: %s\n", createdPV.GetName())
+
 	obj = kubernetes.GetObject(mPath, "data-transport-layer", "pvc")
 	pvc, ok := kubernetes.ConvertToPersistentVolumeClaim(obj)
 	if !ok {
 		fmt.Printf("createDTL error: convertToPersistentVolumeClaim")
 		return
 	}
-
-	createdPVC, err := t.k8s.CreatePersistentVolumeClaim(namespace, pvc)
+	createdPVC, err := t.k8s.CreatePersistentVolumeClaimWithAppSelector(namespace, "dtl", pvc)
 	if err != nil {
 		fmt.Printf("createDTL error: %s\n", err)
 		return
@@ -94,7 +106,6 @@ func (t *TitondAPI) createDTL(dtl *model.Component, contractAddressURL, l1RPC st
 
 	err = t.k8s.WatingStatefulsetCreated(createdSFS.Namespace, createdSFS.Name)
 	if err != nil {
-		/*TODO : rollback ? */
 		return
 	}
 	dtl.Status = true
@@ -104,6 +115,4 @@ func (t *TitondAPI) createDTL(dtl *model.Component, contractAddressURL, l1RPC st
 		/* TODO: rollback ? */
 		return
 	}
-
-	return
 }

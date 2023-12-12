@@ -12,6 +12,10 @@ type Config struct {
 	ContractsRpcUrl        string
 	ContractsTargetNetwork string
 	ContractsDeployerKey   string
+	SequencerKey           string
+	ProposerKey            string
+	RelayerWallet          string
+	SignerKey              string
 }
 
 type ITitondAPI interface {
@@ -23,7 +27,6 @@ type ITitondAPI interface {
 	GetComponentByType(networkID uint, componentType string) (*model.Component, error)
 	GetComponentById(componentID uint) (*model.Component, error)
 	DeleteComponentById(componentID uint) error
-	
 }
 
 type TitondAPI struct {

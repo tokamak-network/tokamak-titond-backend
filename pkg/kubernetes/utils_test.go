@@ -53,6 +53,7 @@ func TestGetYAMLfile(t *testing.T) {
 }
 
 func TestConvertBytestoObject(t *testing.T) {
+
 	tests := []struct {
 		dirName  string
 		fileName string
@@ -73,6 +74,7 @@ func TestConvertBytestoObject(t *testing.T) {
 }
 
 func TestGetObject(t *testing.T) {
+
 	tests := []struct {
 		componentName string
 		yamlFileName  string

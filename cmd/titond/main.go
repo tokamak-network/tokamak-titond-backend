@@ -80,6 +80,10 @@ func titond(ctx *cli.Context) error {
 		ContractsRpcUrl:        ctx.String("titond.contracts.rpc.url"),
 		ContractsTargetNetwork: ctx.String("titond.contracts.target.network"),
 		ContractsDeployerKey:   ctx.String("titond.contracts.deployer.key"),
+		SequencerKey:           ctx.String("titond.sequencer.key"),
+		ProposerKey:            ctx.String("titond.proposer.key"),
+		RelayerWallet:          ctx.String("titond.relayer.wallet"),
+		SignerKey:              ctx.String("titond.signer.key"),
 	})
 
 	http := http.NewHTTPServer(&http.Config{

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: data-transport-layer
+spec:
+  selector:
+    matchLabels:
+      app: data-transport-layer
+  replicas: 1
+  serviceName: data-transport-layer-svc
+  template:
+    metadata:
+      labels:
+        app: data-transport-layer
+    spec:
+      terminationGracePeriodSeconds: 10
+      restartPolicy: Always
+      containers:
+        - name: data-transport-layer
+          image: onthertech/titan-data-transport-layer
+          imagePullPolicy: IfNotPresent
+          command: ["./dtl.sh"]
+          envFrom:
+            - configMapRef:
+                name: data-transport-layer
+          ports:
+            - containerPort: 7878
+              protocol: TCP
+          volumeMounts:
+            - name: data-transport-layer-volume
+              mountPath: /db
+              subPath: data-transaport-layer
+          resources: {}
+      volumes:
+        - name: data-transport-layer-volume
+          persistentVolumeClaim:
+            claimName: data-transport-layer-pvc

@@ -115,8 +115,16 @@ func (client *MockK8sClient) CreateService(namespace string, service *corev1.Ser
 	return client.service, client.err
 }
 
+func (client *MockK8sClient) CreatePersistentVolume(name string, namespace string, pvc *corev1.PersistentVolume) (*corev1.PersistentVolume, error) {
+	return nil, nil
+}
+
 func (client *MockK8sClient) CreatePersistentVolumeClaim(namespace string, pvc *corev1.PersistentVolumeClaim) (*corev1.PersistentVolumeClaim, error) {
 	return client.pvc, client.err
+}
+
+func (client *MockK8sClient) CreatePersistentVolumeClaimWithAppSelector(namespace string, appName string, pvc *corev1.PersistentVolumeClaim) (*corev1.PersistentVolumeClaim, error) {
+	return nil, nil
 }
 
 func (client *MockK8sClient) CreateConfigMapWithConfig(namespace string, configMap *corev1.ConfigMap, config map[string]string) (*corev1.ConfigMap, error) {

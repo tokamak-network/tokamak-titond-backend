@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"runtime/debug"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -29,6 +30,9 @@ func GetYAMLfile(basePath, dirName, fileName string) []byte {
 
 	data, err := os.ReadFile(path.Join(filePath, fileName+".yaml"))
 	if err != nil {
+		path, _ := os.Getwd()
+		fmt.Println("File path: ", filePath, "| Path:", path)
+		debug.PrintStack()
 		log.Fatal(err)
 	}
 
@@ -73,6 +77,11 @@ func ConvertToStatefulSet(obj runtime.Object) (*appsv1.StatefulSet, bool) {
 func ConvertToService(obj runtime.Object) (*corev1.Service, bool) {
 	svc, ok := obj.(*corev1.Service)
 	return svc, ok
+}
+
+func ConvertToPersistentVolume(obj runtime.Object) (*corev1.PersistentVolume, bool) {
+	pv, ok := obj.(*corev1.PersistentVolume)
+	return pv, ok
 }
 
 func ConvertToPersistentVolumeClaim(obj runtime.Object) (*corev1.PersistentVolumeClaim, bool) {

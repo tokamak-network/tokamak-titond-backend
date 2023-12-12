@@ -150,25 +150,14 @@ func (t *TitondAPI) GetK8sJobStatus(network *model.Network) (*appsv1.Deployment,
 }
 
 func (t *TitondAPI) createAccounts(namespace string) error {
-	sequencerKey, address := generateKey()
-	fmt.Printf("created sequencer account: %s\n", address)
-
-	proposerKey, address := generateKey()
-	fmt.Printf("created proposer account: %s\n", address)
-
-	relayerKey, address := generateKey()
-	fmt.Printf("created relayer account: %s\n", address)
-
-	signerKey, address := generateKey()
-	fmt.Printf("created block signer account: %s\n", address)
-
 	stringData := map[string]string{
-		"BATCH_SUBMITTER_SEQUENCER_PRIVATE_KEY": sequencerKey,
-		"BATCH_SUBMITTER_PROPOSER_PRIVATE_KEY":  proposerKey,
-		"MESSAGE_RELAYER__L1_WALLET":            relayerKey,
-		"BLOCK_SIGNER_KEY":                      signerKey,
+		"BATCH_SUBMITTER_SEQUENCER_PRIVATE_KEY": t.config.SequencerKey,
+		"BATCH_SUBMITTER_PROPOSER_PRIVATE_KEY":  t.config.ProposerKey,
+		"MESSAGE_RELAYER__L1_WALLET":            t.config.RelayerWallet,
+		"BLOCK_SIGNER_KEY":                      t.config.SignerKey,
 	}
-
+	fmt.Printf("Create account in %s namespace\n", namespace)
+	fmt.Println("create account data", stringData)
 	_, err := t.k8s.CreateSecret(namespace, "titan-secret", stringData)
 	return err
 }

@@ -12,7 +12,6 @@ import (
 func TestCreate(t *testing.T) {
 	fakeKubernetes := NewFakeKubernetes()
 	mPath := fakeKubernetes.GetManifestPath()
-
 	t.Run("Create StatefulSet", func(t *testing.T) {
 		t.Run("Create StatefulSet Successfully", func(t *testing.T) {
 			obj := GetObject(mPath, "l2geth", "statefulset")
