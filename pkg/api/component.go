@@ -34,6 +34,9 @@ func (t *TitondAPI) CreateComponent(component *model.Component) (*model.Componen
 	case "relayer":
 		result, err = t.CreateRelayer(component)
 
+	case "explorer":
+		result, err = t.CreateExplorer(component)
+
 	default:
 		err = apptypes.ErrInvalidComponentType
 	}

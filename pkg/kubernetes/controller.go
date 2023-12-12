@@ -33,6 +33,13 @@ func (k *Kubernetes) CreatePersistentVolumeClaim(namespace string, label map[str
 	pvc.Spec.Resources.Requests = corev1.ResourceList{
 		corev1.ResourceStorage: resource.MustParse(storage),
 	}
+
+	if pvc.Spec.Selector == nil {
+		pvc.Spec.Selector = &metav1.LabelSelector{
+			MatchLabels: map[string]string{},
+		}
+	}
+
 	pvc.Spec.Selector.MatchLabels = label
 
 	return k.client.CoreV1().PersistentVolumeClaims(namespace).Create(context.TODO(), pvc, metav1.CreateOptions{})
