@@ -31,6 +31,9 @@ func (t *TitondAPI) CreateComponent(component *model.Component) (*model.Componen
 	case "batch-submitter":
 		result, err = t.CreateBatchSubmitter(component)
 
+	case "relayer":
+		result, err = t.CreateRelayer(component)
+
 	default:
 		err = apptypes.ErrInvalidComponentType
 	}
