@@ -44,7 +44,7 @@ func ConvertStructToMap(obj interface{}) (map[string]interface{}, error) {
 }
 
 func generatePublcURL(name string, networkID, componentID uint) string {
-	return fmt.Sprintf("%s-%d-%d.titond-holesky.tokamak.network", name, networkID, componentID)
+	return fmt.Sprintf("%s-%d-%d.titond-sepolia.tokamak.network", name, networkID, componentID)
 }
 
 func checkDependency(status bool) error {
