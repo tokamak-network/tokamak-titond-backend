@@ -81,7 +81,7 @@ paths:
         name: input
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/model.Component'
       produces:
       - application/json
       responses:
