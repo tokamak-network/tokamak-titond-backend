@@ -39,7 +39,7 @@ func init() {
 // @title Titond
 // @version 1.0
 // @description Titond-backend application
-// @host localhost:8080
+// @host titond.dev.tokamak.network
 func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
