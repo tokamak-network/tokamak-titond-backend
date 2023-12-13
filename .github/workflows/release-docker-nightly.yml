@@ -1,9 +1,6 @@
 name: Tokamak Titond Publish (Nightly Version)
 
-on:
-  push:
-    branches:
-      - 'main'
+on: push
 
 jobs:
   docker:

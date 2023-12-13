@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/db"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/kubernetes"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
@@ -56,6 +58,7 @@ func (t *TitondAPI) Initialize() {
 	}
 	err := t.k8s.CreateConfigmapWithConfig(t.config.Namespace, "./deployments/deployer/configmap.yaml", overrideData)
 	if err != nil {
+		fmt.Println("err: ", err)
 		panic("Cannot init configmap for deployer")
 	}
 }
