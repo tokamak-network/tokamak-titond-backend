@@ -205,7 +205,7 @@ func TestUpdateConfigMapObjectValue(t *testing.T) {
 }
 
 func TestConvertToDeployment(t *testing.T) {
-	object := GetObject(testDataPath, "deployer", "deploymeent")
+	object := GetObject(testDataPath, "deployer", "deployment")
 
 	_, exist := ConvertToConfigMap(object)
 	if exist {
