@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visualizer
+spec:
+  selector:
+    matchLabels:
+      app: visualizer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: visualizer
+    spec:
+      terminationGracePeriodSeconds: 10
+      restartPolicy: Always
+      containers:
+        - name: visualizer
+          image: ghcr.io/blockscout/visualizer
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8050
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: visualizer

@@ -1,0 +1,32 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-blockscout
+spec:
+  selector:
+    matchLabels:
+      app: app-blockscout
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: app-blockscout
+    spec:
+      terminationGracePeriodSeconds: 10
+      restartPolicy: Always
+      containers:
+        - name: app-blockscout
+          image: onthertech/titan-explorer
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4000
+              protocol: TCP
+          command: ["/bin/sh", "-c"]
+          args:
+            [
+              'bin/blockscout eval "Elixir.Explorer.ReleaseTasks.create_and_migrate()" && bin/blockscout start',
+            ]
+          envFrom:
+            - configMapRef:
+                name: blockscout

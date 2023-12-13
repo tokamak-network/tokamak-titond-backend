@@ -10,6 +10,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkv1 "k8s.io/api/networking/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/remotecommand"
@@ -28,20 +29,29 @@ func (k *Kubernetes) CreateService(namespace string, service *corev1.Service) (*
 	return k.client.CoreV1().Services(namespace).Create(context.TODO(), service, metav1.CreateOptions{})
 }
 
-func (k *Kubernetes) CreatePersistentVolume(namespace string, name string, pv *corev1.PersistentVolume) (*corev1.PersistentVolume, error) {
-	pv.Labels["app"] = fmt.Sprintf("%s-%s", name, namespace)
-	pv.Name = pv.Labels["app"]
+func (k *Kubernetes) CreatePersistentVolumeClaim(namespace string, label map[string]string, storage string, pvc *corev1.PersistentVolumeClaim) (*corev1.PersistentVolumeClaim, error) {
+	pvc.Spec.Resources.Requests = corev1.ResourceList{
+		corev1.ResourceStorage: resource.MustParse(storage),
+	}
+
+	if pvc.Spec.Selector == nil {
+		pvc.Spec.Selector = &metav1.LabelSelector{
+			MatchLabels: map[string]string{},
+		}
+	}
+
+	pvc.Spec.Selector.MatchLabels = label
+
+	return k.client.CoreV1().PersistentVolumeClaims(namespace).Create(context.TODO(), pvc, metav1.CreateOptions{})
+}
+
+func (k *Kubernetes) CreatePersistentVolume(label map[string]string, storage string, pv *corev1.PersistentVolume) (*corev1.PersistentVolume, error) {
+	pv.SetLabels(label)
+	pv.Spec.Capacity = corev1.ResourceList{
+		corev1.ResourceStorage: resource.MustParse(storage),
+	}
+
 	return k.client.CoreV1().PersistentVolumes().Create(context.TODO(), pv, metav1.CreateOptions{})
-}
-
-func (k *Kubernetes) CreatePersistentVolumeClaim(namespace string, pvc *corev1.PersistentVolumeClaim) (*corev1.PersistentVolumeClaim, error) {
-	return k.client.CoreV1().PersistentVolumeClaims(namespace).Create(context.TODO(), pvc, metav1.CreateOptions{})
-}
-
-func (k *Kubernetes) CreatePersistentVolumeClaimWithAppSelector(namespace string, appName string, pvc *corev1.PersistentVolumeClaim) (*corev1.PersistentVolumeClaim, error) {
-	pvc.Spec.Selector.MatchLabels["app"] = fmt.Sprintf("%s-%s", appName, namespace)
-	fmt.Println("PVC: ", pvc)
-	return k.client.CoreV1().PersistentVolumeClaims(namespace).Create(context.TODO(), pvc, metav1.CreateOptions{})
 }
 
 func (k *Kubernetes) CreateConfigMapWithConfig(namespace string, configMap *corev1.ConfigMap, config map[string]string) (*corev1.ConfigMap, error) {

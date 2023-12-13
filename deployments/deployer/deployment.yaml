@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
         - name: deployer
-          image: onthertech/titan-deployer
+          image: onthertech/titan-deployer:nightly
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args: ["rm -rf deployments/* && ./deployer.sh"]

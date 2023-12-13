@@ -26,6 +26,7 @@ func (t *TitondAPI) CreateDTL(dtl *model.Component) (*model.Component, error) {
 func (t *TitondAPI) createDTL(dtl *model.Component, contractAddressURL, l1RPC string) {
 	namespace := generateNamespace(dtl.NetworkID)
 	volumePath := generateVolumePath("dtl", dtl.NetworkID, dtl.ID)
+	volumeLabel := generateLabel("dtl-pv", dtl.NetworkID, dtl.ID)
 
 	mPath := t.k8s.GetManifestPath()
 
@@ -48,13 +49,19 @@ func (t *TitondAPI) createDTL(dtl *model.Component, contractAddressURL, l1RPC st
 	}
 	fmt.Printf("Created Data-Transport-Layer ConfigMap: %s\n", createdConfigMap.GetName())
 
-	obj = kubernetes.GetObject(mPath, "data-transport-layer", "pv")
+	obj = kubernetes.GetObject(mPath, "volume", "pv")
 	pv, ok := kubernetes.ConvertToPersistentVolume(obj)
 	if !ok {
 		fmt.Printf("createDTL error: convertToPersistentVolume")
 		return
 	}
-	createdPV, err := t.k8s.CreatePersistentVolume(namespace, "dtl", pv)
+
+	pv.SetName(volumeLabel)
+	label := map[string]string{
+		"app": volumeLabel,
+	}
+
+	createdPV, err := t.k8s.CreatePersistentVolume(label, "10Gi", pv)
 	if err != nil {
 		fmt.Printf("createDTL error: %s\n", err)
 		return
@@ -67,7 +74,8 @@ func (t *TitondAPI) createDTL(dtl *model.Component, contractAddressURL, l1RPC st
 		fmt.Printf("createDTL error: convertToPersistentVolumeClaim")
 		return
 	}
-	createdPVC, err := t.k8s.CreatePersistentVolumeClaimWithAppSelector(namespace, "dtl", pvc)
+
+	createdPVC, err := t.k8s.CreatePersistentVolumeClaim(namespace, label, "10Gi", pvc)
 	if err != nil {
 		fmt.Printf("createDTL error: %s\n", err)
 		return
