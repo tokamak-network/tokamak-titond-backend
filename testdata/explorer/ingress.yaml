@@ -11,9 +11,9 @@ metadata:
 spec:
   tls:
     - hosts:
-        - explorer.titan.tokamak.network
+        - explorer-1-5.titond-holesky.tokamak.network
   rules:
-  - host: explorer.local.tokamak.network
+  - host: explorer-1-5.titond-holesky.tokamak.network
     http:
       paths:
       - path: /

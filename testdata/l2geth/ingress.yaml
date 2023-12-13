@@ -6,9 +6,14 @@ metadata:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
 spec:
+  tls:
+    - hosts:
+        - l2geth-1-3.titond-holesky.tokamak.network
   rules:
-  - host: l2geth.local.tokamak.network
+  - host: l2geth-1-3.titond-holesky.tokamak.network
     http:
       paths:
       - path: /
