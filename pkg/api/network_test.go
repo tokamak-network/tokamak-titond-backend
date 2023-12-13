@@ -480,14 +480,5 @@ func TestUpdateDBWithValue(t *testing.T) {
 	fileManager := &MockFileManager{}
 	titond := NewTitondAPI(k8sClient, dbClient, fileManager, &Config{})
 	k8sClient.err = nil
-	assert.Equal(t, nil, titond.cleanK8sJob(&model.Network{}))
-}
-
-func TestCleanK8sJob(t *testing.T) {
-	k8sClient := &MockK8sClient{}
-	dbClient := &MockDBClient{}
-	fileManager := &MockFileManager{}
-	titond := NewTitondAPI(k8sClient, dbClient, fileManager, &Config{})
-	k8sClient.err = nil
 	assert.Equal(t, nil, titond.updateDBWithValue(&model.Network{}, "", "", nil, nil))
 }

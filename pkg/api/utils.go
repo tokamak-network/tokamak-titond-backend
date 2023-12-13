@@ -18,6 +18,10 @@ func generateVolumePath(name string, networkID, componentID uint) string {
 	return fmt.Sprintf("%s-%d-%d", name, networkID, componentID)
 }
 
+func generateVolumePathExpr(networkID, componentID uint) string {
+	return generateVolumePath("${POD_UID}", networkID, componentID)
+}
+
 func generateNamespace(networkID uint) string {
 	return fmt.Sprintf("namespace-%d", networkID)
 }

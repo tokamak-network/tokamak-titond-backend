@@ -34,7 +34,9 @@ func (t *TitondAPI) CreateRelayer(relayer *model.Component) (*model.Component, e
 func (t *TitondAPI) createRelayer(relayer *model.Component, l1RPC string, addressFileUrl string) error {
 	namespace := generateNamespace(relayer.NetworkID)
 
-	obj, _ := kubernetes.BuildObjectFromYamlFile("./deployments/relayer/configmap.yaml")
+	mPath := t.k8s.GetManifestPath()
+
+	obj := kubernetes.GetObject(mPath, "relayer", "configmap")
 	configMapObj, ok := kubernetes.ConvertToConfigMap(obj)
 	if !ok {
 		panic("createRelayer error: convertToConfigmap")
@@ -51,7 +53,7 @@ func (t *TitondAPI) createRelayer(relayer *model.Component, l1RPC string, addres
 	}
 	fmt.Println("Created Relayer ConfigMap:", configMap.GetName())
 
-	obj, _ = kubernetes.BuildObjectFromYamlFile("./deployments/relayer/service.yaml")
+	obj = kubernetes.GetObject(mPath, "relayer", "service")
 	svc, ok := kubernetes.ConvertToService(obj)
 	if !ok {
 		panic("createRelayer error: convertToService")
@@ -64,7 +66,7 @@ func (t *TitondAPI) createRelayer(relayer *model.Component, l1RPC string, addres
 	}
 	fmt.Println("Created Relayer Service:", service.GetName())
 
-	obj, _ = kubernetes.BuildObjectFromYamlFile("./deployments/relayer/deployment.yaml")
+	obj = kubernetes.GetObject(mPath, "relayer", "deployment")
 	deploymentObj, ok := kubernetes.ConvertToDeployment(obj)
 	if !ok {
 		panic("createRelayer error: convertToDeployment")

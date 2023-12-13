@@ -45,13 +45,19 @@ func (t *TitondAPI) DeleteNetwork(id uint) error {
 }
 
 func (t *TitondAPI) createNetwork(network *model.Network) (string, string) {
+	namespace := generateNamespace(network.ID)
+	if _, err := t.k8s.CreateNamespace(namespace); err != nil {
+		fmt.Printf("failed create namespace: %s\n", namespace)
+		return "", ""
+	}
+
 	deployerName := MakeDeployerName(network.ID)
-	_, err := t.createDeployer(t.config.Namespace, deployerName)
+	_, err := t.createDeployer(namespace, deployerName)
 	if err != nil {
 		fmt.Println("failed create deployer...")
 		return "", ""
 	}
-	podList, err := t.k8s.GetPodsOfDeployment(t.config.Namespace, deployerName)
+	podList, err := t.k8s.GetPodsOfDeployment(namespace, deployerName)
 	if err != nil {
 		fmt.Println("failed get pod of deployer...")
 		return "", ""
@@ -61,19 +67,14 @@ func (t *TitondAPI) createNetwork(network *model.Network) (string, string) {
 		return "", ""
 	}
 
-	namespace := generateNamespace(network.ID)
-	if _, err := t.k8s.CreateNamespace(namespace); err != nil {
-		fmt.Printf("failed create namespace: %s\n", namespace)
-		return "", ""
-	}
 	if err := t.createAccounts(namespace); err != nil {
 		fmt.Printf("failed create account in %s\n", namespace)
 		return "", ""
 	}
 
 	fmt.Println("Getting file from pods...")
-	addressData, addressErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json")
-	dumpData, dumpErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json")
+	addressData, addressErr := t.k8s.GetFileFromPod(namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json")
+	dumpData, dumpErr := t.k8s.GetFileFromPod(namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json")
 
 	fmt.Printf("Get file contract address :\n%s\n", addressData)
 	fmt.Printf("Get file dump data: \n%s\n", dumpData)
@@ -94,7 +95,10 @@ func (t *TitondAPI) createNetwork(network *model.Network) (string, string) {
 
 	// We clear the job when everything works correctly
 	if err == nil && uploadAddressErr == nil && uploadDumpErr == nil {
-		fmt.Println("Clean k8s job", t.cleanK8sJob(network))
+		fmt.Println("Clean k8s job")
+		if err := t.k8s.DeleteDeployment(namespace, deployerName); err != nil {
+			fmt.Println("Clean k8s job error: ", err)
+		}
 	}
 
 	return addressUrl, dumpUrl
@@ -102,10 +106,29 @@ func (t *TitondAPI) createNetwork(network *model.Network) (string, string) {
 
 func (t *TitondAPI) createDeployer(namespace string, name string) (*appsv1.Deployment, error) {
 	fmt.Println("Create deployer: ", name)
-	object, _ := kubernetes.BuildObjectFromYamlFile("./deployments/deployer/deployment.yaml")
-	deployment, success := kubernetes.ConvertToDeployment(object)
+	mPath := t.k8s.GetManifestPath()
+
+	obj := kubernetes.GetObject(mPath, "deployer", "configmap")
+	cm, ok := kubernetes.ConvertToConfigMap(obj)
+	if !ok {
+		return nil, errors.New("createDeployer error: convertToConfigmap")
+	}
+
+	deployerConfig := map[string]string{
+		"CONTRACTS_RPC_URL":        t.config.ContractsRpcUrl,
+		"CONTRACTS_TARGET_NETWORK": t.config.ContractsTargetNetwork,
+		"CONTRACTS_DEPLOYER_KEY":   t.config.ContractsDeployerKey,
+	}
+
+	_, err := t.k8s.CreateConfigMapWithConfig(namespace, cm, deployerConfig)
+	if err != nil {
+		return nil, errors.New("createDeployer error: " + err.Error())
+	}
+
+	obj = kubernetes.GetObject(mPath, "deployer", "deployment")
+	deployment, success := kubernetes.ConvertToDeployment(obj)
 	if !success {
-		panic("Failed to convert to deployment object")
+		return nil, errors.New("createDeployer error: Failed to convert to deployment object")
 	}
 	var deployerCreationErr error
 	_, deployerCreationErr = t.k8s.CreateDeploymentWithName(namespace, deployment, name)
@@ -147,16 +170,6 @@ func (t *TitondAPI) updateDBWithValue(network *model.Network, addressFileUrl str
 	return err
 }
 
-func (t *TitondAPI) cleanK8sJob(network *model.Network) error {
-	deployerName := MakeDeployerName(network.ID)
-	return t.k8s.DeleteDeployment(t.config.Namespace, deployerName)
-}
-
-func (t *TitondAPI) GetK8sJobStatus(network *model.Network) (*appsv1.Deployment, error) {
-	deployerName := MakeDeployerName(network.ID)
-	return t.k8s.GetDeployment(t.config.Namespace, deployerName)
-}
-
 func (t *TitondAPI) createAccounts(namespace string) error {
 	stringData := map[string]string{
 		"BATCH_SUBMITTER_SEQUENCER_PRIVATE_KEY": t.config.SequencerKey,
@@ -165,7 +178,7 @@ func (t *TitondAPI) createAccounts(namespace string) error {
 		"BLOCK_SIGNER_KEY":                      t.config.SignerKey,
 	}
 	fmt.Printf("Create account in %s namespace\n", namespace)
-	fmt.Println("create account data", stringData)
+
 	_, err := t.k8s.CreateSecret(namespace, "titan-secret", stringData)
 	return err
 }
