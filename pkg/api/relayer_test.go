@@ -9,7 +9,6 @@ import (
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	networkv1 "k8s.io/api/networking/v1"
 )
 
 func TestInternalCreateRelayer(t *testing.T) {
@@ -23,8 +22,6 @@ func TestInternalCreateRelayer(t *testing.T) {
 		mockDeploymentErr error
 		mockService       *corev1.Service
 		mockServiceErr    error
-		mockIngress       *networkv1.Ingress
-		mockIngressErr    error
 		mockDBErr         error
 		expectedExistErr  bool
 	}{
@@ -43,8 +40,6 @@ func TestInternalCreateRelayer(t *testing.T) {
 			mockDeploymentErr: nil,
 			mockService:       &corev1.Service{},
 			mockServiceErr:    nil,
-			mockIngress:       &networkv1.Ingress{},
-			mockIngressErr:    nil,
 			mockDBErr:         nil,
 			expectedExistErr:  false,
 		},
@@ -63,8 +58,6 @@ func TestInternalCreateRelayer(t *testing.T) {
 			mockDeploymentErr: nil,
 			mockService:       &corev1.Service{},
 			mockServiceErr:    nil,
-			mockIngress:       &networkv1.Ingress{},
-			mockIngressErr:    nil,
 			mockDBErr:         nil,
 			expectedExistErr:  true,
 		},
@@ -83,8 +76,6 @@ func TestInternalCreateRelayer(t *testing.T) {
 			mockDeploymentErr: errors.New("mock deployment err"),
 			mockService:       &corev1.Service{},
 			mockServiceErr:    nil,
-			mockIngress:       &networkv1.Ingress{},
-			mockIngressErr:    nil,
 			mockDBErr:         nil,
 			expectedExistErr:  true,
 		},
@@ -103,12 +94,10 @@ func TestInternalCreateRelayer(t *testing.T) {
 			mockDeploymentErr: nil,
 			mockService:       &corev1.Service{},
 			mockServiceErr:    errors.New("mock service err"),
-			mockIngress:       &networkv1.Ingress{},
-			mockIngressErr:    nil,
 			mockDBErr:         nil,
 			expectedExistErr:  true,
 		},
-		// Case 5: Failed at making ingress on K8s
+		// Case 5: Failed at inserting to DB
 		{
 			relayer: &model.Component{
 				Name:      "Relayer Component",
@@ -123,30 +112,9 @@ func TestInternalCreateRelayer(t *testing.T) {
 			mockDeploymentErr: nil,
 			mockService:       &corev1.Service{},
 			mockServiceErr:    nil,
-			mockIngress:       &networkv1.Ingress{},
-			mockIngressErr:    errors.New("mock ingress err"),
-			mockDBErr:         nil,
-			expectedExistErr:  true,
-		},
-		// Case 6: Failed at inserting to DB
-		{
-			relayer: &model.Component{
-				Name:      "Relayer Component",
-				Type:      "relayer",
-				NetworkID: 12,
-			},
-			l1RPC:             "l1RPC",
-			addressFileURL:    "addressFileURL",
-			mockConfigMap:     &corev1.ConfigMap{},
-			mockConfigMapErr:  nil,
-			mockDeployment:    &appsv1.Deployment{},
-			mockDeploymentErr: nil,
-			mockService:       &corev1.Service{},
-			mockServiceErr:    nil,
-			mockIngress:       &networkv1.Ingress{},
-			mockIngressErr:    nil,
-			mockDBErr:         errors.New("mock db err"),
-			expectedExistErr:  true,
+
+			mockDBErr:        errors.New("mock db err"),
+			expectedExistErr: true,
 		},
 	}
 	path, _ := os.Getwd()
@@ -168,8 +136,6 @@ func TestInternalCreateRelayer(t *testing.T) {
 		k8sClient.deploymentErr = testcase.mockDeploymentErr
 		k8sClient.service = testcase.mockService
 		k8sClient.serviceErr = testcase.mockServiceErr
-		k8sClient.ingress = testcase.mockIngress
-		k8sClient.ingressErr = testcase.mockIngressErr
 		dbClient.componentUpdateErr = testcase.mockDBErr
 		err := titond.createRelayer(testcase.relayer, testcase.l1RPC, testcase.addressFileURL)
 		assert.Equal(t, testcase.expectedExistErr, err != nil)
@@ -191,8 +157,6 @@ func TestCreateRelayer(t *testing.T) {
 		mockDeploymentErr      error
 		mockService            *corev1.Service
 		mockServiceErr         error
-		mockIngress            *networkv1.Ingress
-		mockIngressErr         error
 		mockComponentUpdateErr error
 		expectedExistErr       bool
 	}{
@@ -221,8 +185,6 @@ func TestCreateRelayer(t *testing.T) {
 			mockDeploymentErr:      nil,
 			mockService:            &corev1.Service{},
 			mockServiceErr:         nil,
-			mockIngress:            &networkv1.Ingress{},
-			mockIngressErr:         nil,
 			mockComponentUpdateErr: nil,
 			expectedExistErr:       false,
 		},
@@ -251,8 +213,6 @@ func TestCreateRelayer(t *testing.T) {
 			mockDeploymentErr:      nil,
 			mockService:            &corev1.Service{},
 			mockServiceErr:         nil,
-			mockIngress:            &networkv1.Ingress{},
-			mockIngressErr:         nil,
 			mockComponentUpdateErr: nil,
 			expectedExistErr:       true,
 		},
@@ -281,8 +241,6 @@ func TestCreateRelayer(t *testing.T) {
 			mockDeploymentErr:      nil,
 			mockService:            &corev1.Service{},
 			mockServiceErr:         nil,
-			mockIngress:            &networkv1.Ingress{},
-			mockIngressErr:         nil,
 			mockComponentUpdateErr: nil,
 			expectedExistErr:       true,
 		},
@@ -311,8 +269,6 @@ func TestCreateRelayer(t *testing.T) {
 			mockDeploymentErr:      nil,
 			mockService:            &corev1.Service{},
 			mockServiceErr:         nil,
-			mockIngress:            &networkv1.Ingress{},
-			mockIngressErr:         nil,
 			mockComponentUpdateErr: nil,
 			expectedExistErr:       true,
 		},
@@ -336,8 +292,6 @@ func TestCreateRelayer(t *testing.T) {
 		k8sClient.deploymentErr = testcase.mockDeploymentErr
 		k8sClient.service = testcase.mockService
 		k8sClient.serviceErr = testcase.mockServiceErr
-		k8sClient.ingress = testcase.mockIngress
-		k8sClient.ingressErr = testcase.mockIngressErr
 		dbClient.network = testcase.mockNetwork
 		dbClient.networkErr = testcase.mockNetworkErr
 		dbClient.component = testcase.mockComponent

@@ -33,7 +33,6 @@ func (t *TitondAPI) CreateRelayer(relayer *model.Component) (*model.Component, e
 
 func (t *TitondAPI) createRelayer(relayer *model.Component, l1RPC string, addressFileUrl string) error {
 	namespace := generateNamespace(relayer.NetworkID)
-	publicURL := generatePublcURL("l2geth", relayer.NetworkID, relayer.ID)
 
 	obj, _ := kubernetes.BuildObjectFromYamlFile("./deployments/relayer/configmap.yaml")
 	configMapObj, ok := kubernetes.ConvertToConfigMap(obj)
@@ -83,22 +82,6 @@ func (t *TitondAPI) createRelayer(relayer *model.Component, l1RPC string, addres
 		return err
 	}
 	relayer.Status = true
-
-	obj, _ = kubernetes.BuildObjectFromYamlFile("./deployments/relayer/ingress.yaml")
-	ingressObj, ok := kubernetes.ConvertToIngress(obj)
-	if !ok {
-		panic("createRelayer error: convertToIngress")
-	}
-
-	ingressObj.Spec.Rules[0].Host = publicURL
-
-	ingress, err := t.k8s.CreateIngress(namespace, ingressObj)
-	if err != nil {
-		fmt.Println("createRelayer error:", err)
-		return err
-	}
-	fmt.Println("Created Relayer Ingress:", ingress.GetName(), " ||| URL: ", publicURL)
-	relayer.PublicURL = publicURL
 
 	_, err = t.db.UpdateComponent(relayer)
 	return err
