@@ -143,6 +143,7 @@ func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC st
 	}
 
 	ingress.Spec.Rules[0].Host = publicURL
+	ingress.Spec.TLS[0].Hosts[0] = publicURL
 
 	createdIngress, err := t.k8s.CreateIngress(namespace, ingress)
 	if err != nil {

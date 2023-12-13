@@ -26,7 +26,7 @@ func (t *TitondAPI) CreateExplorer(explorer *model.Component) (*model.Component,
 	if err != nil {
 		return nil, err
 	}
-	go t.createExplorer(result)
+	go t.createExplorer(result, network.StateDumpURL)
 
 	return result, nil
 }
@@ -241,7 +241,7 @@ func (t *TitondAPI) createVisualizer(namespace string) error {
 	return nil
 }
 
-func (t *TitondAPI) createExplorer(explorer *model.Component) {
+func (t *TitondAPI) createExplorer(explorer *model.Component, stateDumpURL string) {
 	namespace := generateNamespace(explorer.NetworkID)
 	publicURL := generatePublcURL("explorer", explorer.NetworkID, explorer.ID)
 
@@ -274,7 +274,11 @@ func (t *TitondAPI) createExplorer(explorer *model.Component) {
 		return
 	}
 
-	createdConfigMap, err := t.k8s.CreateConfigMap(namespace, cm)
+	explorerConfig := map[string]string{
+		"CHAIN_SPEC_PATH": stateDumpURL,
+	}
+
+	createdConfigMap, err := t.k8s.CreateConfigMapWithConfig(namespace, cm, explorerConfig)
 	if err != nil {
 		fmt.Printf("createExplorer error: %s\n", err)
 		return
