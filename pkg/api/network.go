@@ -48,27 +48,35 @@ func (t *TitondAPI) createNetwork(network *model.Network) (string, string) {
 	deployerName := MakeDeployerName(network.ID)
 	_, err := t.createDeployer(t.config.Namespace, deployerName)
 	if err != nil {
+		fmt.Println("failed create deployer...")
 		return "", ""
 	}
 	podList, err := t.k8s.GetPodsOfDeployment(t.config.Namespace, deployerName)
 	if err != nil {
+		fmt.Println("failed get pod of deployer...")
 		return "", ""
 	}
 	if len(podList.Items) == 0 {
+		fmt.Println("pod not exist...")
 		return "", ""
 	}
 
 	namespace := generateNamespace(network.ID)
 	if _, err := t.k8s.CreateNamespace(namespace); err != nil {
+		fmt.Printf("failed create namespace: %s\n", namespace)
 		return "", ""
 	}
 	if err := t.createAccounts(namespace); err != nil {
+		fmt.Printf("failed create account in %s\n", namespace)
 		return "", ""
 	}
 
+	fmt.Println("Getting file from pods...")
 	addressData, addressErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/addresses.json")
 	dumpData, dumpErr := t.k8s.GetFileFromPod(t.config.Namespace, &podList.Items[0], "/opt/optimism/packages/tokamak/contracts/genesis/state-dump.latest.json")
 
+	fmt.Printf("Get file contract address :\n%s\n", addressData)
+	fmt.Printf("Get file dump data: \n%s\n", dumpData)
 	addressUrl := ""
 	dumpUrl := ""
 	uploadAddressErr := errors.New("")
