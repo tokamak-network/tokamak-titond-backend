@@ -48,12 +48,12 @@ func (t *TitondAPI) createNetwork(network *model.Network) (string, string) {
 	deployerName := MakeDeployerName(network.ID)
 	_, err := t.createDeployer(t.config.Namespace, deployerName)
 	if err != nil {
-		fmt.Println("failed create deployer...")
+		fmt.Println("failed create deployer...", err)
 		return "", ""
 	}
 	podList, err := t.k8s.GetPodsOfDeployment(t.config.Namespace, deployerName)
 	if err != nil {
-		fmt.Println("failed get pod of deployer...")
+		fmt.Println("failed get pod of deployer...", err)
 		return "", ""
 	}
 	if len(podList.Items) == 0 {
