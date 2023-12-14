@@ -177,10 +177,6 @@ func (client *MockK8sClient) GetFileFromPod(namespace string, pod *corev1.Pod, p
 	return client.fileContent[path], client.fileContentErr[path]
 }
 
-func (client *MockK8sClient) CreateConfigmapWithConfig(namespace string, template string, items map[string]string) error {
-	return client.err
-}
-
 func (client *MockK8sClient) CreateNamespaceForApp(name string) {
 
 }

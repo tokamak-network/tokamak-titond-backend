@@ -149,38 +149,6 @@ func (k *Kubernetes) GetFileFromPod(namespace string, pod *corev1.Pod, path stri
 	return "", err
 }
 
-func (k *Kubernetes) CreateConfigmapWithConfig(namespace string, template string, items map[string]string) error {
-	object, err := BuildObjectFromYamlFile(template)
-	if err != nil {
-		return err
-	}
-	configMap, success := ConvertToConfigMap(object)
-	if !success {
-		return fmt.Errorf("cann't convert %s to a configmap", template)
-	}
-	for key, value := range items {
-		configMap.Data[key] = value
-	}
-	_, err = k.GetConfigMap(namespace, configMap.Name)
-	exist := (err != nil)
-	var configMapCreationErr error
-	for i := 0; i < 5; i++ {
-		if exist {
-			_, configMapCreationErr = k.CreateConfigMap(namespace, configMap)
-			if configMapCreationErr == nil {
-				break
-			}
-		} else {
-			_, configMapCreationErr = k.UpdateConfigMap(namespace, configMap)
-			if configMapCreationErr == nil {
-				break
-			}
-		}
-		time.Sleep(time.Second * 3)
-	}
-	return configMapCreationErr
-}
-
 func (k *Kubernetes) CreateNamespaceForApp(name string) {
 	_, err := k.GetNamespace(name)
 	if err != nil {

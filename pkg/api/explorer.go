@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/kubernetes"
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
@@ -32,7 +33,7 @@ func (t *TitondAPI) CreateExplorer(explorer *model.Component) (*model.Component,
 }
 
 func (t *TitondAPI) createExplorerDB(namespace string, explorer *model.Component) error {
-	volumePath := generateVolumePath("explorer", explorer.NetworkID, explorer.ID)
+	volumePath := generateVolumePathExpr(explorer.NetworkID, explorer.ID)
 	volumeLabel := generateLabel("explorer-pv", explorer.NetworkID, explorer.ID)
 
 	mPath := t.k8s.GetManifestPath()
@@ -96,7 +97,7 @@ func (t *TitondAPI) createExplorerDB(namespace string, explorer *model.Component
 		return errors.New("createExplorerDB error: convertToStatefulSet")
 	}
 
-	sfs.Spec.Template.Spec.Containers[0].VolumeMounts[0].SubPath = volumePath
+	sfs.Spec.Template.Spec.Containers[0].VolumeMounts[0].SubPathExpr = volumePath
 
 	createdSFS, err := t.k8s.CreateStatefulSet(namespace, sfs)
 	if err != nil {
@@ -112,156 +113,173 @@ func (t *TitondAPI) createExplorerDB(namespace string, explorer *model.Component
 	return nil
 }
 
-func (t *TitondAPI) createSigProvider(namespace string) error {
+func (t *TitondAPI) createSigProvider(namespace string, wg *sync.WaitGroup) {
 	mPath := t.k8s.GetManifestPath()
 
 	obj := kubernetes.GetObject(mPath, "explorer/sig-provider", "service")
 	svc, ok := kubernetes.ConvertToService(obj)
 	if !ok {
-		return errors.New("createSigProvider error: convertToService")
+		fmt.Println("createSigProvider error: convertToService")
+		return
 	}
 
 	createdSVC, err := t.k8s.CreateService(namespace, svc)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 	fmt.Printf("Created Sig-provider Service: %s\n", createdSVC.GetName())
 
 	obj = kubernetes.GetObject(mPath, "explorer/sig-provider", "deployment")
 	deployment, ok := kubernetes.ConvertToDeployment(obj)
 	if !ok {
-		return errors.New("createSigProvider error: convertToDeployment")
+		fmt.Println("createSigProvider error: convertToDeployment")
+		return
 	}
 
 	createdDeplyment, err := t.k8s.CreateDeployment(namespace, deployment)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 
 	err = t.k8s.WaitingDeploymentCreated(namespace, createdDeplyment.Name)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 
 	fmt.Printf("Created Sig-provide Deployment: %s\n", createdDeplyment.GetName())
-	return nil
+	wg.Done()
 }
-func (t *TitondAPI) createContractVerifier(namespace string) error {
+
+func (t *TitondAPI) createContractVerifier(namespace string, wg *sync.WaitGroup) {
 	mPath := t.k8s.GetManifestPath()
 
 	obj := kubernetes.GetObject(mPath, "explorer/smart-contract-verifier", "configMap")
 	cm, ok := kubernetes.ConvertToConfigMap(obj)
 	if !ok {
-		return errors.New("createContractVerifier error: convertToConfigmap")
+		fmt.Println("createContractVerifier error: convertToConfigmap")
+		return
 	}
 
 	createdConfigMap, err := t.k8s.CreateConfigMap(namespace, cm)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 	fmt.Printf("Created Contract Verifier ConfigMap: %s\n", createdConfigMap.GetName())
 
 	obj = kubernetes.GetObject(mPath, "explorer/smart-contract-verifier", "service")
 	svc, ok := kubernetes.ConvertToService(obj)
 	if !ok {
-		return errors.New("createContractVerifier error: convertToService")
+		fmt.Println("createContractVerifier error: convertToService")
+		return
 	}
 
 	createdSVC, err := t.k8s.CreateService(namespace, svc)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 	fmt.Printf("Created Contract Verifier Service: %s\n", createdSVC.GetName())
 
 	obj = kubernetes.GetObject(mPath, "explorer/smart-contract-verifier", "deployment")
 	deployment, ok := kubernetes.ConvertToDeployment(obj)
 	if !ok {
-		return errors.New("createContractVerifier error: convertToDeployment")
+		fmt.Println("createContractVerifier error: convertToDeployment")
+		return
 	}
 
 	createdDeplyment, err := t.k8s.CreateDeployment(namespace, deployment)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 
 	err = t.k8s.WaitingDeploymentCreated(namespace, createdDeplyment.Name)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 
 	fmt.Printf("Created Contract Verifier Deployment: %s\n", createdDeplyment.GetName())
-
-	return nil
+	wg.Done()
 }
-func (t *TitondAPI) createVisualizer(namespace string) error {
+
+func (t *TitondAPI) createVisualizer(namespace string, wg *sync.WaitGroup) {
 	mPath := t.k8s.GetManifestPath()
 
 	obj := kubernetes.GetObject(mPath, "explorer/visualizer", "configMap")
 	cm, ok := kubernetes.ConvertToConfigMap(obj)
 	if !ok {
-		return errors.New("createVisualizer error: convertToConfigmap")
+		fmt.Println("createVisualizer error: convertToConfigmap")
+		return
 	}
 
 	createdConfigMap, err := t.k8s.CreateConfigMap(namespace, cm)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 	fmt.Printf("Created Visualizer ConfigMap: %s\n", createdConfigMap.GetName())
 
 	obj = kubernetes.GetObject(mPath, "explorer/visualizer", "service")
 	svc, ok := kubernetes.ConvertToService(obj)
 	if !ok {
-		return errors.New("createVisualizer error: convertToService")
+		fmt.Println("createVisualizer error: convertToService")
+		return
 	}
 
 	createdSVC, err := t.k8s.CreateService(namespace, svc)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 	fmt.Printf("Created Visualizer Service: %s\n", createdSVC.GetName())
 
 	obj = kubernetes.GetObject(mPath, "explorer/visualizer", "deployment")
 	deployment, ok := kubernetes.ConvertToDeployment(obj)
 	if !ok {
-		return errors.New("createVisualizer error: convertToDeployment")
+		fmt.Println("createVisualizer error: convertToDeployment")
+		return
 	}
 
 	createdDeplyment, err := t.k8s.CreateDeployment(namespace, deployment)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 
 	err = t.k8s.WaitingDeploymentCreated(namespace, createdDeplyment.Name)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 
 	fmt.Printf("Created Visualizer Deployment: %s\n", createdDeplyment.GetName())
-
-	return nil
+	wg.Done()
 }
 
 func (t *TitondAPI) createExplorer(explorer *model.Component, stateDumpURL string) {
 	namespace := generateNamespace(explorer.NetworkID)
 	publicURL := generatePublcURL("explorer", explorer.NetworkID, explorer.ID)
 
+	wg := &sync.WaitGroup{}
+	wg.Add(3)
+	go t.createSigProvider(namespace, wg)
+	go t.createContractVerifier(namespace, wg)
+	go t.createVisualizer(namespace, wg)
+
 	if err := t.createExplorerDB(namespace, explorer); err != nil {
 		fmt.Printf("createExplorer error: %v\n", err)
 		return
 	}
 
-	if err := t.createSigProvider(namespace); err != nil {
-		fmt.Printf("createExplorer error: %v\n", err)
-		return
-	}
-
-	if err := t.createContractVerifier(namespace); err != nil {
-		fmt.Printf("createExplorer error: %v\n", err)
-		return
-	}
-
-	if err := t.createVisualizer(namespace); err != nil {
-		fmt.Printf("createExplorer error: %v\n", err)
+	wg.Wait()
+	l2geth, err := t.db.ReadComponentByType("l2geth", explorer.NetworkID)
+	if err != nil {
+		fmt.Printf("createExplorer error: %s\n", err)
 		return
 	}
 
@@ -276,6 +294,7 @@ func (t *TitondAPI) createExplorer(explorer *model.Component, stateDumpURL strin
 
 	explorerConfig := map[string]string{
 		"CHAIN_SPEC_PATH": stateDumpURL,
+		"JSON_RPC":        "https://" + l2geth.PublicURL,
 	}
 
 	createdConfigMap, err := t.k8s.CreateConfigMapWithConfig(namespace, cm, explorerConfig)
@@ -341,6 +360,4 @@ func (t *TitondAPI) createExplorer(explorer *model.Component, stateDumpURL strin
 	if err != nil {
 		return
 	}
-
-	return
 }

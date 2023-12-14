@@ -11,12 +11,6 @@ var (
 	// Titond flags
 	TitondFlags = []cli.Flag{
 		&cli.StringFlag{
-			Name:    "titond.namespace",
-			Usage:   "K8s namespace",
-			Value:   "titond",
-			EnvVars: []string{"TITOND_NAMESPACE"},
-		},
-		&cli.StringFlag{
 			Name:    "titond.contracts.rpc.url",
 			Usage:   "RPC url",
 			Value:   "rpc-url",

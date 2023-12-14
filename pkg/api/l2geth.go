@@ -32,7 +32,7 @@ func (t *TitondAPI) CreateL2Geth(l2geth *model.Component) (*model.Component, err
 
 func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC string) {
 	namespace := generateNamespace(l2geth.NetworkID)
-	volumePath := generateVolumePath("l2geth", l2geth.NetworkID, l2geth.ID)
+	volumePath := generateVolumePathExpr(l2geth.NetworkID, l2geth.ID)
 	volumeLabel := generateLabel("l2geth-pv", l2geth.NetworkID, l2geth.ID)
 	publicURL := generatePublcURL("l2geth", l2geth.NetworkID, l2geth.ID)
 
@@ -119,7 +119,7 @@ func (t *TitondAPI) createL2Geth(l2geth *model.Component, stateDumpURL, l1RPC st
 		return
 	}
 
-	sfs.Spec.Template.Spec.Containers[0].VolumeMounts[0].SubPath = volumePath
+	sfs.Spec.Template.Spec.Containers[0].VolumeMounts[0].SubPathExpr = volumePath
 
 	createdSFS, err := t.k8s.CreateStatefulSet(namespace, sfs)
 	if err != nil {

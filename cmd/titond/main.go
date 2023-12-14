@@ -76,7 +76,6 @@ func titond(ctx *cli.Context) error {
 	})
 
 	apis := api.NewTitondAPI(k8sClient, dbClient, fileManager, &api.Config{
-		Namespace:              ctx.String("titond.namespace"),
 		ContractsRpcUrl:        ctx.String("titond.contracts.rpc.url"),
 		ContractsTargetNetwork: ctx.String("titond.contracts.target.network"),
 		ContractsDeployerKey:   ctx.String("titond.contracts.deployer.key"),

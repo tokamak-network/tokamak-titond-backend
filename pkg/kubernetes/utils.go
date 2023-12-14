@@ -2,7 +2,6 @@ package kubernetes
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -14,7 +13,6 @@ import (
 	jsonserializer "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/kubernetes/scheme"
 )
@@ -92,24 +90,6 @@ func ConvertToPersistentVolumeClaim(obj runtime.Object) (*corev1.PersistentVolum
 func ConvertToIngress(obj runtime.Object) (*networkv1.Ingress, bool) {
 	ingress, ok := obj.(*networkv1.Ingress)
 	return ingress, ok
-}
-
-func BuildObjectFromYamlFile(file string) (runtime.Object, error) {
-	yamlFile, err := ioutil.ReadFile(file)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	sch := runtime.NewScheme()
-	if err := scheme.AddToScheme(sch); err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	decoder := serializer.NewCodecFactory(sch).UniversalDeserializer().Decode
-	obj, _, err := decoder(yamlFile, nil, nil)
-	return obj, err
 }
 
 func ConvertToConfigMap(obj runtime.Object) (*corev1.ConfigMap, bool) {

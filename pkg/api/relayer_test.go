@@ -122,6 +122,7 @@ func TestInternalCreateRelayer(t *testing.T) {
 	os.Chdir(path)
 
 	k8sClient := &MockK8sClient{
+		manifestPath:   testDataPath,
 		fileContent:    make(map[string]string),
 		fileContentErr: make(map[string]error),
 	}
@@ -278,6 +279,7 @@ func TestCreateRelayer(t *testing.T) {
 	os.Chdir(path)
 
 	k8sClient := &MockK8sClient{
+		manifestPath:   testDataPath,
 		fileContent:    make(map[string]string),
 		fileContentErr: make(map[string]error),
 	}

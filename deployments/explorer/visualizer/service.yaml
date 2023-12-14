@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: visualizer-svc
+spec:
+  selector:
+    app: visualizer
+  ports:
+    - name: visualizer
+      port: 8050
+      targetPort: 8050

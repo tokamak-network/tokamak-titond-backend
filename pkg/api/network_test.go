@@ -13,6 +13,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+var testDataPath = "./testdata"
+
 func TestCreateNetwork(t *testing.T) {
 	testcases := []struct {
 		networkID               uint
@@ -84,6 +86,7 @@ func TestCreateNetwork(t *testing.T) {
 	os.Chdir(path)
 
 	k8sClient := &MockK8sClient{
+		manifestPath:   testDataPath,
 		fileContent:    make(map[string]string),
 		fileContentErr: make(map[string]error),
 	}
@@ -376,6 +379,7 @@ func TestInternalCreateNetwork(t *testing.T) {
 	os.Chdir(path)
 
 	k8sClient := &MockK8sClient{
+		manifestPath:   testDataPath,
 		fileContent:    make(map[string]string),
 		fileContentErr: make(map[string]error),
 	}
@@ -435,7 +439,7 @@ func TestCreateDeployer(t *testing.T) {
 	os.Chdir(path)
 
 	for _, testcase := range testcases {
-		k8sClient := &MockK8sClient{}
+		k8sClient := &MockK8sClient{manifestPath: testDataPath}
 		dbClient := &MockDBClient{}
 		fileManager := &MockFileManager{}
 		titond := NewTitondAPI(k8sClient, dbClient, fileManager, &Config{})
@@ -475,15 +479,6 @@ func TestUploadDumpFile(t *testing.T) {
 }
 
 func TestUpdateDBWithValue(t *testing.T) {
-	k8sClient := &MockK8sClient{}
-	dbClient := &MockDBClient{}
-	fileManager := &MockFileManager{}
-	titond := NewTitondAPI(k8sClient, dbClient, fileManager, &Config{})
-	k8sClient.err = nil
-	assert.Equal(t, nil, titond.cleanK8sJob(&model.Network{}))
-}
-
-func TestCleanK8sJob(t *testing.T) {
 	k8sClient := &MockK8sClient{}
 	dbClient := &MockDBClient{}
 	fileManager := &MockFileManager{}

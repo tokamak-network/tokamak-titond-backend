@@ -19,7 +19,12 @@ spec:
         - name: data-transport-layer
           image: onthertech/titan-data-transport-layer
           imagePullPolicy: IfNotPresent
-          command: ["./dtl.sh"]
+          command: ['./dtl.sh']
+          env:
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
           envFrom:
             - configMapRef:
                 name: data-transport-layer
@@ -29,7 +34,6 @@ spec:
           volumeMounts:
             - name: data-transport-layer-volume
               mountPath: /db
-              subPath: data-transaport-layer
           resources: {}
       volumes:
         - name: data-transport-layer-volume

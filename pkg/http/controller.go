@@ -116,7 +116,7 @@ func (s *HTTPServer) DeleteNetwork(c *gin.Context) {
 // @ID create-component
 // @Accept json
 // @Produce json
-// @Param input body object true "Component data to create"
+// @Param input body model.Component true "Component data to create"
 // @Success 200 {object} model.Component
 // @Failure 400
 // @Failure 500

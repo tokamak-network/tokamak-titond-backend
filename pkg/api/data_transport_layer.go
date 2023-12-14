@@ -25,7 +25,7 @@ func (t *TitondAPI) CreateDTL(dtl *model.Component) (*model.Component, error) {
 
 func (t *TitondAPI) createDTL(dtl *model.Component, contractAddressURL, l1RPC string) {
 	namespace := generateNamespace(dtl.NetworkID)
-	volumePath := generateVolumePath("dtl", dtl.NetworkID, dtl.ID)
+	volumePath := generateVolumePathExpr(dtl.NetworkID, dtl.ID)
 	volumeLabel := generateLabel("dtl-pv", dtl.NetworkID, dtl.ID)
 
 	mPath := t.k8s.GetManifestPath()
@@ -40,6 +40,11 @@ func (t *TitondAPI) createDTL(dtl *model.Component, contractAddressURL, l1RPC st
 	dtlConfig := map[string]string{
 		"URL":                                   contractAddressURL,
 		"DATA_TRANSPORT_LAYER__L1_RPC_ENDPOINT": l1RPC,
+	}
+
+	// todo: delete this code after demo
+	if t.config.ContractsTargetNetwork == "titond-demo" {
+		dtlConfig["DATA_TRANSPORT_LAYER__L1_START_HEIGHT"] = "4878100"
 	}
 
 	createdConfigMap, err := t.k8s.CreateConfigMapWithConfig(namespace, cm, dtlConfig)
@@ -103,7 +108,7 @@ func (t *TitondAPI) createDTL(dtl *model.Component, contractAddressURL, l1RPC st
 		return
 	}
 
-	sfs.Spec.Template.Spec.Containers[0].VolumeMounts[0].SubPath = volumePath
+	sfs.Spec.Template.Spec.Containers[0].VolumeMounts[0].SubPathExpr = volumePath
 
 	createdSFS, err := t.k8s.CreateStatefulSet(namespace, sfs)
 	if err != nil {

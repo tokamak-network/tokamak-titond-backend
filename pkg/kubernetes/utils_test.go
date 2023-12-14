@@ -185,23 +185,10 @@ func TestConvertToSpecificObject(t *testing.T) {
 	})
 }
 
-func TestBuildAPIObjectFromYamlFile(t *testing.T) {
-	_, err := BuildObjectFromYamlFile("../../deployments/deployer/configmap.yaml")
-	if err != nil {
-		t.Error("Failed when decoding a configmap.yaml")
-	}
-	_, err = BuildObjectFromYamlFile("../../deployments/deployer/deployment.yaml")
-	if err != nil {
-		t.Error("Failed when decoding a deployment.yaml")
-	}
-}
-
 func TestUpdateConfigMapObjectValue(t *testing.T) {
-	object, err := BuildObjectFromYamlFile("../../deployments/deployer/configmap.yaml")
-	fmt.Println(" [] ", object, err)
-	if err != nil {
-		t.Error("Failed when decoding a configmap.yaml")
-	}
+	object := GetObject(testDataPath, "deployer", "configmap")
+	fmt.Println(" [] ", object)
+
 	configMap, exist := ConvertToConfigMap(object)
 	if !exist {
 		t.Error("Failed when converting to a configmap.yaml")
@@ -218,10 +205,8 @@ func TestUpdateConfigMapObjectValue(t *testing.T) {
 }
 
 func TestConvertToDeployment(t *testing.T) {
-	object, err := BuildObjectFromYamlFile("../../deployments/deployer/deployment.yaml")
-	if err != nil {
-		t.Error("Failed when decoding a deployment.yaml")
-	}
+	object := GetObject(testDataPath, "deployer", "deployment")
+
 	_, exist := ConvertToConfigMap(object)
 	if exist {
 		t.Error("A deployment is converted to a configmap")

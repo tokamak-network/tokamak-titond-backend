@@ -37,7 +37,6 @@ type IK8s interface {
 	GetNamespace(name string) (*corev1.Namespace, error)
 	GetSecret(namespace, name string) (*corev1.Secret, error)
 	GetFileFromPod(namespace string, pod *corev1.Pod, path string) (string, error)
-	CreateConfigmapWithConfig(namespace string, template string, items map[string]string) error
 	WatingStatefulsetCreated(namespace, name string) error
 	CreateNamespaceForApp(name string)
 	GetPodsOfDeployment(namespace string, deployment string) (*corev1.PodList, error)
