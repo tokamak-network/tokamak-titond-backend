@@ -25,8 +25,10 @@ type S3 struct {
 
 func (s3 *S3) initialize() {
 	fmt.Println("S3 config:", s3.config)
-	s3.sess = session.Must(session.NewSession(&aws.Config{
-		Region: &s3.config.AWSRegion}))
+	sess, err := session.NewSession(&aws.Config{
+		Region: &s3.config.AWSRegion})
+	fmt.Println("Init s3 session: ", sess, " | err:", err)
+	s3.sess = session.Must(sess, err)
 }
 
 func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
