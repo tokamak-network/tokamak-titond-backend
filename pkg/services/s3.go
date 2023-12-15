@@ -32,9 +32,12 @@ func (s3 *S3) initialize() {
 	})
 	fmt.Println("Init s3 session: ", sess, " | err:", err)
 	s3.sess = session.Must(sess, err)
+	fmt.Println("s3.sess: ", s3.sess)
+
 }
 
 func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
+	fmt.Println("[S3 Upload Content]")
 	uploader := s3manager.NewUploader(s3.sess)
 
 	var buffer bytes.Buffer
