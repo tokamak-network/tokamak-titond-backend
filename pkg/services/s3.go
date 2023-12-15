@@ -25,8 +25,11 @@ type S3 struct {
 
 func (s3 *S3) initialize() {
 	fmt.Println("S3 config:", s3.config)
+	CredentialsChainVerboseErrors := true
 	sess, err := session.NewSession(&aws.Config{
-		Region: &s3.config.AWSRegion})
+		Region:                        &s3.config.AWSRegion,
+		CredentialsChainVerboseErrors: &CredentialsChainVerboseErrors,
+	})
 	fmt.Println("Init s3 session: ", sess, " | err:", err)
 	s3.sess = session.Must(sess, err)
 }
