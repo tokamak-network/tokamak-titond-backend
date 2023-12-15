@@ -28,7 +28,6 @@ func (t *TitondAPI) CreateRelayer(relayer *model.Component) (*model.Component, e
 	}
 
 	return result, err
-
 }
 
 func (t *TitondAPI) createRelayer(relayer *model.Component, l1RPC string, addressFileUrl string) error {
@@ -87,5 +86,4 @@ func (t *TitondAPI) createRelayer(relayer *model.Component, l1RPC string, addres
 
 	_, err = t.db.UpdateComponent(relayer)
 	return err
-
 }

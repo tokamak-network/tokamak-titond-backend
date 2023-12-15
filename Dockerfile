@@ -8,4 +8,4 @@ COPY . .
 
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 
-ENTRYPOINT ["/bin/sh"]
+ENTRYPOINT ["/bin/bash"]
