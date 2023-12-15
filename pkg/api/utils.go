@@ -19,7 +19,7 @@ func generateVolumePath(name string, networkID, componentID uint) string {
 }
 
 func generateVolumePathExpr(networkID, componentID uint) string {
-	return generateVolumePath("${POD_UID}", networkID, componentID)
+	return generateVolumePath("$(POD_UID)", networkID, componentID)
 }
 
 func generateNamespace(networkID uint) string {
