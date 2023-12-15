@@ -7,5 +7,6 @@ WORKDIR /app
 COPY . .
 
 RUN go install github.com/swaggo/swag/cmd/swag@latest
+RUN make install
 
 ENTRYPOINT ["/bin/sh"]
