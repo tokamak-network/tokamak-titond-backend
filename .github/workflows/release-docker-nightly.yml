@@ -26,4 +26,4 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: onthertech/titan-titond-backend:nightly,onthertech/titan-titond-backend:nightly-${{ steps.extractver.outputs.GITSHA }}
+          tags: onthertech/titan-titond-backend:test,onthertech/titan-titond-backend:test-${{ steps.extractver.outputs.GITSHA }}
