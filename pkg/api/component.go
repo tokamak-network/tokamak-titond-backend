@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/tokamak-network/tokamak-titond-backend/pkg/model"
+	"github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 	apptypes "github.com/tokamak-network/tokamak-titond-backend/pkg/types"
 )
 
@@ -50,17 +51,23 @@ func (t *TitondAPI) CreateComponent(component *model.Component) (*model.Componen
 
 func (t *TitondAPI) GetComponentByType(networkID uint, componentType string) (*model.Component, error) {
 	fmt.Println("Get Component By Type:", componentType, " | NetworkID:", networkID)
-	return &model.Component{Name: "GetComponentByType"}, nil
+	return t.db.ReadComponentByType(componentType, networkID)
 }
 
 func (t *TitondAPI) GetComponentById(componentID uint) (*model.Component, error) {
 	fmt.Println("Get component by id:", componentID)
-	return &model.Component{Name: "GetComponentById"}, nil
+	return t.db.ReadComponent(componentID)
 }
 
 func (t *TitondAPI) DeleteComponentById(componentID uint) error {
 	fmt.Println("Delete component by id:", componentID)
-	return nil
+	result, err := t.db.DeleteComponent(componentID)
+	if err == nil {
+		if result == 0 {
+			return types.ErrResourceNotFound
+		}
+	}
+	return err
 }
 
 func (t *TitondAPI) checkNetworkStatus(networkID uint) error {
@@ -71,7 +78,6 @@ func (t *TitondAPI) checkNetworkStatus(networkID uint) error {
 	if !network.Status {
 		return apptypes.ErrNetworkNotReady
 	}
-
 	return nil
 }
 

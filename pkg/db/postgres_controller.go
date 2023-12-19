@@ -37,8 +37,10 @@ func (p *Postgres) CreateComponent(component *model.Component) (*model.Component
 	return component, result.Error
 }
 
-func (p *Postgres) ReadComponent() {
-
+func (p *Postgres) ReadComponent(componentID uint) (*model.Component, error) {
+	var component model.Component
+	result := p.gDB.Where(&model.Component{ID: componentID}).First(&component)
+	return &component, result.Error
 }
 
 func (p *Postgres) ReadComponentByType(typ string, networkID uint) (*model.Component, error) {
@@ -56,6 +58,9 @@ func (p *Postgres) UpdateComponent(component *model.Component) (*model.Component
 	return component, result.Error
 }
 
-func (p *Postgres) DeleteComponent() {
+func (p *Postgres) DeleteComponent(componentID uint) (int64, error) {
+	result := p.gDB.Delete(&model.Component{}, componentID)
+
+	return result.RowsAffected, result.Error
 
 }
