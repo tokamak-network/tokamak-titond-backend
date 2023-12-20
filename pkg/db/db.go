@@ -17,9 +17,9 @@ type Client interface {
 	UpdateNetwork(network *model.Network) (*model.Network, error)
 	DeleteNetwork(uint) (int64, error)
 	CreateComponent(component *model.Component) (*model.Component, error)
-	ReadComponent()
+	ReadComponent(uint) (*model.Component, error)
 	ReadComponentByType(typ string, networkID uint) (*model.Component, error)
 	ReadAllComponent()
 	UpdateComponent(component *model.Component) (*model.Component, error)
-	DeleteComponent()
+	DeleteComponent(uint) (int64, error)
 }

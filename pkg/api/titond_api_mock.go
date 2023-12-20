@@ -48,8 +48,8 @@ func (client *MockDBClient) CreateComponent(component *model.Component) (*model.
 	return client.component, client.componentErr
 }
 
-func (client *MockDBClient) ReadComponent() {
-
+func (client *MockDBClient) ReadComponent(uint) (*model.Component, error) {
+	return client.component, client.componentErr
 }
 
 func (client *MockDBClient) ReadComponentByType(typ string, networkID uint) (*model.Component, error) {
@@ -64,8 +64,8 @@ func (client *MockDBClient) UpdateComponent(component *model.Component) (*model.
 	return client.component, client.componentUpdateErr
 }
 
-func (client *MockDBClient) DeleteComponent() {
-
+func (client *MockDBClient) DeleteComponent(uint) (int64, error) {
+	return client.numOfDeleted, client.componentErr
 }
 
 type MockK8sClient struct {
