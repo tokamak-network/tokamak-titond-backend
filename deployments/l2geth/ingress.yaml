@@ -11,9 +11,9 @@ metadata:
 spec:
   tls:
     - hosts:
-        - l2geth.titond-holesky.tokamak.network
+        - l2geth.dev.tokamak.network
   rules:
-    - host: l2geth.titond-holesky.tokamak.network
+    - host: l2geth.dev.tokamak.network
       http:
         paths:
           - path: /

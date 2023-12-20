@@ -11,15 +11,15 @@ metadata:
 spec:
   tls:
     - hosts:
-        - explorer-1-5.titond-holesky.tokamak.network
+        - explorer.dev.tokamak.network
   rules:
-  - host: explorer-1-5.titond-holesky.tokamak.network
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: blockscout-svc
-            port:
-              number: 80
+    - host: explorer.dev.tokamak.network
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: blockscout-svc
+                port:
+                  number: 80
