@@ -43,7 +43,7 @@ func (s3 *S3) UploadContent(fileName string, content string) (string, error) {
 
 	reader := bytes.NewReader(buffer.Bytes())
 
-	result, err := uploader.Upload(&s3manager.UploadInput{
+	result, err := s3.uploader.Upload(&s3manager.UploadInput{
 		Bucket:      &s3.config.BucketName,
 		Key:         &fileName,
 		Body:        reader,
