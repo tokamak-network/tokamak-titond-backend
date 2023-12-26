@@ -2,9 +2,9 @@
 ![titond-architecture](./assets/titond%20architecture.png)
 ## Project overview
 
-Titond is a PoC(Proof of concept) to provide on-demand L2. the goal of on-demand L2 is to make it easy for anyone to run their own Layer2 chain
+Titond is a PoC(Proof of concept) to provide on-demand L2. the goal of on-demand L2 is to make it easy for anyone to run their own Layer2 chain.
 
-In this PoC, you can run titond for building L2 chain based on titan network
+In this PoC, you can run titond for building L2 chain based on titan network.
 
 This guide assumes that the user has knowledge of blockchain, kubernetes and aws.
 
@@ -19,7 +19,7 @@ you can also see korean version guide [here]()
 ### Prerequisites
 **Golang**
 
-Titond is developed in golang. you need to install golang version 1.20 or higher
+Titond is developed in golang. you need to install golang version 1.20 or higher.
 - [install golang](https://go.dev/doc/install)
 
 **Ethereum API**
@@ -183,7 +183,7 @@ $ go run cmd/titond/main.go
 
 ### API endpoints
 
-For this PoC version, we recommend only using APIs that POST and GET L2 chain components.
+In this PoC version, we recommend only using APIs that POST and GET L2 chain components.
 
 **Network**
 
@@ -211,11 +211,11 @@ The component is reponsible for building L2 chain.
 | Endpoint        | /api/components {body}                  |
 | Http Method     | POST                                    | 
 
-**Body**
+_Body_
 ```json
 {
   "type": "component-type",
-  "network_id": network id
+  "network_id": 1
 }
 ```
 
@@ -223,7 +223,27 @@ type(string) : `data-transport-layer`, `l2geth`, `batch-submitter`, `relayer`, `
 <br/>
 network_id(int) : network id
 
-To know detail, we provide API documentation as a swagger. you can access the documentation via the following URL.
+| Get component by id |                                         |
+| ----------------  | ------------------------------------------|
+| Description       | get component by ID                       |
+| Endpoint          | /api/components/{id}                      |
+| Http Method       | GET                                       |
+
+**To know detail, we provide API documentation as a swagger. you can access the documentation via the following URL.**
 
 `<SERVER IP>:<SERVER PORT>/swagger/index.html`
 
+_Tips of delete k8s objects_
+<br/>
+titond creates the namespace and deploys k8s objects on the namespace
+<br/>
+`namespace-{network id}`
+<br/>
+We have not provide DELETE APIs. but if you want to delete all of l2 chain components at once in your cluster, just delete the namespace
+```bash
+$ kubectl delete ns namespace-1
+```
+
+## Build L2 chain Guide
+
+## Test Deposit and Withdraw Guide
