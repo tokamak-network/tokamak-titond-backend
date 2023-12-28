@@ -654,7 +654,7 @@ You can connect the L2 chain you built in a crypto wallet like metamask
 
 ### Deposit
 
-if you build l2chain successfully, you can deposit ETH from L2 to L1.
+if you build l2chain successfully, you can deposit ETH from L1 to L2.
 
 1. Check L1 contracts address in `{S3_BUCKET_URL}/address-1.json`
 2. You can find `Proxy__OVM_L1StandardBridge` address
