@@ -640,4 +640,35 @@ result:
 }
 ```
 
-## Test Deposit and Withdraw Guide
+## Deposit and Withdraw Guide
+
+### Connect L2 chain your crypto wallets
+
+You can connect the L2 chain you built in a crypto wallet like metamask
+
+| New L2 network  |                                                                               |
+| --------------- | ------------------------------------------------------------------------------|
+| RPC URL         | your l2geth public url(ex. https://l2geth-1-2.titond-holesky.tokamak.network) |
+| Chain ID        | 17                                                                            |
+| Currency symbol | ETH                                                                           |            
+
+### Deposit
+
+if you build l2chain successfully, you can deposit ETH from L2 to L1.
+
+1. Check L1 contracts address in `{S3_BUCKET_URL}/address-1.json`
+2. You can find `Proxy__OVM_L1StandardBridge` address
+    ```json
+    {
+      ...
+
+      "Proxy__OVM_L1StandardBridge": "0xBA1AC8Bd0CdFBF619E899E7636525101c2dbb8A9",
+
+      ...
+    }
+    ```
+3. Change network to L1, send some ether to `Proxy__OVM_L1StandardBridge`
+
+### Withdraw
+
+TBD
