@@ -665,7 +665,7 @@ L2 체인을 성공적으로 구축했다면 이더를 L2에서 L1으로 입금�
       ...
     }
     ```
-3. Change network to L1, send some ether to `Proxy__OVM_L1StandardBridge`
+3. 지갑에 연결된 네트워크를 L1 네트워크로 바꾼 뒤 `Proxy__OVM_L1StandardBridge`으로 이더를 전송
 
 ### Withdraw
 
