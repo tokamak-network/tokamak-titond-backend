@@ -53,7 +53,7 @@ To run titan network successfully, you need a few accounts. (To be update. for a
 - Sequencer : account for submits transaction batch to L1
 - Proposer : account for submits proof to L1
 - Block signer : account for operating titan network
-- relayer : account for automatically claiming L2 -> L1 withdraws
+- Relayer : account for automatically claiming L2 -> L1 withdraws
 
 **AWS Resource**
 
@@ -245,5 +245,399 @@ $ kubectl delete ns namespace-1
 ```
 
 ## Build L2 chain Guide
+
+To build a Titan based L2 chain, you need the following essential components.
+
+- l2geth: L2 client software.
+- data-transport-layer: Indexing service for associated L1 data.
+- batch-submitter: Service for sending L1 batched of transactions and results.
+
+Titond also provides a few tools.
+
+- explorer: L2 block explorer.
+- relayer: a tool for automatically relaying L2 -> L1 messages.
+
+To successfully build an L2 chain, you should follow these steps.
+
+1. Deploy contracts to L1 and generate L2 genesis state file.
+2. Create data-transport-layer.
+3. Create l2geth.
+4. Create batch-submitter.
+5. Create relayer & explorer(selected)
+
+### Build L2 chain
+
+**1. Deploy contracts to L1 and generate L2 genesis state file**
+
+**Create network**
+
+**Action**
+
+command:
+```
+$ curl -X POST {SERVER_IP}:{SERVER_PORT}/api/networks/
+```
+
+example:
+```bash
+$ curl -X POST localhost:8080/api/networks/
+```
+
+result:
+```json
+{
+  "id": 1,
+  "created_at": 1703729629,
+  "updated_at": 1703729629,
+  "contract_address_url": "",
+  "state_dump_url": "",
+  "status": false
+}
+```
+
+It takes about 15-20 minutes for all contracts to be deployed on L1. when all of contracts are deployed, you can see the below:
+
+**Get network**
+
+**Action**
+
+command:
+```bash
+$ curl -X GET {SERVER_IP}:{SERVER_PORT}/api/networks/{network_id}
+```
+
+example:
+```bash
+$ curl -X GET localhost:8080/api/networks/1
+```
+
+result:
+```json
+{
+  "id": 1,
+  "created_at": 1703729629,
+  "updated_at": 1703729629,
+  "contract_address_url": "{S3_BUCKET_URL}/address-1.json",
+  "state_dump_url": "{S3_BUCKET_URL}/state-dump-1.json",
+  "status": true
+}
+```
+
+You can check the contents of that access the `contract_address_url` or `state_dump_url`.
+
+contracts address:
+```json
+{
+  "BondManager": "0x3a6f8FF68708194D7876CC7a71bb6033EA88200A",
+  "Proxy__OVM_L1StandardBridge": "0xBA1AC8Bd0CdFBF619E899E7636525101c2dbb8A9",
+  "Lib_AddressManager": "0xBEABF649E29bb050458686ca88B82B7e63A2381d",
+  "CanonicalTransactionChain": "0xa0c08159d2c1492ae53a1e018735F3EF904970b8",
+  "AddressDictator": "0x7C33d393f04945F5a6e2850D8Bf6Ad9FeBCCADaA",
+  "StateCommitmentChain": "0x8bF6C4C5F8434a700DB159712979D58738F9AF31",
+  "L1StandardBridge_for_verification_only": "0x9b0EAd143aB293d148B9E25b5c9A7F2dc035A32B",
+  "Proxy__L1CrossDomainMessengerFast": "0xB36Cb435c91e969366A488De0814385E0317D8CC",
+  "ChainStorageContainer-SCC-batches": "0x0F472f64C08337e1d3c062F5f4bbA06E8231Ad88",
+  "Proxy__OVM_L1CrossDomainMessenger": "0xEdbc6709D9ecE42814B13cd97591261ACc549108",
+  "ChugSplashDictator": "0xf72920892f672502a66641b8c00E3c704AE5A505",
+  "OVM_L1CrossDomainMessenger": "0x3D47E7b02bA5Ae5Ea078ab41DbE21a39920B90BF",
+  "ChainStorageContainer-CTC-batches": "0xf232619e16C0fFE86fBD06b34C7B406dC604FE9B",
+  "L1CrossDomainMessengerFast": "0x227AC873632a81aeb509C23dA0077D111b8E4Bcf",
+  "AddressManager": "0xBEABF649E29bb050458686ca88B82B7e63A2381d"
+}
+```
+
+**2. Create data-transport-layer**
+
+**Create data-transport-layer**
+
+**Action**
+
+command:
+```bash
+$ curl -d '{"type":"data-transport-layer", "network_id":{nerwork_id}}' \ 
+-H "Content-Type: application/json" \
+-X POST {SERVER_IP}:{SERVER_PORT}/api/components/
+```
+
+example:
+```bash
+$ curl -d '{"type":"data-transport-layer", "network_id":1 }' \
+-H "Content-Type: application/json" \
+-X POST localhost:8080/api/components/
+```
+
+result:
+```json
+{
+  "id": 1,
+  "created_at": 1703846585,
+  "updated_at": 1703846585,
+  "name": "dtl-pod-name",
+  "type": "data-transport-layer",
+  "status": false,
+  "public_url": ""
+}
+```
+
+It takes about 10-15 minutes to be created.
+
+**Get data-transport-layer**
+
+After data-transport-layer is finished successfully, you can check below result.
+
+**Action**
+
+command:
+```bash
+$ curl -X GET {SERVER_IP}:{SERVER_PORT}/api/components/{component_id}
+```
+
+example:
+```bash
+$ curl -X GET localhost:8080/api/components/1
+```
+
+result:
+```json
+{
+  "id": 1,
+  "created_at": 1703846585,
+  "updated_at": 1703846585,
+  "name": "dtl-pod-name",
+  "type": "data-transport-layer",
+  "status": true,
+  "public_url": ""
+}
+```
+
+**3. Create l2geth**
+
+**Create l2geth**
+
+**Action**
+
+command:
+```bash
+$ curl -d '{"type":"l2geth", "network_id":{nerwork_id}}' \ 
+-H "Content-Type: application/json" \
+-X POST {SERVER_IP}:{SERVER_PORT}/api/components/
+```
+
+example:
+```bash
+$ curl -d '{"type":"l2geth", "network_id":1 }' \
+-H "Content-Type: application/json" \
+-X POST localhost:8080/api/components/
+```
+
+result:
+```json
+{
+  "id": 2,
+  "created_at": 1703894525,
+  "updated_at": 1703894525,
+  "name": "l2geth-pod-name",
+  "type": "l2geth",
+  "status": false,
+  "public_url": ""
+}
+```
+
+It takes about 1-5 minutes to be created.
+
+**Get l2geth**
+
+After l2geth is finished successfully, you can check below result.
+
+**Action**
+
+command:
+```bash
+$ curl -X GET {SERVER_IP}:{SERVER_PORT}/api/components/{component_id}
+```
+
+example:
+```bash
+$ curl -X GET localhost:8080/api/components/2
+```
+
+result:
+```json
+{
+  "id": 2,
+  "created_at": 1703894525,
+  "updated_at": 1703894525,
+  "name": "l2geth-pod-name",
+  "type": "l2geth",
+  "status": true,
+  "public_url": "l2geth-1-2.titond-holesky.tokamak.network"
+}
+```
+
+**4. Create batch-submitter**
+
+**Create batch-submitter**
+
+**Action**
+
+command:
+```bash
+$ curl -d '{"type":"batch-submitter", "network_id":{nerwork_id}}' \ 
+-H "Content-Type: application/json" \
+-X POST {SERVER_IP}:{SERVER_PORT}/api/components/
+```
+
+example:
+```bash
+$ curl -d '{"type":"batch-submitter", "network_id":1 }' \
+-H "Content-Type: application/json" \
+-X POST localhost:8080/api/components/
+```
+
+result:
+```json
+{
+  "id": 3,
+  "created_at": 1703984245,
+  "updated_at": 1703984245,
+  "name": "batch-submitter-pod-name",
+  "type": "batch-submitter",
+  "status": false,
+  "public_url": ""
+}
+```
+
+It takes about 1-5 minutes to be created.
+
+**Get batch-submitter**
+
+After batch-submitter is finished successfully, you can check below result.
+
+**Action**
+
+command:
+```bash
+$ curl -X GET {SERVER_IP}:{SERVER_PORT}/api/components/{component_id}
+```
+
+example:
+```bash
+$ curl -X GET localhost:8080/api/components/1
+```
+
+result:
+```json
+{
+  "id": 3,
+  "created_at": 1703984245,
+  "updated_at": 1703984245,
+  "name": "batch-submitter-pod-name",
+  "type": "batch-submitter",
+  "status": true,
+  "public_url": ""
+}
+```
+
+**5. Create relayer & explorer(selected)**
+
+**Create relayer & explorer**
+
+You can create a relayer and an explorer parallel
+
+**Action**
+
+command:
+```bash
+//relayer
+$ curl -d '{"type":"relayer", "network_id":{nerwork_id}}' \ 
+-H "Content-Type: application/json" \
+-X POST {SERVER_IP}:{SERVER_PORT}/api/components/
+
+//explorer
+$ curl -d '{"type":"explorer", "network_id":{nerwork_id}}' \ 
+-H "Content-Type: application/json" \
+-X POST {SERVER_IP}:{SERVER_PORT}/api/components/
+```
+
+example:
+```bash
+//relayer
+$ curl -d '{"type":"relayer", "network_id":1 }' \
+-H "Content-Type: application/json" \
+-X POST localhost:8080/api/components/
+
+//explorer
+$ curl -d '{"type":"explorer", "network_id":1 }' \
+-H "Content-Type: application/json" \
+-X POST localhost:8080/api/components/
+```
+
+result:
+```json
+//relayer
+{
+  "id": 5,
+  "created_at": 1704092938,
+  "updated_at": 1704092938,
+  "name": "relayer-pod-name",
+  "type": "relayer",
+  "status": false,
+  "public_url": ""
+}
+
+//explorer
+{
+  "id": 6,
+  "created_at": 1704104523,
+  "updated_at": 1704104523,
+  "name": "explorer-pod-name",
+  "type": "explorer",
+  "status": false,
+  "public_url": ""
+}
+```
+
+It takes about 2-8 minutes to be created.
+
+**Get relayer & explorer**
+
+After relayer & explore is finished successfully, you can check below result.
+
+**Action**
+
+command:
+```bash
+$ curl -X GET {SERVER_IP}:{SERVER_PORT}/api/components/{component_id}
+```
+
+example:
+```bash
+$ curl -X GET localhost:8080/api/components/5
+```
+
+result:
+```json
+//relayer
+{
+    "id": 5,
+    "created_at": 1704092938,
+    "updated_at": 1704092938,
+    "name": "relayer-pod-name",
+    "type": "relayer",
+    "status": true,
+    "public_url": ""
+}
+
+//explorer
+{
+    "id": 6,
+    "created_at": 1704104523,
+    "updated_at": 1704104523,
+    "name": "explorer-pod-name",
+    "type": "explorer",
+    "status": true,
+    "public_url": "explorer-1-6.titond-holesky.tokamak.network"
+}
+```
 
 ## Test Deposit and Withdraw Guide
