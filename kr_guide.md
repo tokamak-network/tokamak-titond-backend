@@ -652,7 +652,7 @@ result:
 
 ### Deposit
 
-L2 체인을 성공적으로 구축했다면 이더를 L2에서 L1으로 입금할 수 있습니다.
+L2 체인을 성공적으로 구축했다면 이더를 L1에서 L2로 입금할 수 있습니다.
 
 1. `{S3_BUCKET_URL}/address-1.json` 에서 L1에 배포된 컨트랙트 주소 확인
 2. `Proxy__OVM_L1StandardBridge` 주소 확인
