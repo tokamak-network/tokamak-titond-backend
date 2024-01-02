@@ -182,3 +182,4 @@ func (t *TitondAPI) createAccounts(namespace string) error {
 	_, err := t.k8s.CreateSecret(namespace, "titan-secret", stringData)
 	return err
 }
+

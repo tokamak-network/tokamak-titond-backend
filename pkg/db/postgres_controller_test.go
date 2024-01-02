@@ -70,6 +70,25 @@ func TestReadNetwork(t *testing.T) {
 	}
 }
 
+func TestReadNetworkByPage(t *testing.T) {
+	postgres, mock := NewMockPostgres()
+
+	rows := sqlmock.NewRows([]string{"id", "ContractAddressURL"}).
+		AddRow(1, "Network1").
+		AddRow(2, "Network2").
+		AddRow(3, "Network3")
+	offset := 0
+	limit := 2
+	mock.ExpectQuery(`SELECT(.*)`).WillReturnRows(rows)
+
+	result, err := postgres.ReadNetworkByRange(offset, limit)
+
+	assert.NoError(t, err)
+	assert.Len(t, result, 3)
+
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
 func TestCreateComponent(t *testing.T) {
 	mockPostgres, mock := NewMockPostgres()
 

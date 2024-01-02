@@ -12,4 +12,8 @@ jobs:
 
       - name: Run test
         run: |
-          go test -v ./...
+          go test -coverprofile=coverage.out ./...
+
+      - name: Check coverage
+        run: |
+          ./scripts/check_coverage_unittest.sh

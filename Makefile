@@ -38,6 +38,7 @@ image-arm:
 test:
 	go test -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out -o coverage.html
+	./scripts/check_coverage_unittest.sh
 
 clean: 
 	rm -rf $(TARGET)
