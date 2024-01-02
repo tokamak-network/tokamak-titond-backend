@@ -2,44 +2,42 @@
 ![titond-architecture](./assets/titond%20architecture.png)
 ## Project overview
 
-Titond is a PoC(Proof of concept) to provide on-demand L2. the goal of on-demand L2 is to make it easy for anyone to run their own Layer2 chain.
+타이톤드는 on-demand L2를 제공하기 위한 PoC 입니다. on-demand L2 는 자신만의 Layer2 체인을 누구든지 쉽게 만들수 있는 것을 목표로 합니다.
 
-In this PoC, you can run titond for building L2 chain based on titan network.
+이번 PoC 에서는 titond로 타이탄 네트워크 기반의 L2 체인을 구축할 수 있습니다.
 
-This guide assumes that the user has knowledge of blockchain, kubernetes and aws.
-
-you can also see korean version guide [here](./kr_guide.md)
+이 가이드는 블록체인, 쿠버네티스, aws에 대한 기본적인 지식이 있는 유저를 상대로 진행됩니다.
 
 **notice**
 <br/>
-**the current version does not support custom key. future update and you can run titond**
+**현재 버전은 개인키 커스텀을 지원하지 않습니다. 향후 업데이트 되면 titond를 실행할 수 있습니다**
 
 ## Installation Instructions
 
 ### Prerequisites
 **Golang**
 
-Titond is developed in golang. you need to install golang version 1.20 or higher.
+타이톤드는 고 언어로 개발됐습니다. 1.20 혹은 그 이상의 고 언어 버전이 필요합니다.
 - [install golang](https://go.dev/doc/install)
 
 **Ethereum API**
 
-The titan network is L2 chain. L1 chain is required for L2 network to operate.
+타이탄 네트워크는 L2 체인입니다. L2 네트워크를 운영하기 위해서는 L1 체인이 필요합니다.
 
-Titan network is based on the ethereum chain. we recommend using Sepolia test network. **if you use a ethereum mainnet, be aware that it uses a high amount of ether**
+타이탄 네트워크는 이더리움을 기반으로 하고 있습니다. 세폴리아(Sepolia) 테스트 네트워크를 사용하는 것을 권장합니다. **만약 이더리움 메인넷을 사용할 경우 많은 양의 이더가 사용될 수 있으니 주의하세요**
 
-Select one of the node providers below and prepare sepolia network API access key
+아래 노드 프로바이더 중 하나를 선택해서 세폴리아 네트워크 API 키를 준비하세요.
 
 - [Infura](https://www.infura.io/)
 - [Alchemy](https://www.alchemy.com/overviews/blockchain-node-providers)
 
 **Kubernetes Cluster**
 
-Titan network works on kubernetes. we use AWS EKS for the control plane and Fargete for the worker nodes.
+타이탄 네트워크는 쿠버네티스 위에서 동작합니다. 현재 우리는 컨트롤 플레인으로 AWS EKS를 사용하고 워커 노드로 Fargate를 사용합니다.
 
-but, AWS has charges and may not want to do this. you can build and use a local kubernetes cluster.
+그러나, AWS는 과금이 되고 이를 원하지 않을수 있습니다. 그래서 로컬 쿠버네티스를 구축하고 사용할 수 있습니다.
 
-if you use a local kubernetes cluster, you need to modify manifests for your cluster environment.
+만약 로컬 쿠버네티스 클러스터를 구축해서 사용한다면 몇가지 manifest 파일을 로컬 쿠버네티스 클러스터 환경에 맞게 수정이 필요합니다.
 
 - [Persistent Volume](./deployments/volume/pv.yaml)
 - [L2geth Ingress](./deployments/l2geth/ingress.yaml)
@@ -47,19 +45,19 @@ if you use a local kubernetes cluster, you need to modify manifests for your clu
 
 **Operator wallet**
 
-To run titan network successfully, you need a few accounts. (To be update. for apply custom key)
+타이탄 네트워크를 성공적으로 구축하기 위해서는 몇가지 계정(EOA)이 필요합니다. (개인키 커스텀을 지원하기 위해 업데이트 될 예정.)
 
-- Deployer : deploy contracts that interacts with L1
-- Sequencer : account for submits transaction batch to L1
-- Proposer : account for submits proof to L1
-- Block signer : account for operating titan network
-- Relayer : account for automatically claiming L2 -> L1 withdraws
+- Deployer : L1 네트워크와 상호작용 하기 위한 컨트랙트를 배포합니다.
+- Sequencer : L1에 트랜잭션 배치를 제출하기 위한 계정
+- Proposer : L1에 proof를 제출하기 위한 계정
+- Block signer : 타이탄 네트워크를 운영하기 위한 계정
+- Relayer : L2 -> L1 으로 출금을 자동으로 클레임 하기 위한 계정
 
 **AWS Resource**
 
-Titond uses the AWS S3 service to store the L1 contract address and L2 genesis file.
+타이톤드는 L1 컨트랙트 주소와 L2 제네시스 파일을 저장하기 위해 AWS S3를 사용합니다.
 
-You need to follow these steps:
+아래 단계를 따라주세요:
 
 1. Install AWS CLI and set AWS Configure
 - [install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
@@ -70,7 +68,7 @@ You need to follow these steps:
 
 **Database for titond**
 
-Titond uses PosgreSQL to store components information for the L2 chain.
+타이톤드는 L2 체인 컴포넌트 정보를 저장하기 위해 PostgreSQL 를 사용합니다.
 
 - [Install PostgreSQL](https://www.postgresql.org/)
 
@@ -87,7 +85,7 @@ Titond uses PosgreSQL to store components information for the L2 chain.
 
 ### Commands
 
-You can check the commands with the --help option.
+--help 옵션을 통해 명령어를 확인할 수 있습니다.
 
 ```bash
 $ go run cmd/titond/main.go --help
@@ -128,7 +126,7 @@ GLOBAL OPTIONS:
 
 ## Usage Guide
 
-You can input options and run titond
+옵션을 입력하고 타이톤드를 실행할 수 있습니다.
 
 ### Configuration
 
@@ -176,18 +174,18 @@ You can input options and run titond
 
 ### Run titond
 
-Finished with the configuration, you can run titond
+설정이 모두 완료되면 타이톤드를 실행할 수 있습니다.
 ```bash
 $ go run cmd/titond/main.go
 ```
 
 ### API endpoints
 
-In this PoC version, we recommend only using APIs that POST and GET L2 chain components.
+PoC 버전에서는 POST와 GET API만 사용할 것을 권장합니다.
 
 **Network**
 
-The network is reponsible for deploying the contracts that will interact with the L2 on the L1 and creating the L2 genesis state file.
+네트워크는 L2와 상호작용하기 위한 컨트랙트를 L1에 배포하고 L2 제네시스 파일을 만듭니다.
 
 | Create network  |                                         |
 | --------------- | ----------------------------------------|
@@ -203,7 +201,7 @@ The network is reponsible for deploying the contracts that will interact with th
 
 **Component**
 
-The component is reponsible for building L2 chain.
+컴포넌트는 L2체인을 구축하기 위한 구성요소 입니다.
 
 | Create component|                                         |
 | --------------- | ----------------------------------------|
@@ -229,41 +227,41 @@ network_id(int) : network id
 | Endpoint          | /api/components/{id}                      |
 | Http Method       | GET                                       |
 
-**To know detail, we provide API documentation as a swagger. you can access the documentation via the following URL.**
+**타이톤드는 swagger로 API 문서를 제공합니다. 자세하게 알고싶다면 아래 URL을 통해서 문서에 접근할 수 있습니다.**
 
 `<SERVER IP>:<SERVER PORT>/swagger/index.html`
 
-_Tips of delete k8s objects_
+_쿠버네티스 오브젝트 삭제 팁_
 <br/>
-titond creates the namespace and deploys k8s objects on the namespace
+타이톤드는 쿠버네티스 오브젝트를 배포하기 위해 네임스페이스를 만듭니다.
 <br/>
 `namespace-{network id}`
 <br/>
-We have not provide DELETE APIs. but if you want to delete all of l2 chain components at once in your cluster, just delete the namespace
+현재 DELETE API를 제공하지 않습니다. 그러나 클러스터에서 l2 체인 컴포넌트들을 한번에 모두 지우고 싶다면 네임스페이스만 지우면 됩니다.
 ```bash
 $ kubectl delete ns namespace-1
 ```
 
 ## Build L2 chain Guide
 
-To build a Titan based L2 chain, you need the following essential components.
+L2 체인인 타이탄을 구축하기 위해서는 다음과 같은 필수적인 컴포넌트들이 필요합니다.
 
-- l2geth: L2 client software.
-- data-transport-layer: Indexing service for associated L1 data.
-- batch-submitter: Service for sending L1 batched of transactions and results.
+- l2geth: L2 클라이언트 소프트웨어.
+- data-transport-layer: 연결된 L1 데이터에 대한 인덱싱 서비스.
+- batch-submitter: 트랜잭션 배치를 L1으로 전송해주기 위한 서비스.
 
-Titond also provides a few tools.
+타이톤드는 몇가지 툴도 제공합니다.
 
-- explorer: L2 block explorer.
-- relayer: a tool for automatically relaying L2 -> L1 messages.
+- explorer: L2 블록 탐색기.
+- relayer: L2 -> L1 메세지를 자동으로 전달해주기 위한 툴.
 
-To successfully build an L2 chain, you should follow these steps.
+L2 체인을 성공적으로 구축하기 위해서는 다음과 같은 단계를 따라야 합니다.
 
-1. Deploy contracts to L1 and generate L2 genesis state file.
-2. Create data-transport-layer.
-3. Create l2geth.
-4. Create batch-submitter.
-5. Create relayer & explorer(selected)
+1. L1에 컨트랙트를 배포하고 L2 제네시스 파일 생성.
+2. data-transport-layer 생성.
+3. l2geth 생성.
+4. batch-submitter 생성.
+5. relayer & explorer(선택사항) 생성.
 
 ### Build L2 chain
 
@@ -295,7 +293,7 @@ result:
 }
 ```
 
-It takes about 15-20 minutes for all contracts to be deployed on L1. when all of contracts are deployed, you can see the below:
+L1에 컨트랙트를 모두 배포하기 위해서는 대략 15-20분 정도 소요됩니다. 컨트랙트가 모두 배포되면 아래와 같은 결과를 볼 수 있습니다:
 
 **Get network**
 
@@ -323,7 +321,7 @@ result:
 }
 ```
 
-You can check the contents of that access the `contract_address_url` or `state_dump_url`.
+`contract_address_url` or `state_dump_url` 에 접근해서 내용을 확인할 수 있습니다.
 
 contracts address:
 ```json
@@ -379,11 +377,11 @@ result:
 }
 ```
 
-It takes about 10-15 minutes to be created.
+완료까지 10-15분 정도 소요됩니다.
 
 **Get data-transport-layer**
 
-After data-transport-layer is finished successfully, you can check below result.
+data-transport-layer가 성공적으로 만들어진 뒤 아래와 같은 결과를 확인할 수 있습니다.
 
 **Action**
 
@@ -443,11 +441,11 @@ result:
 }
 ```
 
-It takes about 1-5 minutes to be created.
+완료까지 1-5분 정도 소요됩니다.
 
 **Get l2geth**
 
-After l2geth is finished successfully, you can check below result.
+l2geth가 성공적으로 만들어진 뒤 아래와 같은 결과를 확인할 수 있습니다.
 
 **Action**
 
@@ -507,11 +505,11 @@ result:
 }
 ```
 
-It takes about 1-5 minutes to be created.
+완료까지 1-5분 정도 소요됩니다.
 
 **Get batch-submitter**
 
-After batch-submitter is finished successfully, you can check below result.
+bath-submitter가 성공적으로 만들어진 뒤 아래와 같은 결과를 확인할 수 있습니다.
 
 **Action**
 
@@ -542,7 +540,7 @@ result:
 
 **Create relayer & explorer**
 
-You can create a relayer and an explorer parallel
+relayer와 explorer는 동시에 생성이 가능합니다.
 
 **Action**
 
@@ -597,11 +595,11 @@ result:
 }
 ```
 
-It takes about 2-8 minutes to be created.
+완료까지 2-8분 정도 소요됩니다.
 
 **Get relayer & explorer**
 
-After relayer & explore is finished successfully, you can check below result.
+relayer와 explore가 성공적으로 만들어진 뒤 아래와 같은 결과를 확인할 수 있습니다.
 
 **Action**
 
@@ -644,7 +642,7 @@ result:
 
 ### Connect L2 chain your crypto wallets
 
-You can connect the L2 chain you built in a crypto wallet like metamask
+메타마스크와 같은 암호화폐 지갑에서 구축한 L2 체인을 연결할 수 있습니다.
 
 | New L2 network  |                                                                               |
 | --------------- | ------------------------------------------------------------------------------|
@@ -654,10 +652,10 @@ You can connect the L2 chain you built in a crypto wallet like metamask
 
 ### Deposit
 
-if you build l2chain successfully, you can deposit ETH from L1 to L2.
+L2 체인을 성공적으로 구축했다면 이더를 L1에서 L2로 입금할 수 있습니다.
 
-1. Check L1 contracts address in `{S3_BUCKET_URL}/address-1.json`
-2. You can find `Proxy__OVM_L1StandardBridge` address
+1. `{S3_BUCKET_URL}/address-1.json` 에서 L1에 배포된 컨트랙트 주소 확인
+2. `Proxy__OVM_L1StandardBridge` 주소 확인
     ```json
     {
       ...
@@ -667,7 +665,7 @@ if you build l2chain successfully, you can deposit ETH from L1 to L2.
       ...
     }
     ```
-3. Change network to L1, send some ether to `Proxy__OVM_L1StandardBridge`
+3. 지갑에 연결된 네트워크를 L1 네트워크로 바꾼 뒤 `Proxy__OVM_L1StandardBridge`으로 이더를 전송
 
 ### Withdraw
 
